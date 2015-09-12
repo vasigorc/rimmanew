@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:jsf="http://xmlns.jcp.org/jsf">
+    <head jsf:id="head">
+        <title>Appointments</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <script type="text/javascript" src="#{request.contextPath}/resources/js/calendarLocales.js"></script>
+    </head>
+    <body>
+        <h:form>
+            <h:panelGrid columns="2">
+                <span>#{copy.pickadate}</span>
+            <p:calendar id="calendar" value="#{appointmentFormBean.selectedDate}" locale="fr"
+                        mindate="today" maxdate="today+90" mode="popup"
+                        pattern="yyyy-MM-dd">                
+            </p:calendar>
+            <input type="button" value="#{copy.submitButton}">
+                <f:ajax event="click" execute="calendar" render="out"></f:ajax>
+            </input>                
+        </h:panelGrid>
+        </h:form>        
+        <div><h:outputText id="out" value="#{appointmentFormBean.selectedDate}"></h:outputText></div>
+    </body>
+</html>
