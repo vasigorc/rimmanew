@@ -24,7 +24,7 @@ and open the template in the editor.
                         mindate="today" maxdate="today+90" mode="popup"
                         pattern="yyyy-MM-dd">                
             </p:calendar>
-            <input type="button" value="#{copy.submitButton}">
+                <input id="requestButton" type="button" value="#{copy.submitButton}">
                 <f:ajax event="click" execute="calendar" render="out"></f:ajax>
             </input>                
         </h:panelGrid>

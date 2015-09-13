@@ -8,6 +8,7 @@ package com.vgorcinschi.rimmanew.model;
 import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -16,12 +17,14 @@ import java.util.Date;
  */
 @Named(value = "appointmentFormBean")
 @SessionScoped
-public class AppointmentFormBean implements Serializable {
+public class AppointmentFormBean implements Serializable, Observed{
     private Date selectedDate;
+    private ArrayList<VGObserver> observers;
     /**
      * Creates a new instance of AppointmentFormBean
      */
     public AppointmentFormBean() {
+        observers = new ArrayList<>();
     }
 
     public Date getSelectedDate() {
@@ -30,6 +33,25 @@ public class AppointmentFormBean implements Serializable {
 
     public void setSelectedDate(Date selectedDate) {
         this.selectedDate = selectedDate;
+        notifyVGObservers();
     }
-    
+
+    @Override
+    public void registerVGObserver(VGObserver o) {
+        this.observers.add(o);
+    }
+
+    @Override
+    public void removeVGObserver(VGObserver o) {
+        int i = observers.indexOf(o);
+        if(i>=0)
+            observers.remove(o);
+    }
+
+    @Override
+    public void notifyVGObservers() {
+        observers.stream().map((observer1) -> (VGObserver) observer1).forEach((observer) -> {
+            observer.update(selectedDate);
+        });
+    }
 }
