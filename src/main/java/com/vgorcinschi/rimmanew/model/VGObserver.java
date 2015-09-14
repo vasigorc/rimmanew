@@ -5,10 +5,12 @@
  */
 package com.vgorcinschi.rimmanew.model;
 
+import java.util.Date;
+
 /**
  *
  * @author vgorcinschi
  */
 public interface VGObserver {
-    public void update(java.util.Date selectedDate);
+    public void update(Date selectedDate);
 }

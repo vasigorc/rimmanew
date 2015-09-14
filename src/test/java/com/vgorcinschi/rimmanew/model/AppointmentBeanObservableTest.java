@@ -43,9 +43,11 @@ public class AppointmentBeanObservableTest {
     @Test
     public void testIocForVGObserved() throws ParseException {        
         Date aDate = sdf.parse("2015-09-15");
-        form.setSelectedDate(aDate);
+        
         mockObserver.update(aDate);
         EasyMock.expectLastCall().anyTimes();
         replay(mockObserver);
+        
+        form.setSelectedDate(aDate);
     }
 }
