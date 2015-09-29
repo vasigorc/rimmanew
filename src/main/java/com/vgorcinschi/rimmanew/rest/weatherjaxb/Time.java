@@ -8,6 +8,7 @@ package com.vgorcinschi.rimmanew.rest.weatherjaxb;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 
 /**
  *
@@ -17,6 +18,15 @@ import javax.xml.bind.annotation.XmlAttribute;
 public class Time {
     @XmlAttribute
     protected String day;
+    
+    @XmlElement
+    protected Symbol symbol;
+    
+    @XmlElement
+    protected WindSpeed windSpeed;
+    
+    @XmlElement
+    protected Temperature temperature;
 
     public Time() {
     }
@@ -27,7 +37,29 @@ public class Time {
 
     public void setDay(String day) {
         this.day = day;
+    }    
+
+    public Symbol getSymbol() {
+        return symbol;
     }
-    
-    
+
+    public void setSymbol(Symbol symbol) {
+        this.symbol = symbol;
+    }
+
+    public WindSpeed getWindSpeed() {
+        return windSpeed;
+    }
+
+    public void setWindSpeed(WindSpeed windSpeed) {
+        this.windSpeed = windSpeed;
+    }
+
+    public Temperature getTemperature() {
+        return temperature;
+    }
+
+    public void setTemperature(Temperature temperature) {
+        this.temperature = temperature;
+    }
 }
