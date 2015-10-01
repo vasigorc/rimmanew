@@ -27,6 +27,12 @@ public class Time {
     
     @XmlElement
     protected Temperature temperature;
+    
+    @XmlElement
+    protected Humidity humidity;
+    
+    @XmlElement
+    protected Clouds clouds;
 
     public Time() {
     }
@@ -61,5 +67,21 @@ public class Time {
 
     public void setTemperature(Temperature temperature) {
         this.temperature = temperature;
+    }
+
+    public Humidity getHumidity() {
+        return humidity;
+    }
+
+    public void setHumidity(Humidity humidity) {
+        this.humidity = humidity;
+    }
+
+    public Clouds getClouds() {
+        return clouds;
+    }
+
+    public void setClouds(Clouds clouds) {
+        this.clouds = clouds;
     }
 }
