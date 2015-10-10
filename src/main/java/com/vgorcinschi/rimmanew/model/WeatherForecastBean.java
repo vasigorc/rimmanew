@@ -6,6 +6,7 @@
 package com.vgorcinschi.rimmanew.model;
 
 import com.vgorcinschi.rimmanew.model.dailyforecast.DailyForecast;
+import com.vgorcinschi.rimmanew.model.dailyforecast.TimeAdapter;
 import com.vgorcinschi.rimmanew.model.dailyforecast.UnavailableForecast;
 import com.vgorcinschi.rimmanew.rest.WeatherForecastClient;
 import com.vgorcinschi.rimmanew.rest.weatherjaxb.DailyWeatherReport;
@@ -75,7 +76,7 @@ public class WeatherForecastBean implements VGObserver{
             java.sql.Date sqlDate = utilToSql(selectedDate);   
             Time requestedTime = findGoodTime(dwr.getDays(), 
                     (Time t)->sqlDate.toString().equals(t.getDay()));
-            System.out.println(requestedTime.getSymbol().getGenerally());
+            setForecast(new TimeAdapter(requestedTime));
         }        
     }
 
