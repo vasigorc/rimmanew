@@ -27,7 +27,8 @@ public class WeatherForecastClient implements Closeable {
     }
 
     public <T> T getForecast(Class<T> responseType, String language) {
-        WebTarget resource = webTarget.queryParam("q", "Montreal")
+        WebTarget resource = webTarget.queryParam("APPID","edc67756a4c4adae15d281fe52adb26e")
+                .queryParam("q", "Montreal")
                 .queryParam("mode", "xml").queryParam("units", "metric")
                 .queryParam("cnt", "16")
                 .queryParam("lang", language);

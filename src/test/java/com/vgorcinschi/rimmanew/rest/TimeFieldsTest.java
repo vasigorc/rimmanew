@@ -32,7 +32,7 @@ public class TimeFieldsTest {
     
     @Before
     public void setUp() {
-        time = dwr.getDays().get(2);
+        time = dwr.getDays().get(3);
     }
     
     @After
@@ -41,8 +41,8 @@ public class TimeFieldsTest {
 
     @Test
     public void CheckWindDescription(){        
-        String windName= time.getWindSpeed().getWindDescr();
-        assertTrue(windName.contains("Breeze"));
+        String windName= time.getWindSpeed().getWindDescr().toLowerCase();
+        assertTrue(windName.contains("breeze"));
     }
     
     @Test
