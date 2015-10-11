@@ -35,7 +35,7 @@ public class AppointmentFormBean implements Serializable, Observed{
     public void setSelectedDate(Date selectedDate) {
         this.selectedDate = selectedDate;
         notifyVGObservers();
-        this.datePickerActivated = true;
+        setDatePickerActivated(true);
     }
 
     @Override
