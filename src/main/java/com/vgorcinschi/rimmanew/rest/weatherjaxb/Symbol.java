@@ -17,6 +17,9 @@ import javax.xml.bind.annotation.XmlAttribute;
 public class Symbol {
     @XmlAttribute(name="name")
     protected String generally;
+    
+    @XmlAttribute(name = "var")
+    protected String picLink;
 
     public Symbol() {
     }
@@ -27,5 +30,13 @@ public class Symbol {
 
     public void setGenerally(String generally) {
         this.generally = generally;
+    }
+
+    public String getPicLink() {
+        return "http://openweathermap.org/img/w/"+picLink+".png";
+    }
+
+    public void setPicLink(String picLink) {
+        this.picLink = picLink;
     }
 }

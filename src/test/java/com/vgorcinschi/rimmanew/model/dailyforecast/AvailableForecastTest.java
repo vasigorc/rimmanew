@@ -8,13 +8,13 @@ package com.vgorcinschi.rimmanew.model.dailyforecast;
 import com.vgorcinschi.rimmanew.model.WeatherForecastBean;
 import com.vgorcinschi.rimmanew.rest.WeatherForecastClient;
 import com.vgorcinschi.rimmanew.rest.weatherjaxb.DailyWeatherReport;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import static org.hamcrest.Matchers.instanceOf;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.*;
 
 /**
  *
@@ -38,6 +38,7 @@ public class AvailableForecastTest {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, +7); 
         alwaysNextWeek = cal.getTime();
+        weatherbean.update(alwaysNextWeek);
     }
     
     @After
@@ -45,8 +46,7 @@ public class AvailableForecastTest {
     }
 
     @Test
-    public void testThatATimeAdapterIsCreated(){
-        weatherbean.update(alwaysNextWeek);
+    public void testThatATimeAdapterIsCreated(){        
         assertThat("As we are passing the date within "
                 + "the expected 15's days range, we will have "
                 + "to end-up with a TimeAdapter implementation "
@@ -54,4 +54,14 @@ public class AvailableForecastTest {
                 weatherbean.getForecast(), instanceOf(TimeAdapter.class));
         System.out.println(weatherbean.getForecast().getGenerally());
     }
+    
+    @Test
+    public void thePicLinkIsAvailableInTheFinalObject(){
+        DailyForecast dF = weatherbean.getForecast();
+        assertThat("Should prove that the returned value should be "
+                + "the prefix of the consumed web service's endpoint",
+                dF.getIconUrl(), startsWith("http://openweathermap.org/img/w/"));
+        assertThat("The suffix of the returned string should always be .png", 
+                dF.getIconUrl(), endsWith(".png"));
+   }
 }

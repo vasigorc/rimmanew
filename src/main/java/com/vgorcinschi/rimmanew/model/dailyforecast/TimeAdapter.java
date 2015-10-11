@@ -45,7 +45,7 @@ public class TimeAdapter implements DailyForecast{
 
     @Override
     public String getIconUrl() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return time.getSymbol().getPicLink();
     }
 
     @Override
