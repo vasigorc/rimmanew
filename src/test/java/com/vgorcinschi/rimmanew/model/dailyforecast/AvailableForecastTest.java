@@ -9,7 +9,6 @@ import com.vgorcinschi.rimmanew.model.WeatherForecastBean;
 import com.vgorcinschi.rimmanew.rest.WeatherForecastClient;
 import com.vgorcinschi.rimmanew.rest.weatherjaxb.DailyWeatherReport;
 import java.util.Calendar;
-import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,5 +62,6 @@ public class AvailableForecastTest {
                 dF.getIconUrl(), startsWith("http://openweathermap.org/img/w/"));
         assertThat("The suffix of the returned string should always be .png", 
                 dF.getIconUrl(), endsWith(".png"));
+        System.out.println(dF.getIconUrl()+"\n"+dF.getDay());
    }
 }

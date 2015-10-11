@@ -20,6 +20,7 @@ import java.util.Date;
 public class AppointmentFormBean implements Serializable, Observed{
     private Date selectedDate;
     private ArrayList<VGObserver> observers;
+    private boolean datePickerActivated = false;
     /**
      * Creates a new instance of AppointmentFormBean
      */
@@ -34,6 +35,7 @@ public class AppointmentFormBean implements Serializable, Observed{
     public void setSelectedDate(Date selectedDate) {
         this.selectedDate = selectedDate;
         notifyVGObservers();
+        this.datePickerActivated = true;
     }
 
     @Override
@@ -53,5 +55,13 @@ public class AppointmentFormBean implements Serializable, Observed{
         observers.stream().map((observer1) -> (VGObserver) observer1).forEach((observer) -> {
             observer.update(selectedDate);
         });
+    }
+
+    public boolean isDatePickerActivated() {
+        return datePickerActivated;
+    }
+
+    public void setDatePickerActivated(boolean datePickerActivated) {
+        this.datePickerActivated = datePickerActivated;
     }
 }
