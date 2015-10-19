@@ -7,12 +7,32 @@ and open the template in the editor.
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:fn="http://java.sun.com/jsp/jstl/functions"
       xmlns:ui="http://java.sun.com/jsf/facelets"
       xmlns:p="http://primefaces.org/ui">
-    <ui:composition>        
-            <h:panelGrid columns="3" class="table table-bordered">
-                <h:outputText rendered="#{appointmentFormBean.datePickerActivated}">#{weatherForecastBean.forecast.day}</h:outputText>
-            </h:panelGrid>            
+    <ui:composition> 
+        <h:panelGroup id="we123">
+        <ui:fragment rendered="#{appointmentFormBean.datePickerActivated}">
+                <table class="table table-condensed">                    
+                    <tbody>
+                        <tr>
+                            <th scope="row">#{forecastBean.forecast.day}</th>
+                            <td>Min: #{forecastBean.forecast.minT} &#8451;<br/>Max: #{forecastBean.forecast.maxT} &#8451;</td>
+                            <td><img src="#{forecastBean.forecast.iconUrl}"/></td>
+                        </tr> 
+                        <tr>
+                            <td>#{forecastBean.forecast.generally}</td>
+                            <td>#{forecastBean.forecast.clouds}</td>
+                            <td>#{forecastBean.forecast.wind}</td>
+                        </tr>
+                        <tr>
+                            <td>Humidité: #{forecastBean.forecast.humidity} %</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </ui:fragment>
+            </h:panelGroup>
     </ui:composition>
 </html>

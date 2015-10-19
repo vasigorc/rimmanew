@@ -11,52 +11,43 @@ import com.vgorcinschi.rimmanew.model.dailyforecast.UnavailableForecast;
 import com.vgorcinschi.rimmanew.rest.WeatherForecastClient;
 import com.vgorcinschi.rimmanew.rest.weatherjaxb.DailyWeatherReport;
 import com.vgorcinschi.rimmanew.rest.weatherjaxb.Time;
-import java.util.Date;
-import javax.enterprise.context.Dependent;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
 import static com.vgorcinschi.rimmanew.util.DateConverters.utilToSql;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.findGoodTime;
+import javax.inject.Named;
+import javax.enterprise.context.SessionScoped;
+import java.io.Serializable;
 import java.util.Calendar;
+import java.util.Date;
+import org.primefaces.event.SelectEvent;
 
 /**
  *
  * @author vgorcinschi
  */
-@ManagedBean
-@Dependent
-public class WeatherForecastBean implements VGObserver{
-    private String dateRepresentation;
+@Named(value = "forecastBean")
+@SessionScoped
+public class ForecastBean implements Serializable {
+
     private final WeatherForecastClient wfc;
     private final DailyWeatherReport dwr;
     //this is the forecast object - shouldn't be final
     private DailyForecast forecast;
-
-    @ManagedProperty(value = "#{appointmentFormBean}")
-    private AppointmentFormBean formBean;
+    private boolean beanActivated = false;
     /**
-     * Creates a new instance of WeatherForecastBean
+     * Creates a new instance of ForecastBeanTwo
      */
-    public WeatherForecastBean() {
-        this.dateRepresentation = null;
+    public ForecastBean() {
         this.wfc = new WeatherForecastClient();
         //TODO replace the "fr" with the call to Locale
         this.dwr = wfc.getForecast(DailyWeatherReport.class, "fr");
     }
-
-    //point of IoC
-    public void setFormBean(AppointmentFormBean formBean) {
-        this.formBean = formBean;
-        formBean.registerVGObserver(this);
-    }
-
-    @Override
-    public void update(Date selectedDate) {
+    public void handleDateSelect(SelectEvent event){
         /*
             get the 15 days from today date object
             and check whether the client requested day is not 
             after it.
         */
+        Date selectedDate= (Date)event.getObject();
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, +15); 
         if (selectedDate.after(cal.getTime())) {
@@ -77,15 +68,8 @@ public class WeatherForecastBean implements VGObserver{
             Time requestedTime = findGoodTime(dwr.getDays(), 
                     (Time t)->sqlDate.toString().equals(t.getDay()));
             setForecast(new TimeAdapter(requestedTime));
-        }        
-    }
-
-    public String getDateRepresentation() {
-        return dateRepresentation;
-    }
-
-    public void setDateRepresentation(String dateRepresentation) {
-        this.dateRepresentation = dateRepresentation;
+        }  
+        setBeanActivated(true);
     }
 
     public DailyForecast getForecast() {
@@ -94,5 +78,13 @@ public class WeatherForecastBean implements VGObserver{
 
     public void setForecast(DailyForecast forecast) {
         this.forecast = forecast;
+    }
+
+    public boolean isBeanActivated() {
+        return beanActivated;
+    }
+
+    public void setBeanActivated(boolean beanActivated) {
+        this.beanActivated = beanActivated;
     }
 }

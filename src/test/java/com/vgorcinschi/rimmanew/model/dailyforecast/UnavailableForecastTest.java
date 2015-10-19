@@ -5,7 +5,7 @@
  */
 package com.vgorcinschi.rimmanew.model.dailyforecast;
 
-import com.vgorcinschi.rimmanew.model.WeatherForecastBean;
+import com.vgorcinschi.rimmanew.model.LegacyWeatherForecastBean;
 import com.vgorcinschi.rimmanew.rest.WeatherForecastClient;
 import com.vgorcinschi.rimmanew.rest.weatherjaxb.DailyWeatherReport;
 import java.text.ParseException;
@@ -24,13 +24,13 @@ import static org.hamcrest.Matchers.*;
 public class UnavailableForecastTest {
     private final WeatherForecastClient wfc;
     private final DailyWeatherReport dwr;
-    private final WeatherForecastBean weatherbean;
+    private final LegacyWeatherForecastBean weatherbean;
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     
     public UnavailableForecastTest() {
         wfc = new WeatherForecastClient();
         dwr = wfc.getForecast(DailyWeatherReport.class, "fr");
-        this.weatherbean = new WeatherForecastBean();
+        this.weatherbean = new LegacyWeatherForecastBean();
     }
     
     @Before

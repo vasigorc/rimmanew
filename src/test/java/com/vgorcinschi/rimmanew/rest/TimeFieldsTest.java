@@ -38,13 +38,7 @@ public class TimeFieldsTest {
     @After
     public void tearDown() {
     }
-
-    @Test
-    public void CheckWindDescription(){        
-        String windName= time.getWindSpeed().getWindDescr().toLowerCase();
-        assertTrue(windName.contains("breeze"));
-    }
-    
+   
     @Test
     public void MaxTempIsBiggerThenMin(){
         Temperature temp = time.getTemperature();

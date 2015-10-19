@@ -39,12 +39,12 @@ public class TimeAdapter implements DailyForecast{
 
     @Override
     public String getClouds() {
-        return time.getClouds().getValue();
+        return time.getClouds().getValue().substring(0, 1).toUpperCase()+time.getClouds().getValue().substring(1);
     }
 
     @Override
     public String getGenerally() {
-        return time.getSymbol().getGenerally();
+        return time.getSymbol().getGenerally().substring(0, 1).toUpperCase()+time.getSymbol().getGenerally().substring(1);
     }
 
     @Override

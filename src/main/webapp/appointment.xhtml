@@ -24,17 +24,17 @@ and open the template in the editor.
                     <span>#{copy.pickadate}</span>
                     <p:calendar id="calendar" value="#{appointmentFormBean.selectedDate}" locale="fr"
                                 mindate="today" maxdate="today+90" mode="popup"
-                                pattern="yyyy-MM-dd">                
+                                pattern="yyyy-MM-dd">    
+                        <p:ajax event="dateSelect" listener="#{forecastBean.handleDateSelect}"/>
                     </p:calendar>
                     <input id="requestButton" type="button" value="#{copy.submitButton}">
-                        <f:ajax event="click" execute="calendar" render="out weatherwidget"></f:ajax>
+                        <f:ajax event="click" execute="@form" render="we123"></f:ajax>
                     </input>                
                 </h:panelGrid>
             </h:form>    
         </div>
         <div class="col-md-4 col-md-offset-4">
-            <ui:include id="weatherwidget" src="restservice/weatherWidget.xhtml"/>
-        </div>
-        <div><h:outputText id="out" value="#{appointmentFormBean.selectedDate}"></h:outputText></div>
+            <ui:include src="restservice/weatherWidget.xhtml"/>
+        </div>       
     </body>
 </html>
