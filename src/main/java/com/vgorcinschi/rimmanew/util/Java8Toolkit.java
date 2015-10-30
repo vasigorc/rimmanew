@@ -6,7 +6,10 @@
 package com.vgorcinschi.rimmanew.util;
 
 import com.vgorcinschi.rimmanew.rest.weatherjaxb.Time;
+import java.time.LocalTime;
+import java.time.temporal.ChronoField;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -21,4 +24,17 @@ public class Java8Toolkit {
         }
         return null;
     }    
+    
+    /*
+        Some explanations are required as to why I have decided to use 
+        a deprecated constructor.
+        1. Modern JDBC connectors do not support Java 8's LocalTime
+        2. Using LocaTime's getLong(ChronoField.MILLI_OF_SECOND) method returns
+        the same long value every time
+    */
+    public static java.sql.Time localToSqlTime(LocalTime localTime) {
+        Function<LocalTime, java.sql.Time> sqlizer;
+        sqlizer = (from) -> new java.sql.Time(from.getHour(), from.getMinute(), 0);
+        return sqlizer.apply(localTime);
+    }
 }
