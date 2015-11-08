@@ -10,6 +10,7 @@ import java.sql.Date;
 import java.sql.Time;
 import java.util.List;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 
 /**
  *
@@ -17,6 +18,16 @@ import javax.ejb.Stateless;
  */
 @Stateless
 public class DefaultAppointmentService implements AppointmentService{
+
+    private AppointmentRepository repository;
+    
+    public DefaultAppointmentService() {
+    }
+
+    @Inject
+    public DefaultAppointmentService(AppointmentRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public void save(Appointment appointment) {

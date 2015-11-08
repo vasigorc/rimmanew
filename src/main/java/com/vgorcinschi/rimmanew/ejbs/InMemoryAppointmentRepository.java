@@ -22,6 +22,9 @@ public class InMemoryAppointmentRepository implements AppointmentRepository{
 
     private final Map<Long, Appointment> database = new Hashtable<>();
     private volatile long appointmentIdSequence = 1L;
+
+    public InMemoryAppointmentRepository() {
+    }
     
     @Override
     public void add(Appointment appointment) {
