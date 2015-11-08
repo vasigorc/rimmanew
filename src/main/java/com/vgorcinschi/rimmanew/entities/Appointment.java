@@ -15,7 +15,7 @@ import java.time.LocalTime;
  */
 public class Appointment{
 
-    private int id;
+    private long id;
     private Date date;
     private Time time;
     private String type;
@@ -26,11 +26,11 @@ public class Appointment{
     public Appointment() {
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

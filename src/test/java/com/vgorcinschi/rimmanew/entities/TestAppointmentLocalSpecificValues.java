@@ -19,11 +19,11 @@ import static org.hamcrest.Matchers.*;
  *
  * @author vgorcinschi
  */
-public class LocaleListenerTest {
+public class TestAppointmentLocalSpecificValues {
 
     private Appointment appointment;
 
-    public LocaleListenerTest() {
+    public TestAppointmentLocalSpecificValues() {
     }
 
     @Before
@@ -49,6 +49,7 @@ public class LocaleListenerTest {
         }        
     }
 
+    @Test
     public void testLocalTimeIsReturned() {
         assertThat("the specific method should return an instance of LocalTime",
                 appointment.getLocalTimeRepr(), instanceOf(LocalTime.class));
