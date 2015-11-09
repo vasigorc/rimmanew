@@ -17,10 +17,10 @@ import javax.inject.Inject;
  * @author vgorcinschi
  */
 @Stateless
-public class DefaultAppointmentService implements AppointmentService{
+public class DefaultAppointmentService implements AppointmentService {
 
     private AppointmentRepository repository;
-    
+
     public DefaultAppointmentService() {
     }
 
@@ -31,52 +31,56 @@ public class DefaultAppointmentService implements AppointmentService{
 
     @Override
     public void save(Appointment appointment) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (findById(appointment.getId()) != null) 
+            repository.update(appointment);
+        else 
+            repository.add(appointment);
+        
     }
 
     @Override
     public Appointment findById(long id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return repository.get(id);
     }
 
     @Override
     public List<Appointment> findByName(String name) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return repository.getByName(name);
     }
 
     @Override
     public List<Appointment> findByDate(Date date) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return repository.getByDate(date);
     }
 
     @Override
     public List<Appointment> findByType(String type) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return repository.getByType(type);
     }
 
     @Override
     public Appointment findByDateAndTime(Date date, Time time) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return repository.getByDateAndTime(date, time);
     }
 
     @Override
     public List<Appointment> findByDateAndType(Date date, String type) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return repository.getByDateAndType(date, type);
     }
 
     @Override
     public void deleteOne(Appointment appointment) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        repository.deleteOne(appointment);
     }
 
     @Override
     public void deleteAllBefore(Date date) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        repository.deleteAllBefore(date);
     }
 
     @Override
     public List<Appointment> findAll() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return repository.getAll();
     }
-    
+
 }

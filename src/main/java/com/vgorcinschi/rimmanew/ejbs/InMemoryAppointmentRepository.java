@@ -8,9 +8,12 @@ package com.vgorcinschi.rimmanew.ejbs;
 import com.vgorcinschi.rimmanew.entities.Appointment;
 import java.sql.Date;
 import java.sql.Time;
+import java.util.ArrayList;
+import static java.util.Comparator.comparing;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import static java.util.stream.Collectors.toList;
 import javax.ejb.Singleton;
 
 /**
@@ -28,57 +31,63 @@ public class InMemoryAppointmentRepository implements AppointmentRepository{
     
     @Override
     public void add(Appointment appointment) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        appointment.setId(getNextAppointmentId());
+        this.database.put(appointment.getId(), appointment);
     }
 
     @Override
     public void update(Appointment appointment) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        this.database.put(appointment.getId(), appointment);
     }
 
     @Override
     public Appointment get(long id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return this.database.get(id);
     }
 
     @Override
     public List<Appointment> getAll() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return new ArrayList<>(this.database.values());
     }
 
     @Override
     public List<Appointment> getByName(String name) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return database.values().stream().filter(a->a.getClientName().equalsIgnoreCase(name)).collect(toList());
     }
 
     @Override
     public List<Appointment> getByDate(Date date) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return database.values().stream().filter(a->a.getDate().equals(date)).sorted(comparing(Appointment::getDate)).collect(toList());
     }
 
     @Override
     public List<Appointment> getByType(String type) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return database.values().stream().filter(a->a.getType().equalsIgnoreCase(type)).collect(toList());
     }
 
     @Override
     public Appointment getByDateAndTime(Date date, Time time) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return database.values().stream().filter(a->a.getDate().equals(date)&&a.getTime().equals(time)).findAny().get();
     }
 
     @Override
     public List<Appointment> getByDateAndType(Date date, String type) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return database.values().stream().filter(a->a.getDate().equals(date)&&
+                a.getType().equalsIgnoreCase(type)).sorted(comparing(Appointment::getDate)).collect(toList());
     }
 
     @Override
-    public void deleteOne(Appointment appointment) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public void deleteOne(Appointment appointment) {        
+        if (database.values().stream().anyMatch(a->a.getId()==appointment.getId())) 
+            database.remove(appointment.getId());        
     }
 
     @Override
     public void deleteAllBefore(Date date) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        database.values().stream().filter(a->a.getDate().compareTo(date)<0).forEach(a->database.remove(a.getId()));
     }
     
+    private synchronized long getNextAppointmentId(){
+        return this.appointmentIdSequence++;
+    }
 }

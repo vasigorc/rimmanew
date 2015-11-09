@@ -7,7 +7,6 @@ package com.vgorcinschi.rimmanew.util;
 
 import com.vgorcinschi.rimmanew.rest.weatherjaxb.Time;
 import java.time.LocalTime;
-import java.time.temporal.ChronoField;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -36,5 +35,5 @@ public class Java8Toolkit {
         Function<LocalTime, java.sql.Time> sqlizer;
         sqlizer = (from) -> new java.sql.Time(from.getHour(), from.getMinute(), 0);
         return sqlizer.apply(localTime);
-    }
+    }    
 }

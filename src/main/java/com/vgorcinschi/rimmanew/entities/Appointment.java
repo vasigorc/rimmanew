@@ -26,6 +26,16 @@ public class Appointment{
     public Appointment() {
     }
 
+    public Appointment(long id, Date date, Time time, String type, String clientName, String email, String message) {
+        this.id = id;
+        this.date = date;
+        this.time = time;
+        this.type = type;
+        this.clientName = clientName;
+        this.email = email;
+        this.message = message;
+    }
+
     public long getId() {
         return id;
     }
