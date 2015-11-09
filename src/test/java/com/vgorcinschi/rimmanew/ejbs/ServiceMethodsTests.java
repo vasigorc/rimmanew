@@ -44,11 +44,10 @@ public class ServiceMethodsTests {
     }
     
     @Test
-    public void entryCanBeDeleted(){
-        Appointment dummy = new Appointment(7, valueOf(LocalDate.of(2015, 11, 18)),localToSqlTime(LocalTime.of(11, 10)),
-        "manicure","Mme Lefebvre", "","J'arrive");
-        repository.add(dummy);
-        service.deleteOne(dummy);
+    public void entryCanBeDeleted(){        
+        repository.update(new Appointment(7, valueOf(LocalDate.of(2015, 11, 18)),localToSqlTime(LocalTime.of(11, 10)),
+        "manicure","Mme Lefebvre", "","J'arrive"));
+        service.deleteOne(service.findById(7));
         assertNull(service.findById(7));
     }
 }
