@@ -15,12 +15,14 @@ import java.util.List;
 import java.util.Map;
 import static java.util.stream.Collectors.toList;
 import javax.ejb.Singleton;
+import javax.enterprise.inject.Default;
 
 /**
  *
  * @author vgorcinschi
  */
 @Singleton
+@Default
 public class InMemoryAppointmentRepository implements AppointmentRepository{
 
     private final Map<Long, Appointment> database = new Hashtable<>();

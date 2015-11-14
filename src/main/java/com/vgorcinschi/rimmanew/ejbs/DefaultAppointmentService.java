@@ -13,6 +13,7 @@ import java.util.List;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import javax.ejb.Stateless;
+import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 
 /**
@@ -20,6 +21,7 @@ import javax.inject.Inject;
  * @author vgorcinschi
  */
 @Stateless
+@Default
 public class DefaultAppointmentService implements AppointmentService {
 
     private AppointmentRepository repository;
