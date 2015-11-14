@@ -6,6 +6,7 @@
 package com.vgorcinschi.rimmanew.util;
 
 import com.vgorcinschi.rimmanew.rest.weatherjaxb.Time;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.function.Function;
@@ -36,4 +37,10 @@ public class Java8Toolkit {
         sqlizer = (from) -> new java.sql.Time(from.getHour(), from.getMinute(), 0);
         return sqlizer.apply(localTime);
     }    
+    
+    public static java.sql.Date localToSqlDate(LocalDate localDate){
+        Function<LocalDate, java.sql.Date> sqlizer;
+        sqlizer = (from) -> new java.sql.Date(from.getYear(), from.getMonthValue(), from.getDayOfMonth());
+        return sqlizer.apply(localDate);
+    }
 }

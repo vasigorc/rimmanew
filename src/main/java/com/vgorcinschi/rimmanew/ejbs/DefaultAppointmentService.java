@@ -6,9 +6,12 @@
 package com.vgorcinschi.rimmanew.ejbs;
 
 import com.vgorcinschi.rimmanew.entities.Appointment;
+import com.vgorcinschi.rimmanew.model.AppointmentWrapper;
 import java.sql.Date;
 import java.sql.Time;
 import java.util.List;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
@@ -38,34 +41,45 @@ public class DefaultAppointmentService implements AppointmentService {
         
     }
 
+    /*
+        if the appointment doesn't exist - we are returning an empty Optional
+    */
     @Override
-    public Appointment findById(long id) {
-        return repository.get(id);
+    public AppointmentWrapper findById(long id) {
+        return new AppointmentWrapper(ofNullable(repository.get(id)));
     }
 
     @Override
-    public List<Appointment> findByName(String name) {
-        return repository.getByName(name);
+    public List<AppointmentWrapper> findByName(String name) {
+        return repository.getByName(name).stream()
+                .map(appointment->{return new AppointmentWrapper(ofNullable(appointment));})
+                .collect(toList());
     }
 
     @Override
-    public List<Appointment> findByDate(Date date) {
-        return repository.getByDate(date);
+    public List<AppointmentWrapper> findByDate(Date date) {
+        return repository.getByDate(date).stream()
+                .map(appointment->{return new AppointmentWrapper(ofNullable(appointment));})
+                .collect(toList());
     }
 
     @Override
-    public List<Appointment> findByType(String type) {
-        return repository.getByType(type);
+    public List<AppointmentWrapper> findByType(String type) {
+        return repository.getByType(type).stream()
+                .map(appointment->{return new AppointmentWrapper(ofNullable(appointment));})
+                .collect(toList());
     }
 
     @Override
-    public Appointment findByDateAndTime(Date date, Time time) {
-        return repository.getByDateAndTime(date, time);
+    public AppointmentWrapper findByDateAndTime(Date date, Time time) {
+        return new AppointmentWrapper(ofNullable(repository.getByDateAndTime(date, time)));
     }
 
     @Override
-    public List<Appointment> findByDateAndType(Date date, String type) {
-        return repository.getByDateAndType(date, type);
+    public List<AppointmentWrapper> findByDateAndType(Date date, String type) {
+        return repository.getByDateAndType(date, type).stream()
+                .map(appointment->{return new AppointmentWrapper(ofNullable(appointment));})
+                .collect(toList());
     }
 
     @Override
@@ -79,8 +93,10 @@ public class DefaultAppointmentService implements AppointmentService {
     }
 
     @Override
-    public List<Appointment> findAll() {
-        return repository.getAll();
+    public List<AppointmentWrapper> findAll() {
+        return repository.getAll().stream()
+                .map(appointment->{return new AppointmentWrapper(ofNullable(appointment));})
+                .collect(toList());
     }
 
 }

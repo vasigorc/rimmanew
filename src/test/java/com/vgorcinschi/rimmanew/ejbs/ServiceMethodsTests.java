@@ -32,6 +32,8 @@ public class ServiceMethodsTests {
     
     @Before
     public void setUp() {
+        service.save(new Appointment(2, valueOf(LocalDate.of(2015, 11, 14)),localToSqlTime(LocalTime.of(11, 30)),
+        "manicure","Aglaia Ivanovna", "cratita@mail.md","Vin, vin"));
     }
     
     @After
@@ -47,7 +49,23 @@ public class ServiceMethodsTests {
     public void entryCanBeDeleted(){        
         repository.update(new Appointment(7, valueOf(LocalDate.of(2015, 11, 18)),localToSqlTime(LocalTime.of(11, 10)),
         "manicure","Mme Lefebvre", "","J'arrive"));
-        service.deleteOne(service.findById(7));
-        assertNull(service.findById(7));
+        service.deleteOne(service.findById(7).getEntity());        
+        assertTrue("The wrapper object must return true if it contains"
+                + " no Appointment instance", service.findById(7).isEmpty());
+    }
+    
+    @Test
+    public void testSaveAppWithExistingId(){
+        service.save(new Appointment(1, valueOf(LocalDate.of(2015, 11, 11)),localToSqlTime(LocalTime.of(11, 00)),
+        "massage","Nastasia Filipovna", "","Idu, idu"));
+        assertEquals(service.findById(1).getClientName(), "Nastasia Filipovna");
+    }
+    
+    @Test
+    public void testFindByName(){
+        assertEquals("Check the value of the 'saved' day of Month", 
+                service.findByName("Aglaia Ivanovna").get(0).getDate().getDayOfMonth(), 
+                14);
+        System.out.println(service.findByName("Aglaia Ivanovna").get(0).getClientEmail());
     }
 }

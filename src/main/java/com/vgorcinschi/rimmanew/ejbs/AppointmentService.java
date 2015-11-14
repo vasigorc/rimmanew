@@ -6,6 +6,7 @@
 package com.vgorcinschi.rimmanew.ejbs;
 
 import com.vgorcinschi.rimmanew.entities.Appointment;
+import com.vgorcinschi.rimmanew.model.AppointmentWrapper;
 import java.sql.Date;
 import java.sql.Time;
 import java.util.List;
@@ -18,13 +19,13 @@ import javax.ejb.Local;
 @Local
 public interface AppointmentService {
     void save(Appointment appointment);
-    Appointment findById(long id);
-    List<Appointment> findAll();
-    List<Appointment> findByName(String name);
-    List<Appointment> findByDate(Date date);
-    List<Appointment> findByType(String type);
-    Appointment findByDateAndTime(Date date, Time time);
-    List<Appointment> findByDateAndType(Date date, String type);
+    AppointmentWrapper findById(long id);
+    List<AppointmentWrapper> findAll();
+    List<AppointmentWrapper> findByName(String name);
+    List<AppointmentWrapper> findByDate(Date date);
+    List<AppointmentWrapper> findByType(String type);
+    AppointmentWrapper findByDateAndTime(Date date, Time time);
+    List<AppointmentWrapper> findByDateAndType(Date date, String type);
 
     /**
      *
