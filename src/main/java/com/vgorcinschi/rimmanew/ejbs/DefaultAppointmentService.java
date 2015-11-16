@@ -5,6 +5,7 @@
  */
 package com.vgorcinschi.rimmanew.ejbs;
 
+import com.vgorcinschi.rimmanew.annotations.InMemoryRepository;
 import com.vgorcinschi.rimmanew.entities.Appointment;
 import com.vgorcinschi.rimmanew.model.AppointmentWrapper;
 import java.sql.Date;
@@ -30,7 +31,7 @@ public class DefaultAppointmentService implements AppointmentService {
     }
 
     @Inject
-    public DefaultAppointmentService(AppointmentRepository repository) {
+    public DefaultAppointmentService(@InMemoryRepository AppointmentRepository repository) {
         this.repository = repository;
     }
 

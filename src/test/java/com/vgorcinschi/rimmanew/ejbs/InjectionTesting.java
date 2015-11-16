@@ -5,6 +5,7 @@
  */
 package com.vgorcinschi.rimmanew.ejbs;
 
+import com.vgorcinschi.rimmanew.annotations.InMemoryRepository;
 import javax.ejb.EJB;
 import org.jglue.cdiunit.AdditionalClasses;
 import org.jglue.cdiunit.CdiRunner;
@@ -30,6 +31,7 @@ public class InjectionTesting {
     private AppointmentService service;
     
     @EJB
+    @InMemoryRepository
     private AppointmentRepository repository;
     
     public InjectionTesting() {

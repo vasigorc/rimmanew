@@ -5,6 +5,7 @@
  */
 package com.vgorcinschi.rimmanew.ejbs;
 
+import com.vgorcinschi.rimmanew.annotations.InMemoryRepository;
 import com.vgorcinschi.rimmanew.entities.Appointment;
 import java.sql.Date;
 import java.sql.Time;
@@ -22,7 +23,7 @@ import javax.enterprise.inject.Default;
  * @author vgorcinschi
  */
 @Singleton
-@Default
+@InMemoryRepository
 public class InMemoryAppointmentRepository implements AppointmentRepository{
 
     private final Map<Long, Appointment> database = new Hashtable<>();
