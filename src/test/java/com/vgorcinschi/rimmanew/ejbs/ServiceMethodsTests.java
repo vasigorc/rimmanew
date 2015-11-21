@@ -55,7 +55,7 @@ public class ServiceMethodsTests {
     }
     
     @Test
-    public void testSaveAppWithExistingId(){
+    public void testSaveAppointmentWithExistingId(){
         service.save(new Appointment(1, valueOf(LocalDate.of(2015, 11, 11)),localToSqlTime(LocalTime.of(11, 00)),
         "massage","Nastasia Filipovna", "","Idu, idu"));
         assertEquals(service.findById(1).getClientName(), "Nastasia Filipovna");

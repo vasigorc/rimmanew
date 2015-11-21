@@ -10,13 +10,14 @@ import com.vgorcinschi.rimmanew.entities.Appointment;
 import java.sql.Date;
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Collection;
 import static java.util.Comparator.comparing;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import static java.util.stream.Collectors.toList;
 import javax.ejb.Singleton;
-import javax.enterprise.inject.Default;
 
 /**
  *
@@ -24,14 +25,14 @@ import javax.enterprise.inject.Default;
  */
 @Singleton
 @InMemoryRepository
-public class InMemoryAppointmentRepository implements AppointmentRepository{
+public class InMemoryAppointmentRepository implements AppointmentRepository {
 
     private final Map<Long, Appointment> database = new Hashtable<>();
     private volatile long appointmentIdSequence = 1L;
 
     public InMemoryAppointmentRepository() {
     }
-    
+
     @Override
     public void add(Appointment appointment) {
         appointment.setId(getNextAppointmentId());
@@ -55,42 +56,46 @@ public class InMemoryAppointmentRepository implements AppointmentRepository{
 
     @Override
     public List<Appointment> getByName(String name) {
-        return database.values().stream().filter(a->a.getClientName().equalsIgnoreCase(name)).collect(toList());
+        return database.values().stream().filter(a -> a.getClientName().equalsIgnoreCase(name)).collect(toList());
     }
 
     @Override
     public List<Appointment> getByDate(Date date) {
-        return database.values().stream().filter(a->a.getDate().equals(date)).sorted(comparing(Appointment::getDate)).collect(toList());
+        return database.values().stream().filter(a -> a.getDate().equals(date)).sorted(comparing(Appointment::getDate)).collect(toList());
     }
 
     @Override
     public List<Appointment> getByType(String type) {
-        return database.values().stream().filter(a->a.getType().equalsIgnoreCase(type)).collect(toList());
+        return database.values().stream().filter(a -> a.getType().equalsIgnoreCase(type)).collect(toList());
     }
 
     @Override
     public Appointment getByDateAndTime(Date date, Time time) {
-        return database.values().stream().filter(a->a.getDate().equals(date)&&a.getTime().equals(time)).findAny().get();
+        return database.values().stream().filter(a -> a.getDate().equals(date) && a.getTime().equals(time)).findAny().get();
     }
 
     @Override
     public List<Appointment> getByDateAndType(Date date, String type) {
-        return database.values().stream().filter(a->a.getDate().equals(date)&&
-                a.getType().equalsIgnoreCase(type)).sorted(comparing(Appointment::getDate)).collect(toList());
+        return database.values().stream().filter(a -> a.getDate().equals(date)
+                && a.getType().equalsIgnoreCase(type)).sorted(comparing(Appointment::getDate)).collect(toList());
     }
 
     @Override
-    public void deleteOne(Appointment appointment) {        
-        if (database.values().stream().anyMatch(a->a.getId()==appointment.getId())) 
-            database.remove(appointment.getId());        
+    public void deleteOne(Appointment appointment) {
+        if (database.values().stream().anyMatch(a -> a.getId() == appointment.getId())) {
+            database.remove(appointment.getId());
+        }
     }
 
     @Override
     public void deleteAllBefore(Date date) {
-        database.values().stream().filter(a->a.getDate().compareTo(date)<0).forEach(a->database.remove(a.getId()));
+        //database.values().stream().filter(a->a.getDate().compareTo(date)<0).forEach(a->database.remove(a.getId()));
+        Set<Map.Entry<Long, Appointment>> dbSet = database.entrySet();
+        dbSet.stream().filter(entry->entry.getValue().getDate().before(date))
+                .forEach(entry->database.remove(entry.getKey()));        
     }
-    
-    private synchronized long getNextAppointmentId(){
+
+    private synchronized long getNextAppointmentId() {
         return this.appointmentIdSequence++;
     }
 }
