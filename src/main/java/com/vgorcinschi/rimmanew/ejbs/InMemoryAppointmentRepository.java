@@ -10,9 +10,9 @@ import com.vgorcinschi.rimmanew.entities.Appointment;
 import java.sql.Date;
 import java.sql.Time;
 import java.util.ArrayList;
-import java.util.Collection;
 import static java.util.Comparator.comparing;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -87,12 +87,19 @@ public class InMemoryAppointmentRepository implements AppointmentRepository {
         }
     }
 
+    /**
+     *
+     * @param date - we must delete all appointments preceding this date
+     * We need the intermediary collection of target appointments because
+     * trying to remove values of a collection (Set or EntrySet) while iterating
+     * through it throws java.util.ConcurrentModificationException
+     * The same thing occurs with the returned iterator
+     */
     @Override
     public void deleteAllBefore(Date date) {
-        //database.values().stream().filter(a->a.getDate().compareTo(date)<0).forEach(a->database.remove(a.getId()));
-        Set<Map.Entry<Long, Appointment>> dbSet = database.entrySet();
-        dbSet.stream().filter(entry->entry.getValue().getDate().before(date))
-                .forEach(entry->database.remove(entry.getKey()));        
+        List<Appointment> targetAppointments = database.values().stream().filter(app->
+                app.getDate().before(date)).collect(toList());
+        targetAppointments.stream().forEach(app->deleteOne(app));
     }
 
     private synchronized long getNextAppointmentId() {

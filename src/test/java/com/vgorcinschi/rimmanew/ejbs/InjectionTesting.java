@@ -106,4 +106,9 @@ public class InjectionTesting {
         assertEquals(service.findByDate(localToSqlDate(LocalDate.now()
                 .plusDays(5))).size(), 0);
     }
+    
+    @Test
+    public void testGetAll(){
+        assertEquals(service.findAll().size(),4);
+    }
 }
