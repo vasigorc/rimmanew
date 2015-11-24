@@ -5,11 +5,16 @@
  */
 package com.vgorcinschi.rimmanew.model;
 
+import com.vgorcinschi.rimmanew.ejbs.AppointmentService;
+import com.vgorcinschi.rimmanew.util.DateConverters;
 import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import javax.enterprise.inject.Default;
+import javax.inject.Inject;
 
 /**
  *
@@ -17,15 +22,21 @@ import java.util.Date;
  */
 @Named(value = "appointmentFormBean")
 @SessionScoped
-public class AppointmentFormBean implements Serializable, Observed{
+public class AppointmentFormBean implements Serializable, Observed {
+
     private Date selectedDate;
     private ArrayList<VGObserver> observers;
     private boolean datePickerActivated = false;
+    private List<AppointmentWrapper> dayAppointments;
     /**
      * Creates a new instance of AppointmentFormBean
      */
+    @Inject
+    private transient AppointmentService service;
+
     public AppointmentFormBean() {
         observers = new ArrayList<>();
+        dayAppointments = new ArrayList<>();
     }
 
     public Date getSelectedDate() {
@@ -34,8 +45,9 @@ public class AppointmentFormBean implements Serializable, Observed{
 
     public void setSelectedDate(Date selectedDate) {
         this.selectedDate = selectedDate;
-       // notifyVGObservers();
+        // notifyVGObservers();
         setDatePickerActivated(true);
+        setDayAppointments(service.findByDate(DateConverters.utilToSql(selectedDate)));
     }
 
     @Override
@@ -46,8 +58,9 @@ public class AppointmentFormBean implements Serializable, Observed{
     @Override
     public void removeVGObserver(VGObserver o) {
         int i = observers.indexOf(o);
-        if(i>=0)
+        if (i >= 0) {
             observers.remove(o);
+        }
     }
 
     @Override
@@ -63,5 +76,13 @@ public class AppointmentFormBean implements Serializable, Observed{
 
     public void setDatePickerActivated(boolean datePickerActivated) {
         this.datePickerActivated = datePickerActivated;
+    }
+
+    public List<AppointmentWrapper> getDayAppointments() {
+        return dayAppointments;
+    }
+
+    public void setDayAppointments(List<AppointmentWrapper> dayAppointments) {
+        this.dayAppointments = dayAppointments;
     }
 }
