@@ -31,7 +31,6 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.jglue.cdiunit.InSessionScope;
 
 /**
  *
@@ -81,7 +80,6 @@ public class CDIIntegrationTesting {
      *
      */
     @Test
-    @InSessionScope
     public void ejbCalledFromMBTest() {
         Date dummy = Java8Toolkit.localToSqlDate(LocalDate.now().plusDays(10));
         service.save(new Appointment(3, dummy, localToSqlTime(LocalTime.of(11, 30)),
@@ -89,5 +87,11 @@ public class CDIIntegrationTesting {
         form.setSelectedDate(dummy);
         System.out.println(service.findByDate(dummy).get(0).getClientName());
         assertTrue(form.getDayAppointments().size() > 0);
+    }
+    
+    @Test
+    public void testSessionContext(){
+        form.setDatePickerActivated(true);
+        assertTrue(form.isDatePickerActivated());
     }
 }
