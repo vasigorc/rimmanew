@@ -13,7 +13,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 
 /**
@@ -22,10 +21,9 @@ import javax.inject.Inject;
  */
 @Named(value = "appointmentFormBean")
 @SessionScoped
-public class AppointmentFormBean implements Serializable, Observed {
+public class AppointmentFormBean implements Serializable {
 
     private Date selectedDate;
-    private ArrayList<VGObserver> observers;
     private boolean datePickerActivated = false;
     private List<AppointmentWrapper> dayAppointments;
     /**
@@ -34,8 +32,7 @@ public class AppointmentFormBean implements Serializable, Observed {
     @Inject
     private transient AppointmentService service;
 
-    public AppointmentFormBean() {
-        observers = new ArrayList<>();
+    public AppointmentFormBean() {        
         dayAppointments = new ArrayList<>();
     }
 
@@ -45,29 +42,8 @@ public class AppointmentFormBean implements Serializable, Observed {
 
     public void setSelectedDate(Date selectedDate) {
         this.selectedDate = selectedDate;
-        // notifyVGObservers();
         setDatePickerActivated(true);
         setDayAppointments(service.findByDate(DateConverters.utilToSql(selectedDate)));
-    }
-
-    @Override
-    public void registerVGObserver(VGObserver o) {
-        this.observers.add(o);
-    }
-
-    @Override
-    public void removeVGObserver(VGObserver o) {
-        int i = observers.indexOf(o);
-        if (i >= 0) {
-            observers.remove(o);
-        }
-    }
-
-    @Override
-    public void notifyVGObservers() {
-        observers.stream().map((observer1) -> (VGObserver) observer1).forEach((observer) -> {
-            observer.update(selectedDate);
-        });
     }
 
     public boolean isDatePickerActivated() {
