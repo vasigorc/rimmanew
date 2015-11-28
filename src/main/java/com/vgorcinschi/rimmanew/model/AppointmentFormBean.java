@@ -13,6 +13,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.ejb.EJB;
 import javax.inject.Inject;
 
 /**
@@ -29,13 +30,27 @@ public class AppointmentFormBean implements Serializable {
     /**
      * Creates a new instance of AppointmentFormBean
      */
-    @Inject
+    @EJB
     private transient AppointmentService service;
 
     public AppointmentFormBean() {        
         dayAppointments = new ArrayList<>();
     }
 
+    //constructor just for mock testing
+    public AppointmentFormBean(AppointmentService service) {
+        this.service = service;
+        dayAppointments = new ArrayList<>();
+    }
+
+    public AppointmentService getService() {
+        return service;
+    }
+
+    public void setService(AppointmentService service) {
+        this.service = service;
+    }
+    
     public Date getSelectedDate() {
         return selectedDate;
     }

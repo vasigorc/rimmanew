@@ -18,9 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.ejb.EJB;
 import javax.inject.Inject;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
 import org.jboss.weld.context.bound.BoundSessionContext;
 import org.jglue.cdiunit.AdditionalClasses;
 import org.jglue.cdiunit.CdiRunner;
@@ -29,6 +26,7 @@ import org.junit.After;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -80,6 +78,7 @@ public class CDIIntegrationTesting {
      *
      */
     @Test
+    @Ignore
     public void ejbCalledFromMBTest() {
         Date dummy = Java8Toolkit.localToSqlDate(LocalDate.now().plusDays(10));
         service.save(new Appointment(3, dummy, localToSqlTime(LocalTime.of(11, 30)),

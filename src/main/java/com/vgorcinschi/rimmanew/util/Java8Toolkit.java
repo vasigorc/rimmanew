@@ -38,9 +38,14 @@ public class Java8Toolkit {
         return sqlizer.apply(localTime);
     }    
     
+    /*
+        we need to do -1900 for the year in java.sql.Date as it is the legacy start
+        date for this class
+        Similarly we have to do -1 for months as they start at 0.
+    */
     public static java.sql.Date localToSqlDate(LocalDate localDate){
         Function<LocalDate, java.sql.Date> sqlizer;
-        sqlizer = (from) -> new java.sql.Date(from.getYear(), from.getMonthValue(), from.getDayOfMonth());
+        sqlizer = (from) -> new java.sql.Date(from.getYear()-1900, from.getMonthValue()-1, from.getDayOfMonth());
         return sqlizer.apply(localDate);
     }
 }
