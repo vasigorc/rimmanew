@@ -7,8 +7,13 @@ package com.vgorcinschi.rimmanew.ejbs;
 
 import com.vgorcinschi.rimmanew.annotations.InMemoryRepository;
 import com.vgorcinschi.rimmanew.entities.Appointment;
+import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToSqlDate;
+import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToSqlTime;
 import java.sql.Date;
+import static java.sql.Date.valueOf;
 import java.sql.Time;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import static java.util.Comparator.comparing;
 import java.util.Hashtable;
@@ -25,8 +30,22 @@ import javax.ejb.Singleton;
 @InMemoryRepository
 public class InMemoryAppointmentRepository implements AppointmentRepository {
 
-    private final Map<Long, Appointment> database = new Hashtable<>();
+    private static final Map<Long, Appointment> database = new Hashtable<>();
     private volatile long appointmentIdSequence = 1L;
+
+    static {
+        database.put(1L, new Appointment(1, localToSqlDate(LocalDate.now()
+                .plusDays(5)), localToSqlTime(LocalTime.of(11, 00)),
+                "waxing", "Danielle Labrave", "ahdjdsa@hakdfs.ds", "A tantot"));
+        database.put(2L, new Appointment(2, valueOf(LocalDate.of(2015, 12, 14)), localToSqlTime(LocalTime.of(14, 30)),
+                "manicure", "Aglaia Ivanovna", "cratita@mail.md", "Vin, vin"));
+        database.put(3L, new Appointment(3,
+                localToSqlDate(LocalDate.now().plusDays(10)), localToSqlTime(LocalTime.of(11, 30)),
+                "massage", "Tamara Fedorovna", "casserole@yahoo.qc", "J'y viendrais"));
+        database.put(4L, new Appointment(4, localToSqlDate(LocalDate.now()
+                .plusDays(5)), localToSqlTime(LocalTime.of(11, 50)),
+                "massage", "Isabelle Legrand", "", "Telephonez moi SVP"));
+    }
 
     public InMemoryAppointmentRepository() {
     }
@@ -34,22 +53,22 @@ public class InMemoryAppointmentRepository implements AppointmentRepository {
     @Override
     public void add(Appointment appointment) {
         appointment.setId(getNextAppointmentId());
-        this.database.put(appointment.getId(), appointment);
+        database.put(appointment.getId(), appointment);
     }
 
     @Override
     public void update(Appointment appointment) {
-        this.database.put(appointment.getId(), appointment);
+        database.put(appointment.getId(), appointment);
     }
 
     @Override
     public Appointment get(long id) {
-        return this.database.get(id);
+        return database.get(id);
     }
 
     @Override
     public List<Appointment> getAll() {
-        return new ArrayList<>(this.database.values());
+        return new ArrayList<>(database.values());
     }
 
     @Override
@@ -87,17 +106,17 @@ public class InMemoryAppointmentRepository implements AppointmentRepository {
 
     /**
      *
-     * @param date - we must delete all appointments preceding this date
-     * We need the intermediary collection of target appointments because
-     * trying to remove values of a collection (Set or EntrySet) while iterating
-     * through it throws java.util.ConcurrentModificationException
-     * The same thing occurs with the returned iterator
+     * @param date - we must delete all appointments preceding this date We need
+     * the intermediary collection of target appointments because trying to
+     * remove values of a collection (Set or EntrySet) while iterating through
+     * it throws java.util.ConcurrentModificationException The same thing occurs
+     * with the returned iterator
      */
     @Override
     public void deleteAllBefore(Date date) {
-        List<Appointment> targetAppointments = database.values().stream().filter(app->
-                app.getDate().before(date)).collect(toList());
-        targetAppointments.stream().forEach(app->deleteOne(app));
+        List<Appointment> targetAppointments = database.values().stream().filter(app
+                -> app.getDate().before(date)).collect(toList());
+        targetAppointments.stream().forEach(app -> deleteOne(app));
     }
 
     private synchronized long getNextAppointmentId() {

@@ -7,7 +7,6 @@ package com.vgorcinschi.rimmanew.ejbs;
 
 import com.vgorcinschi.rimmanew.annotations.InMemoryRepository;
 import com.vgorcinschi.rimmanew.entities.Appointment;
-import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToSqlTime;
 import static java.sql.Date.valueOf;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -18,11 +17,11 @@ import org.jglue.cdiunit.ejb.SupportEjb;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.Assert.*;
 import static org.junit.Assert.assertNotNull;
 import org.junit.runner.RunWith;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.*;
 import static org.junit.Assert.assertEquals;
+import org.junit.Ignore;
 
 /**
  *
@@ -46,17 +45,6 @@ public class InjectionTesting {
 
     @Before
     public void setUp() {
-        service.save(new Appointment(2, valueOf(LocalDate.of(2015, 11, 14)), localToSqlTime(LocalTime.of(11, 30)),
-                "manicure", "Aglaia Ivanovna", "cratita@mail.md", "Vin, vin"));
-        service.save(new Appointment(3, localToSqlDate(LocalDate.now()
-                .plusDays(10)), localToSqlTime(LocalTime.of(11, 30)),
-                "massage", "Tamara Fedorovna", "casserole@yahoo.qc", "J'y viendrais"));
-        service.save(new Appointment(4, localToSqlDate(LocalDate.now()
-                .plusDays(5)), localToSqlTime(LocalTime.of(11, 30)),
-                "massage", "Isabelle Legrand", "", "Telephonez moi SVP"));
-        service.save(new Appointment(1, localToSqlDate(LocalDate.now()
-                .plusDays(5)), localToSqlTime(LocalTime.of(11, 00)),
-                "waxing", "Danielle Labrave", "ahdjdsa@hakdfs.ds", "A tantot"));
     }
 
     @After
@@ -89,26 +77,21 @@ public class InjectionTesting {
     @Test
     public void testRetrieveByDateAndTime(){
         assertEquals(service.findByDateAndTime(localToSqlDate(LocalDate.now()
-                .plusDays(5)), localToSqlTime(LocalTime.of(11, 00)))
-                .getClientMessage(), "A tantot");
+                .plusDays(5)), localToSqlTime(LocalTime.of(11, 50)))
+                .getClientMessage(), "Telephonez moi SVP");
     }
     
     @Test
     public void testRetrieveByDateAndType(){
-        assertEquals(service.findByDateAndType(valueOf(LocalDate.of(2015, 11, 14)),
+        assertEquals(service.findByDateAndType(valueOf(LocalDate.of(2015, 12, 14)),
                 "manicure").size(), 1);
     }
     
     @Test
-    public void testDeleteBeforeDate(){
-        service.deleteAllBefore(localToSqlDate(LocalDate.now()
-                .plusDays(7)));
-        assertEquals(service.findByDate(localToSqlDate(LocalDate.now()
-                .plusDays(5))).size(), 0);
-    }
-    
-    @Test
     public void testGetAll(){
-        assertEquals(service.findAll().size(),4);
+//        assertEquals(service.findAll().size(),4);
+        assertEquals(repository.getAll().size(), 4);
+        System.out.println(repository.getAll().size());
+        System.out.println(repository.getAll());
     }
 }
