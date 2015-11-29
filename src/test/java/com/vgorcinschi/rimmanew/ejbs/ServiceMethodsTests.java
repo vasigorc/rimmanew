@@ -42,7 +42,7 @@ public class ServiceMethodsTests {
 
     @Test
     public void entryCanBeRetrievedViaService(){
-        assertEquals(service.findById(1).getClientName(), "Anna Filipovna");
+        assertEquals(service.findById(1).getClientName(), "Danielle Labrave");
     }
     
     @Test
@@ -56,9 +56,9 @@ public class ServiceMethodsTests {
     
     @Test
     public void testSaveAppointmentWithExistingId(){
-        service.save(new Appointment(1, valueOf(LocalDate.of(2015, 11, 11)),localToSqlTime(LocalTime.of(11, 00)),
+        service.save(new Appointment(3, valueOf(LocalDate.of(2015, 11, 11)),localToSqlTime(LocalTime.of(11, 00)),
         "massage","Nastasia Filipovna", "","Idu, idu"));
-        assertEquals(service.findById(1).getClientName(), "Nastasia Filipovna");
+        assertEquals(service.findById(3).getClientName(), "Nastasia Filipovna");
     }
     
     @Test

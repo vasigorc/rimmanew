@@ -6,7 +6,6 @@
 package com.vgorcinschi.rimmanew.ejbs;
 
 import com.vgorcinschi.rimmanew.annotations.InMemoryRepository;
-import com.vgorcinschi.rimmanew.entities.Appointment;
 import static java.sql.Date.valueOf;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -21,7 +20,6 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.runner.RunWith;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.*;
 import static org.junit.Assert.assertEquals;
-import org.junit.Ignore;
 
 /**
  *
@@ -71,13 +69,13 @@ public class InjectionTesting {
     
     @Test
     public void testRetrieveByType(){
-        assertEquals(service.findByType("massage").size(),2);
+        assertEquals(service.findByType("massage").size(),3);
     }
     
     @Test
     public void testRetrieveByDateAndTime(){
         assertEquals(service.findByDateAndTime(localToSqlDate(LocalDate.now()
-                .plusDays(5)), localToSqlTime(LocalTime.of(11, 50)))
+                .plusDays(5)), localToSqlTime(LocalTime.of(10, 00)))
                 .getClientMessage(), "Telephonez moi SVP");
     }
     
@@ -90,7 +88,7 @@ public class InjectionTesting {
     @Test
     public void testGetAll(){
 //        assertEquals(service.findAll().size(),4);
-        assertEquals(repository.getAll().size(), 4);
+        assertEquals(repository.getAll().size(), 6);
         System.out.println(repository.getAll().size());
         System.out.println(repository.getAll());
     }

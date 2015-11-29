@@ -31,20 +31,24 @@ import javax.ejb.Singleton;
 public class InMemoryAppointmentRepository implements AppointmentRepository {
 
     private static final Map<Long, Appointment> database = new Hashtable<>();
-    private volatile long appointmentIdSequence = 1L;
+    private volatile long appointmentIdSequence = 6L;
 
     static {
         database.put(1L, new Appointment(1, localToSqlDate(LocalDate.now()
                 .plusDays(5)), localToSqlTime(LocalTime.of(11, 00)),
                 "waxing", "Danielle Labrave", "ahdjdsa@hakdfs.ds", "A tantot"));
-        database.put(2L, new Appointment(2, valueOf(LocalDate.of(2015, 12, 14)), localToSqlTime(LocalTime.of(14, 30)),
+        database.put(2L, new Appointment(2, valueOf(LocalDate.of(2015, 12, 14)), localToSqlTime(LocalTime.of(14, 00)),
                 "manicure", "Aglaia Ivanovna", "cratita@mail.md", "Vin, vin"));
         database.put(3L, new Appointment(3,
-                localToSqlDate(LocalDate.now().plusDays(10)), localToSqlTime(LocalTime.of(11, 30)),
+                localToSqlDate(LocalDate.now().plusDays(10)), localToSqlTime(LocalTime.of(13, 00)),
                 "massage", "Tamara Fedorovna", "casserole@yahoo.qc", "J'y viendrais"));
         database.put(4L, new Appointment(4, localToSqlDate(LocalDate.now()
-                .plusDays(5)), localToSqlTime(LocalTime.of(11, 50)),
+                .plusDays(5)), localToSqlTime(LocalTime.of(10, 00)),
                 "massage", "Isabelle Legrand", "", "Telephonez moi SVP"));
+        database.put(5L, new Appointment(5, localToSqlDate(LocalDate.now()),localToSqlTime(LocalTime.of(9, 00)),
+                "massage","Nastasia Filipovna", "","Idu, idu"));
+        database.put(6L, new Appointment(7, localToSqlDate(LocalDate.now()),localToSqlTime(LocalTime.of(16, 00)),
+                "manicure","Mme Lefebvre", "","J'arrive"));
     }
 
     public InMemoryAppointmentRepository() {
