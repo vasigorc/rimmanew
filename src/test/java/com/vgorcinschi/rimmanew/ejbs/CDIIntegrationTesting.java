@@ -6,14 +6,9 @@
 package com.vgorcinschi.rimmanew.ejbs;
 
 import com.vgorcinschi.rimmanew.annotations.InMemoryRepository;
-import com.vgorcinschi.rimmanew.entities.Appointment;
 import com.vgorcinschi.rimmanew.model.AppointmentFormBean;
-import com.vgorcinschi.rimmanew.util.Java8Toolkit;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToSqlDate;
-import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToSqlTime;
-import java.sql.Date;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 import javax.ejb.EJB;
@@ -84,7 +79,7 @@ public class CDIIntegrationTesting {
 //                "massage", "Tamara Fedorovna", "casserole@yahoo.qc", "J'y viendrais"));
         form.setSelectedDate(localToSqlDate(LocalDate.now().plusDays(10)));
         System.out.println(service.findByDate(localToSqlDate(LocalDate.now().plusDays(10))).get(0).getClientName());
-        assertTrue(form.getDayAppointments().size() > 0);
+        assertTrue(form.getBookedAlready().size() > 0);
     }
     
     @Test

@@ -10,9 +10,13 @@ import com.vgorcinschi.rimmanew.util.DateConverters;
 import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
 import java.io.Serializable;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
+import static java.util.stream.Collectors.toList;
+import java.util.stream.IntStream;
 import javax.ejb.EJB;
 import javax.inject.Inject;
 
@@ -26,21 +30,21 @@ public class AppointmentFormBean implements Serializable {
 
     private Date selectedDate;
     private boolean datePickerActivated = false;
-    private List<AppointmentWrapper> dayAppointments;
+    private List<AppointmentWrapper> bookedAlready;
     /**
      * Creates a new instance of AppointmentFormBean
      */
     @EJB
     private transient AppointmentService service;
 
-    public AppointmentFormBean() {        
-        dayAppointments = new ArrayList<>();
+    public AppointmentFormBean() {
+        bookedAlready = new ArrayList<>();
     }
 
     //constructor just for mock testing
     public AppointmentFormBean(AppointmentService service) {
         this.service = service;
-        dayAppointments = new ArrayList<>();
+        bookedAlready = new ArrayList<>();
     }
 
     public AppointmentService getService() {
@@ -50,7 +54,7 @@ public class AppointmentFormBean implements Serializable {
     public void setService(AppointmentService service) {
         this.service = service;
     }
-    
+
     public Date getSelectedDate() {
         return selectedDate;
     }
@@ -58,7 +62,11 @@ public class AppointmentFormBean implements Serializable {
     public void setSelectedDate(Date selectedDate) {
         this.selectedDate = selectedDate;
         setDatePickerActivated(true);
-        setDayAppointments(service.findByDate(DateConverters.utilToSql(selectedDate)));
+        /*
+         Here will go the logic about checking the status
+         and the availabilities of the SceduleDay
+         */
+        setBookedAlready(service.findByDate(DateConverters.utilToSql(selectedDate)));
     }
 
     public boolean isDatePickerActivated() {
@@ -69,11 +77,25 @@ public class AppointmentFormBean implements Serializable {
         this.datePickerActivated = datePickerActivated;
     }
 
-    public List<AppointmentWrapper> getDayAppointments() {
-        return dayAppointments;
+    public List<AppointmentWrapper> getBookedAlready() {
+        return bookedAlready;
     }
 
-    public void setDayAppointments(List<AppointmentWrapper> dayAppointments) {
-        this.dayAppointments = dayAppointments;
+    public void setBookedAlready(List<AppointmentWrapper> dayAppointments) {
+        this.bookedAlready = dayAppointments;
+    }
+
+    /*
+     This will be replaced altogether
+     As the client doesn't need a list of appointments,
+     but rather a list of availabilities. The given below
+     is only a temporary hack
+     */
+    public List<LocalTime> getAvailabilities() {
+        List<Integer> freeSpots = IntStream.rangeClosed(9, 16).filter(i->i!=12).boxed().collect(toList());
+        IntStream takenSpots = new LinkedList<>(getBookedAlready()).stream().mapToInt(wrapper
+                -> wrapper.getTime().getHour());
+        freeSpots.removeAll(takenSpots.boxed().collect(toList()));
+        return freeSpots.stream().map(i->LocalTime.of(i,0)).collect(toList());
     }
 }
