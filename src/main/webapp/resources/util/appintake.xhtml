@@ -42,7 +42,7 @@ and open the template in the editor.
                         <h:selectOneMenu value="#{cc.attrs.selectMenuValue}">
                             <f:selectItems value="#{cc.attrs.mapKeyValues}" var="entry"
                                            itemValue="#{entry.value}" itemLabel="#{entry.label}"/>
-                            </selectOneMenu>
+                            </h:selectOneMenu>
                             #{cc.attrs.emailLabel}
                             <h:inputText value="#{cc.attrs.emailValue}"/>
                             #{cc.attrs.messagelLabel}

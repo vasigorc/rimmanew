@@ -23,8 +23,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import static java.util.stream.Collectors.toList;
 import java.util.stream.IntStream;
-import javax.enterprise.inject.Default;
-import javax.inject.Inject;
+import javax.ejb.EJB;
 
 /**
  *
@@ -33,20 +32,18 @@ import javax.inject.Inject;
 @Named(value = "appointmentFormBean")
 @SessionScoped
 public class AppointmentFormBean implements Serializable {
-
+    
     private Date selectedDate;
     private boolean datePickerActivated = false;
     private List<AppointmentWrapper> bookedAlready;
-    private Map<String, String> types;
+    private final Map<String, String> types;
     private LocalTime selectedTime;
     private String email, message, name, type;
     private final Pattern VALID_EMAIL_ADDRESS_REGEX =Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
-    /**
-     * Creates a new instance of AppointmentFormBean
-     */
-    @Inject
-    private transient AppointmentService service;
-
+    
+    @EJB
+    private AppointmentService service;
+   
     public AppointmentFormBean() {
         bookedAlready = new ArrayList<>();
         types = new LinkedHashMap<>(4, (float) 0.75);
