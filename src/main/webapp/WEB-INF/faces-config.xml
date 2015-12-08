@@ -15,13 +15,11 @@
             <var>copy</var>
         </resource-bundle>
     </application>
-    <!--<navigation-rule>
-        <from-view-id>/contacts.xhtml</from-view-id>
+    <navigation-rule>
+        <from-view-id>/appointment.xhtml</from-view-id>
         <navigation-case>
-            <from-action>confirmed</from-action>
-            <to-view-id>/confirmed.xhtml</to-view-id>
-            <redirect/>
+            <from-outcome>booked</from-outcome>
+            <to-view-id>/appConfirmation.xhtml</to-view-id>
         </navigation-case>
-    </navigation-rule>-->
-
+    </navigation-rule>
 </faces-config>

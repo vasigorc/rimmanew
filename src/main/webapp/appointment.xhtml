@@ -10,7 +10,8 @@ and open the template in the editor.
       xmlns:f="http://java.sun.com/jsf/core"
       xmlns:ui="http://java.sun.com/jsf/facelets"
       xmlns:p="http://primefaces.org/ui"
-      xmlns:jsf="http://xmlns.jcp.org/jsf">
+      xmlns:jsf="http://xmlns.jcp.org/jsf"
+      xmlns:util="http://xmlns.jcp.org/jsf/composite/util">
     <head jsf:id="head">
         <title>Appointments</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -35,6 +36,27 @@ and open the template in the editor.
         </div>
         <div class="col-md-4 col-md-offset-4">
             <ui:include src="restservice/weatherWidget.xhtml"/>
-        </div>       
+        </div>
+        <h:panelGrid>
+            <ui:fragment rendered="#{appointmentFormBean.datePickerActivated}">
+                <util:appintake
+                    radioOptions="#{appointmentFormBean.availabilities}"
+                    radioValue="#{appointmentFormBean.selectedTime}"
+                    mapKeyValues="#{appointmentFormBean.types}"
+                    selectMenuValue="#{appointmentFormBean.type}"
+                    selectMenuLabel="#{copy.type}"
+                    emailLabel="#{copy.email}"
+                    emailValue="#{appointmentFormBean.email}"
+                    clientLabel="#{copy.namePrompt} : "
+                    clientValue="#{appointmentFormBean.name}"
+                    messagelLabel="#{copy.book}"
+                    messageValue="#{appointmentFormBean.message}">
+
+                    <f:validateLength for="nameInput" minimum="4" maximum="20"/>
+                    <f:validateRegex for="emailInput" pattern="#{appointmentFormBean.VALID_EMAIL_ADDRESS_REGEX}"/>
+                </util:appintake>
+
+            </ui:fragment> 
+        </h:panelGrid>       
     </body>
 </html>

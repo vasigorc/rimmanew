@@ -9,19 +9,12 @@ and open the template in the editor.
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:composite="http://java.sun.com/jsf/composite"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-      xmlns:f="http://xmlns.jcp.org/jsf/core">
-    <ui:remove>
-        We need:
-        +radio selection for hours
-        +selectOneMenu for types
-        +input for email
-        +input for message
-        +button
-        -validators
-    </ui:remove>
+      xmlns:f="http://xmlns.jcp.org/jsf/core">   
     <composite:interface>
         <composite:attribute name="radioValue"/>
         <composite:attribute name="radioOptions"/>
+        <composite:attribute name="clientLabel"/>
+        <composite:attribute name="clientValue"/>
         <composite:attribute name="selectMenuLabel"/>
         <composite:attribute name="selectMenuValue"/>
         <composite:attribute name="mapKeyValues"/>
@@ -32,27 +25,33 @@ and open the template in the editor.
         <composite:attribute name="buttonText"/>
         <composite:attribute name="actionMethod"
                              method-signature="java.lang.String action()"/>
+        <composite:editableValueHolder name="nameInput" targets="form:clientValue"/>
+        <composite:editableValueHolder name="emailInput" targets="form:emailValue"/>
     </composite:interface>
     <composite:implementation>
         <div class="col-md-6">
-            <h:form>                
-                <h:selectOneRadio required="true" id="radioSelect1" layout="lineDirection" value="#{cc.attrs.radioValue}">
-                    <f:selectItems value="#{cc.attrs.radioOptions}"/>
-                </h:selectOneRadio>
-                <h:panelGrid columns="2">
-                    #{cc.attrs.selectMenuLabel}
-                    <h:selectOneMenu value="#{cc.attrs.selectMenuValue}">
-                        <f:selectItems value="#{cc.attrs.mapKeyValues}" var="entry"
-                                       itemValue="#{entry.value}" itemLabel="#{entry.label}"/>
-                        </selectOneMenu>
-                        #{cc.attrs.emailLabel}
-                        <h:inputText value="#{cc.attrs.emailValue}"/>
-                        #{cc.attrs.messagelLabel}
-                        <h:inputTextarea value="#{cc.attrs.emailValue}"/>
-                </h:panelGrid>
-                <h:commandButton value="#{cc.attrs.buttonText}"
-                                 type="submit" action="#{cc.attrs.actionMethod}"/>
-            </h:form>            
+            <p>
+                <h:form>                
+                    <h:selectOneRadio required="true" id="radioSelect1" layout="lineDirection" value="#{cc.attrs.radioValue}">
+                        <f:selectItems value="#{cc.attrs.radioOptions}"/>
+                    </h:selectOneRadio>
+                    <h:panelGrid columns="2">
+                        #{cc.attrs.clientLabel}
+                        <h:inputText value="#{cc.attrs.clientValue}"/>
+                        #{cc.attrs.selectMenuLabel}
+                        <h:selectOneMenu value="#{cc.attrs.selectMenuValue}">
+                            <f:selectItems value="#{cc.attrs.mapKeyValues}" var="entry"
+                                           itemValue="#{entry.value}" itemLabel="#{entry.label}"/>
+                            </selectOneMenu>
+                            #{cc.attrs.emailLabel}
+                            <h:inputText value="#{cc.attrs.emailValue}"/>
+                            #{cc.attrs.messagelLabel}
+                            <h:inputTextarea value="#{cc.attrs.emailValue}"/>
+                    </h:panelGrid>
+                    <h:commandButton value="#{cc.attrs.buttonText}"
+                                     type="submit" action="#{cc.attrs.actionMethod}"/>
+                </h:form>   
+            </p>
         </div>
     </composite:implementation>
 </html>

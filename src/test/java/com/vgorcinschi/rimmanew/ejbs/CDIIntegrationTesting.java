@@ -74,9 +74,6 @@ public class CDIIntegrationTesting {
     @Test
     @Ignore
     public void ejbCalledFromMBTest() {
-//        Date dummy = Java8Toolkit.localToSqlDate(LocalDate.now().plusDays(10));
-//        service.save(new Appointment(3, dummy, localToSqlTime(LocalTime.of(11, 30)),
-//                "massage", "Tamara Fedorovna", "casserole@yahoo.qc", "J'y viendrais"));
         form.setSelectedDate(localToSqlDate(LocalDate.now().plusDays(10)));
         System.out.println(service.findByDate(localToSqlDate(LocalDate.now().plusDays(10))).get(0).getClientName());
         assertTrue(form.getBookedAlready().size() > 0);
