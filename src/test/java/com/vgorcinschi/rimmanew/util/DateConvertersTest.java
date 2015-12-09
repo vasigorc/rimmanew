@@ -8,6 +8,7 @@ package com.vgorcinschi.rimmanew.util;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,12 +21,14 @@ import static org.junit.Assert.*;
 public class DateConvertersTest {
 
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    private Date aDate;
 
     public DateConvertersTest() {
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws ParseException {
+        aDate = sdf.parse("2015-09-15");
     }
 
     @After
@@ -33,9 +36,12 @@ public class DateConvertersTest {
     }
 
     @Test
-    public void utilToSqlConversionTest() throws ParseException {
-        Date aDate = sdf.parse("2015-09-15");
+    public void utilToSqlConversionTest(){        
         assertEquals("The two strings representing today's date"
                 + " should be equal", DateConverters.utilToSql(aDate).toString(), "2015-09-15");
+    }
+    
+    public void isSqlClass(){
+        assertThat(DateConverters.utilToSql(aDate), Matchers.instanceOf(java.sql.Date.class));
     }
 }
