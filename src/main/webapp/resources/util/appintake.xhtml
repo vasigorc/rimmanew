@@ -29,26 +29,38 @@ and open the template in the editor.
         <composite:editableValueHolder name="emailInput" targets="form:emailValue"/>
     </composite:interface>
     <composite:implementation>
-        <div class="col-md-6">
+        <div class="col-xs-6">
             <p>
-                <h:form>                
-                    <h:selectOneRadio required="true" id="radioSelect1" layout="lineDirection" value="#{cc.attrs.radioValue}">
+                <h:form prependId="false" class="form-inline">                
+                    <h:selectOneRadio requiredMessage="#{copy.validateRadio}" id="radioValue" required="true" layout="lineDirection" value="#{cc.attrs.radioValue}">
                         <f:selectItems value="#{cc.attrs.radioOptions}"/>
                     </h:selectOneRadio>
+                    <!--  <div class="alert alert-danger" role="danger">-->
+                    <h:message errorStyle="padding: 8px; line-height: 1.42857143; 
+                               background-color: #f2dede; vertical-align: top; border-top: 1px solid #ddd;" for="radioValue"/><p/>
+                    <!--</div>    -->                
                     <h:panelGrid columns="2">
-                        #{cc.attrs.clientLabel}
-                        <h:inputText value="#{cc.attrs.clientValue}"/>
-                        #{cc.attrs.selectMenuLabel}
-                        <h:selectOneMenu value="#{cc.attrs.selectMenuValue}">
-                            <f:selectItems value="#{cc.attrs.mapKeyValues}" var="entry"
-                                           itemValue="#{entry.value}" itemLabel="#{entry.label}"/>
+                        <div class="form-group">
+                            <label for="clientName">#{cc.attrs.clientLabel}</label>
+                            <h:inputText class="form-control" id="clientName" value="#{cc.attrs.clientValue}"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="appTypes">#{cc.attrs.selectMenuLabel}</label>
+                            <h:selectOneMenu class="form-control" id="appTypes" value="#{cc.attrs.selectMenuValue}">
+                                <f:selectItems value="#{cc.attrs.mapKeyValues}" var="entry"
+                                               itemValue="#{entry.value}" itemLabel="#{entry.label}"/>
                             </h:selectOneMenu>
-                            #{cc.attrs.emailLabel}
-                            <h:inputText value="#{cc.attrs.emailValue}"/>
-                            #{cc.attrs.messagelLabel}
-                            <h:inputTextarea value="#{cc.attrs.emailValue}"/>
+                        </div>                        
+                        <div class="form-group">
+                            <label for="clientEmail">#{cc.attrs.emailLabel}</label>
+                            <h:inputText id="clientEmail"  class="form-control" value="#{cc.attrs.emailValue}"/>
+                        </div>                           
+                        <div class="form-group">
+                            <label for="messageTxtArea">#{cc.attrs.messagelLabel}</label>                                
+                            <h:inputTextarea class="form-control" rows="3" id="messageTxtArea" value="#{cc.attrs.messageValue}"/>
+                        </div>
                     </h:panelGrid>
-                    <h:commandButton value="#{cc.attrs.buttonText}"
+                    <h:commandButton class="btn btn-success" style="margin-top: 0.5em" value="#{cc.attrs.buttonText}"
                                      type="submit" action="#{cc.attrs.actionMethod}"/>
                 </h:form>   
             </p>
