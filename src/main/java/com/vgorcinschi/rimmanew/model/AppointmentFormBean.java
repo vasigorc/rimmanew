@@ -9,10 +9,15 @@ import com.vgorcinschi.rimmanew.ejbs.AppointmentService;
 import com.vgorcinschi.rimmanew.entities.Appointment;
 import com.vgorcinschi.rimmanew.util.DateConverters;
 import com.vgorcinschi.rimmanew.util.Java8Toolkit;
+import static com.vgorcinschi.rimmanew.util.Java8Toolkit.getNextSuitableDate;
+import static com.vgorcinschi.rimmanew.util.Java8Toolkit.isAWeekEnd;
+import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToUtilDate;
+import static com.vgorcinschi.rimmanew.util.Java8Toolkit.nextNotWeekEnd;
 import static com.vgorcinschi.rimmanew.util.Localizer.getLocalizedLabel;
 import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
 import java.io.Serializable;
+import static java.time.LocalDate.now;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -49,6 +54,7 @@ public class AppointmentFormBean implements Serializable {
     public AppointmentFormBean() {
         bookedAlready = new ArrayList<>();
         types = new LinkedHashMap<>(4, (float) 0.75);
+        selectedDate = localToUtilDate(getNextSuitableDate(now(), isAWeekEnd, nextNotWeekEnd));
     }
 
     public AppointmentService getService() {
