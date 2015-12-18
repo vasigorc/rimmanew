@@ -25,8 +25,6 @@ and open the template in the editor.
         <composite:attribute name="buttonText"/>
         <composite:attribute name="actionMethod"
                              method-signature="java.lang.String action()"/>
-        <composite:editableValueHolder name="nameInput" targets="form:clientValue"/>
-        <composite:editableValueHolder name="emailInput" targets="form:emailValue"/>
     </composite:interface>
     <composite:implementation>        
         <p>
@@ -36,13 +34,22 @@ and open the template in the editor.
                                   layout="lineDirection" value="#{cc.attrs.radioValue}">                
                     <f:selectItems value="#{cc.attrs.radioOptions}"/>
                 </h:selectOneRadio>
-                <h:message errorStyle="padding: 8px; line-height: 1.42857143; 
-                           background-color: #D63C33; color: white; vertical-align: top; border-top: 1px solid #ddd;" for="radioValue"/><p/>
+                <h:message errorStyle="padding: 5px; line-height: 1.4286;
+                           background-color: #EEEEEE; color: #EE3630;
+                           vertical-align: top; border-top: 1px solid #ffffff;" for="radioValue"/><p/>
                 <!--</div>    -->                
                 <h:panelGrid columns="2">
                     <div class="form-group">
                         <label for="clientName">#{cc.attrs.clientLabel}</label>
-                        <h:inputText class="form-control" id="clientName" value="#{cc.attrs.clientValue}"/>
+                        <h:panelGroup>
+                            <h:inputText validatorMessage="#{copy.validateName}" class="form-control" id="clientName" value="#{cc.attrs.clientValue}">
+                                <f:validateLength minimum="4" maximum="20"/>
+                            </h:inputText>
+                            <p class="help-block"> <h:message errorStyle="margin-top: 1em; padding: 5px; line-height: 1.4286;
+                                                              background-color: #EEEEEE; color: #EE3630;
+                                                              vertical-align: top; border-top: 1px solid #ffffff;
+                                                              border-radius: 10px;" for="clientName"/></p>                           
+                        </h:panelGroup>                        
                     </div>
                     <div class="form-group">
                         <label for="appTypes">#{cc.attrs.selectMenuLabel}</label>
@@ -53,7 +60,15 @@ and open the template in the editor.
                     </div>                        
                     <div class="form-group">
                         <label for="clientEmail">#{cc.attrs.emailLabel}</label>
-                        <h:inputText id="clientEmail"  class="form-control" value="#{cc.attrs.emailValue}"/>
+                        <h:panelGroup>
+                            <h:inputText validatorMessage="#{copy.validateEmail}" id="clientEmail"  class="form-control" value="#{cc.attrs.emailValue}">
+                                <f:validateRegex pattern="#{appointmentFormBean.VALID_EMAIL_ADDRESS_REGEX}"/>
+                            </h:inputText>
+                            <p class="help-block"> <h:message errorStyle="margin-top: 1em; padding: 5px; line-height: 1.4286;
+                                                              background-color: #EEEEEE; color: #EE3630;
+                                                              vertical-align: top; border-top: 1px solid #ffffff;
+                                                              border-radius: 10px;" for="clientEmail"/></p>
+                        </h:panelGroup>
                     </div>                           
                     <div class="form-group">
                         <label for="messageTxtArea">#{cc.attrs.messagelLabel}</label>                                

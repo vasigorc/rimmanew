@@ -30,6 +30,7 @@ import static java.util.stream.Collectors.toList;
 import java.util.stream.IntStream;
 import javax.ejb.EJB;
 import javax.enterprise.inject.Default;
+import javax.validation.constraints.Size;
 
 /**
  *
@@ -44,7 +45,8 @@ public class AppointmentFormBean implements Serializable {
     private List<AppointmentWrapper> bookedAlready;
     private final Map<String, String> types;
     private LocalTime selectedTime;
-    private String email, message, name, type;
+    @Size(min=4, max=20) private String name;
+    private String email, message, type;
     private final Pattern VALID_EMAIL_ADDRESS_REGEX =Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
     
     @EJB

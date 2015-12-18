@@ -53,9 +53,7 @@ and open the template in the editor.
                         messagelLabel="#{copy.importantMsg}"
                         messageValue="#{appointmentFormBean.message}"
                         buttonText="#{copy.book}"
-                        actionMethod="#{appointmentFormBean.bookAction()}">
-                        <f:validateLength for="nameInput" minimum="4" maximum="20"/>
-                        <f:validateRegex for="emailInput" pattern="#{appointmentFormBean.VALID_EMAIL_ADDRESS_REGEX}"/>
+                        actionMethod="#{appointmentFormBean.bookAction()}">                        
                     </util:appintake>
                 </ui:fragment> 
             </h:panelGroup>  
