@@ -9,7 +9,8 @@ and open the template in the editor.
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:composite="http://java.sun.com/jsf/composite"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-      xmlns:f="http://xmlns.jcp.org/jsf/core">   
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">   
     <composite:interface>
         <composite:attribute name="radioValue"/>
         <composite:attribute name="radioOptions"/>
@@ -61,9 +62,9 @@ and open the template in the editor.
                     <div class="form-group">
                         <label for="clientEmail">#{cc.attrs.emailLabel}</label>
                         <h:panelGroup>
-                            <h:inputText validatorMessage="#{copy.validateEmail}" id="clientEmail"  class="form-control" value="#{cc.attrs.emailValue}">
-                                <f:validateRegex pattern="#{appointmentFormBean.VALID_EMAIL_ADDRESS_REGEX}"/>
-                            </h:inputText>
+                            <p:inputText type="email" required="true" requiredMessage="#{copy.requiredEmail}"
+                                         validatorMessage="#{copy.validateEmail}" 
+                                         id="clientEmail"  class="form-control" value="#{cc.attrs.emailValue}"/>
                             <p class="help-block"> <h:message errorStyle="margin-top: 1em; padding: 5px; line-height: 1.4286;
                                                               background-color: #EEEEEE; color: #EE3630;
                                                               vertical-align: top; border-top: 1px solid #ffffff;
