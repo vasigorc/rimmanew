@@ -12,23 +12,23 @@ and open the template in the editor.
       xmlns:p="http://primefaces.org/ui"
       xmlns:jsf="http://xmlns.jcp.org/jsf"
       xmlns:util="http://xmlns.jcp.org/jsf/composite/util">
-    <head jsf:id="head">
+    <h:head>
         <title>Appointments</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <script type="text/javascript" src="#{request.contextPath}/resources/js/calendarLocales.js"></script>
         <h:outputStylesheet library="css" name="bootstrap.min.css"/>
-    </head>
-    <body>
+    </h:head>
+    <h:body>
         <div style="margin-top: 1em;" class="col-md-4">            
-            <h:form>     
+            <h:form id="calendarForm" class="form-inline">     
                 <h:panelGrid columns="2">
-                    <span>#{copy.pickadate}</span>
-                    <p:calendar id="calendar" value="#{appointmentFormBean.selectedDate}" locale="fr"
+                    <label for="calendar">#{copy.pickadate}</label>
+                    <p:calendar style="margin-left: 0.75em;" id="calendar" value="#{appointmentFormBean.selectedDate}" locale="fr"
                                 disabledWeekends="true" mindate="today" maxdate="today+90" mode="popup"
                                 pattern="yyyy-MM-dd">    
                         <p:ajax update=":we123" event="dateSelect" listener="#{forecastBean.handleDateSelect}"/>
                     </p:calendar>
-                    <input id="requestButton" type="button" value="#{copy.submitButton}">
+                    <input class="btn btn-default" id="requestButton" type="button" value="#{copy.submitButton}">
                         <f:ajax render="requestComponent" event="click" execute="@form" ></f:ajax>
                     </input>                
                 </h:panelGrid>
@@ -58,5 +58,5 @@ and open the template in the editor.
                 </ui:fragment> 
             </h:panelGroup>  
         </div>             
-    </body>
+    </h:body>
 </html>

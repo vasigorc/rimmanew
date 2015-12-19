@@ -29,6 +29,7 @@ import static java.util.stream.Collectors.toList;
 import java.util.stream.IntStream;
 import javax.ejb.EJB;
 import javax.enterprise.inject.Default;
+import org.primefaces.event.SelectEvent;
 
 /**
  *
