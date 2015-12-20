@@ -29,7 +29,7 @@ and open the template in the editor.
     </composite:interface>
     <composite:implementation>        
         <p>
-            <h:form prependId="false" class="form-inline">                
+            <h:form id="detailsForm" prependId="false" class="form-inline">                
                 <h:selectOneRadio requiredMessage="#{copy.validateRadio}" 
                                   id="radioValue" required="true" 
                                   layout="lineDirection" value="#{cc.attrs.radioValue}">                
@@ -76,7 +76,7 @@ and open the template in the editor.
                         <h:inputTextarea class="form-control" rows="3" id="messageTxtArea" value="#{cc.attrs.messageValue}"/>
                     </div>
                 </h:panelGrid>
-                <h:commandButton class="btn btn-success" style="margin-top: 0.5em" value="#{cc.attrs.buttonText}"
+                <h:commandButton onclick="submitAll" class="btn btn-success" style="margin-top: 0.5em" value="#{cc.attrs.buttonText}"
                                  type="submit" action="#{cc.attrs.actionMethod}"/>
             </h:form>   
         </p>
