@@ -27,4 +27,11 @@ public class Localizer {
         ResourceBundle bundle = ResourceBundle.getBundle(bundleName, locale, loader);
         return (bundle==null?null:bundle.getString(toConvert));
     }
+    
+    /*
+        Same as above - just returning the Locale
+    */
+    public static Locale getCurrentViewLocale(){
+        return FacesContext.getCurrentInstance().getViewRoot().getLocale();
+    }
 }

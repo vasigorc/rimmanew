@@ -7,18 +7,24 @@ package com.vgorcinschi.rimmanew.model;
 
 import com.vgorcinschi.rimmanew.ejbs.AppointmentService;
 import com.vgorcinschi.rimmanew.entities.Appointment;
+import com.vgorcinschi.rimmanew.helpers.InternationalizableDateBuilder;
+import com.vgorcinschi.rimmanew.helpers.InternationalizableDateImpl;
 import com.vgorcinschi.rimmanew.util.DateConverters;
+import static com.vgorcinschi.rimmanew.util.DateConverters.utilToSql;
 import com.vgorcinschi.rimmanew.util.Java8Toolkit;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.getNextSuitableDate;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.isAWeekEnd;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToUtilDate;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.nextNotWeekEnd;
+import static com.vgorcinschi.rimmanew.util.Localizer.getCurrentViewLocale;
 import static com.vgorcinschi.rimmanew.util.Localizer.getLocalizedLabel;
 import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
 import java.io.Serializable;
+import java.time.LocalDate;
 import static java.time.LocalDate.now;
 import java.time.LocalTime;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -29,7 +35,6 @@ import static java.util.stream.Collectors.toList;
 import java.util.stream.IntStream;
 import javax.ejb.EJB;
 import javax.enterprise.inject.Default;
-import org.primefaces.event.SelectEvent;
 
 /**
  *
@@ -174,5 +179,16 @@ public class AppointmentFormBean implements Serializable {
         */
         service.save(candidate);
         return "booked";
+    }
+    
+    //a convenience method to get a workable date format for the view
+    public InternationalizableDateImpl displayDate(){
+        return new InternationalizableDateImpl(new InternationalizableDateBuilder
+        (utilToSql(this.selectedDate).toLocalDate()).setDayOfWeekStyle(TextStyle.FULL)
+        .setMonthsStyle(TextStyle.SHORT).setSessionLocale(getCurrentViewLocale()));
+    }
+    
+    public String getLocalizedType(){
+        return getLocalizedLabel(type);
     }
 }

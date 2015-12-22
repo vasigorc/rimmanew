@@ -14,6 +14,10 @@
             <base-name>com.vgorcinschi.rimmanew.messagebundles.messages</base-name>
             <var>copy</var>
         </resource-bundle>
+        <resource-bundle>
+            <base-name>com.vgorcinschi.rimmanew.messagebundles.bigcopies</base-name>
+            <var>bigcopy</var>
+        </resource-bundle>
     </application>
     <navigation-rule>
         <from-view-id>/appointment.xhtml</from-view-id>
