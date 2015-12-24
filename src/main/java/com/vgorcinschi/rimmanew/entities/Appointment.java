@@ -5,15 +5,30 @@
  */
 package com.vgorcinschi.rimmanew.entities;
 
+import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalTime;
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 /**
  *
  * @author vgorcinschi
  */
-public class Appointment{
+@Entity
+@Access(AccessType.PROPERTY)
+@Table(name = "appointment")
+public class Appointment implements Serializable {
 
     private long id;
     private Date date;
@@ -36,6 +51,9 @@ public class Appointment{
         this.message = message;
     }
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     public long getId() {
         return id;
     }
@@ -44,6 +62,8 @@ public class Appointment{
         this.id = id;
     }
 
+    @Temporal(TemporalType.DATE)
+    @Column(name = "date")
     public Date getDate() {
         return date;
     }
@@ -52,6 +72,8 @@ public class Appointment{
         this.date = date;
     }
 
+    @Temporal(TemporalType.TIME)
+    @Column(name="time")
     public Time getTime() {
         return time;
     }
@@ -60,6 +82,7 @@ public class Appointment{
         this.time = time;
     }
 
+    @Column(name = "name")
     public String getClientName() {
         return clientName;
     }
@@ -68,6 +91,7 @@ public class Appointment{
         this.clientName = clientName;
     }
 
+    @Column(name="email")
     public String getEmail() {
         return email;
     }
@@ -76,6 +100,7 @@ public class Appointment{
         this.email = email;
     }
 
+    @Column(name="important")
     public String getMessage() {
         return message;
     }
@@ -84,15 +109,17 @@ public class Appointment{
         this.message = message;
     }
 
+    @Column(name = "type")
     public String getType() {
         return type;
     }
 
     public void setType(String type) {
         this.type = type;
-    }    
-    
-    public LocalTime getLocalTimeRepr() {        
+    }
+
+    @Transient
+    public LocalTime getLocalTimeRepr() {
         return time.toLocalTime();
     }
 }
