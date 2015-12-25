@@ -16,6 +16,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -24,6 +25,8 @@ import javax.persistence.Transient;
  * @author vgorcinschi
  */
 @Entity
+@NamedQuery(name = "findAllAppointments",
+        query="SELECT a FROM Appointment a order by a.date DESC")
 @Access(AccessType.PROPERTY)
 @Table(name = "appointment")
 public class Appointment implements Serializable {

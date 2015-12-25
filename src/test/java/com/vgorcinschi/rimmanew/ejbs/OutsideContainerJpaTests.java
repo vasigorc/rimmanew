@@ -15,6 +15,7 @@ import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import static java.util.Optional.of;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
@@ -71,13 +72,45 @@ public class OutsideContainerJpaTests {
         dummy.setMessage("Idu, Idu");
         dummy.setType("massage");
         dummy.setTime(localToSqlTime(LocalTime.of(9, 00)));
-        if (count < 1) 
-            appointmentService.save(dummy);        
+        if (count < 1) {
+            appointmentService.save(dummy);
+        }
         assertEquals(appointmentService.findByName("Nastasia Filipovna").get(0)
                 .getClientName(),
                 "Nastasia Filipovna");
     }
 
+    @Test
+    public void testFindAll() {
+        List<AppointmentWrapper> allApps = appointmentService.findAll();
+        System.out.println(allApps.size());
+        assertEquals("Should return the oldest appointment from the DB",
+                allApps.get(allApps.size() - 1).getClientMessage(),
+                "Риммочка, позвони мне пожалуйста - 514-789-8900");
+    }
+
+    @Test
+    public void testFindById() {
+        assertNotNull("For brevity we will try to return the appointment "
+                + "with id 1", appointmentService.findById(1));
+    }
+
+    @Test
+    public void testFindByDate() {
+        assertEquals("We will agaub retrieve the appointment with the id 1, only"
+                + " that this time by its date. We are testing that the two "
+                + "ids match", 1, appointmentService.findByDate(localToSqlDate(LocalDate.of(2015, 7, 8))).get(0)
+                .getEntity().getId());
+    }
+
+    @Test
+    public void testFindByType() {
+        assertEquals("We will retrieve only entities with type waxing. "
+                + "Their count should be equal to one (today at least).",
+                1, appointmentService.findByType("waxing").size());
+    }
+
+    //stub class for the repository using driver on the test classpath
     public class JpaAppointmentRepositoryStub implements AppointmentRepository {
 
         private EntityManagerFactory emf;
@@ -135,7 +168,16 @@ public class OutsideContainerJpaTests {
 
         @Override
         public List<Appointment> getAll() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            EntityManager em = entityManagerFactory.createEntityManager();
+            try {
+                TypedQuery<Appointment> query
+                        = em.createNamedQuery("findAllAppointments", Appointment.class);
+                return query.getResultList();
+            } catch (Exception e) {
+                return null;
+            } finally {
+                em.close();
+            }
         }
 
         @Override
@@ -155,12 +197,34 @@ public class OutsideContainerJpaTests {
 
         @Override
         public List<Appointment> getByDate(Date date) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            EntityManager em = entityManagerFactory.createEntityManager();
+            try {
+                TypedQuery<Appointment> query
+                        = em.createQuery("SELECT a FROM Appointment a "
+                                + "WHERE a.date = :date", Appointment.class)
+                        .setParameter("date", date);
+                return query.getResultList();
+            } catch (NoResultException e) {
+                return null;
+            } finally {
+                em.close();
+            }
         }
 
         @Override
         public List<Appointment> getByType(String type) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            EntityManager em = entityManagerFactory.createEntityManager();
+            try {
+                TypedQuery<Appointment> query
+                        = em.createQuery("SELECT a FROM Appointment a "
+                                + "WHERE a.type = :type", Appointment.class)
+                        .setParameter("type", type);
+                return query.getResultList();
+            } catch (NoResultException e) {
+                return null;
+            } finally {
+                em.close();
+            }
         }
 
         @Override
