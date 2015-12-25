@@ -17,8 +17,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 /**
@@ -62,8 +60,7 @@ public class Appointment implements Serializable {
         this.id = id;
     }
 
-    @Temporal(TemporalType.DATE)
-    @Column(name = "date")
+   @Column(name = "date")
     public Date getDate() {
         return date;
     }
@@ -72,7 +69,6 @@ public class Appointment implements Serializable {
         this.date = date;
     }
 
-    @Temporal(TemporalType.TIME)
     @Column(name="time")
     public Time getTime() {
         return time;

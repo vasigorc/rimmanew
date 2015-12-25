@@ -21,7 +21,6 @@ import static com.vgorcinschi.rimmanew.util.Localizer.getLocalizedLabel;
 import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
 import java.io.Serializable;
-import java.time.LocalDate;
 import static java.time.LocalDate.now;
 import java.time.LocalTime;
 import java.time.format.TextStyle;

@@ -5,10 +5,12 @@
  */
 package com.vgorcinschi.rimmanew.ejbs;
 
+import com.vgorcinschi.rimmanew.annotations.JpaRepository;
 import com.vgorcinschi.rimmanew.entities.Appointment;
 import java.sql.Date;
 import java.sql.Time;
 import java.util.List;
+import javax.ejb.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -16,6 +18,8 @@ import javax.persistence.PersistenceContext;
  *
  * @author vgorcinschi
  */
+@Singleton
+@JpaRepository
 public class JpaAppointmentRepository implements AppointmentRepository{
     
     @PersistenceContext(unitName = "appointmentsManagement")
@@ -33,7 +37,7 @@ public class JpaAppointmentRepository implements AppointmentRepository{
 
     @Override
     public Appointment get(long id) {
-        return this.em.createQuery("SELECT a FROM Application a WHERE a.id = :id", 
+        return this.em.createQuery("SELECT a FROM Appointment a WHERE a.id = :id", 
                 Appointment.class).setParameter("id", id).getSingleResult();
     }
 
