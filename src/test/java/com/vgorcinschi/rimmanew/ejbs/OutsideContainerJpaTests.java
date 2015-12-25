@@ -17,8 +17,13 @@ import java.time.LocalTime;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
+import javax.transaction.UserTransaction;
 import org.junit.After;
+import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,66 +35,101 @@ import org.junit.Test;
 public class OutsideContainerJpaTests {
 
     EntityManagerFactory entityManagerFactory;
-    EntityManager entityManager;
     AppointmentService appointmentService;
     AppointmentRepository repository;
+    //field to control the execution of some queries
+    int count = 1;
 
     public OutsideContainerJpaTests() {
         this.entityManagerFactory = EntityManagerFactoryProvider.getUniqueInstance();
-        this.entityManager = entityManagerFactory.createEntityManager();
-        this.repository = new JpaAppointmentRepositoryStub(entityManager);
+        this.repository = new JpaAppointmentRepositoryStub(entityManagerFactory);
         this.appointmentService = new OutsideContainerAppointmentService(repository);
     }
 
     @Before
     public void setUp() {
-        Appointment dummy = new Appointment();
-        dummy.setClientName("Danielle Labrave");
-        dummy.setDate(localToSqlDate(LocalDate.now()
-                .plusDays(5)));
-        dummy.setEmail("ahdjdsa@hakdfs.ds");
-        dummy.setTime(localToSqlTime(LocalTime.of(11, 00)));
-        dummy.setType("waxing");
-        dummy.setMessage("A tantot");
-        appointmentService.save(dummy);
-    }
-
-    @After
-    public void tearDown() {
+        count++;
     }
 
     @Test
-    public void getAnAppointmentTest() {
-        AppointmentWrapper aw = appointmentService.findById(2);
-        assertNotNull(aw);
-        System.out.println(aw.getClientName());
+    public void updateAnExistingEntity() {
+        Appointment updatedSix = appointmentService.findById(6).getEntity();
+        System.out.println(updatedSix.getId());
+        updatedSix.setMessage("Actually I may not be coming");
+        appointmentService.save(updatedSix);
+        Assert.assertEquals("We expect the message srting to be updated for"
+                + " the same entity instance", "Actually I may not be coming",
+                appointmentService.findById(6).getClientMessage());
+    }
+
+    @Test
+    public void addANewEntityInstance() {
+        Appointment dummy = new Appointment();
+        dummy.setClientName("Nastasia Filipovna");
+        dummy.setDate(localToSqlDate(LocalDate.now()));
+        dummy.setEmail("nastasiaFilippovna@yahoo.co.uk");
+        dummy.setMessage("Idu, Idu");
+        dummy.setType("massage");
+        dummy.setTime(localToSqlTime(LocalTime.of(9, 00)));
+        if (count < 1) 
+            appointmentService.save(dummy);        
+        assertEquals(appointmentService.findByName("Nastasia Filipovna").get(0)
+                .getClientName(),
+                "Nastasia Filipovna");
     }
 
     public class JpaAppointmentRepositoryStub implements AppointmentRepository {
 
-        private final EntityManager em;
+        private EntityManagerFactory emf;
 
-        public JpaAppointmentRepositoryStub(EntityManager em) {
-            this.em = em;
+        public JpaAppointmentRepositoryStub(EntityManagerFactory emf) {
+            this.emf = emf;
+        }
+
+        public JpaAppointmentRepositoryStub() {
         }
 
         @Override
         public void add(Appointment appointment) {
-            em.persist(appointment);
+            EntityManager em = entityManagerFactory.createEntityManager();
+            EntityTransaction trans = em.getTransaction();
+            trans.begin();
+            try {
+                em.joinTransaction();
+                em.persist(appointment);
+                trans.commit();
+            } catch (Exception e) {
+                trans.rollback();
+            } finally {
+                em.close();
+            }
         }
 
         @Override
         public void update(Appointment appointment) {
-            em.merge(appointment);
+            EntityManager em = entityManagerFactory.createEntityManager();
+            EntityTransaction trans = em.getTransaction();
+            trans.begin();
+            try {
+                em.merge(appointment);
+                trans.commit();
+            } catch (Exception e) {
+                trans.rollback();
+            } finally {
+                em.close();
+            }
         }
 
         @Override
         public Appointment get(long id) {
+            EntityManager em = entityManagerFactory.createEntityManager();
             try {
-                return this.em.createQuery("SELECT a FROM Appointment a WHERE a.id = :id",
-                        Appointment.class).setParameter("id", id).getSingleResult();
+                Appointment app = em.find(Appointment.class, id);
+                return app;
             } catch (NoResultException e) {
                 return null;
+            } finally {
+                em.close();
             }
         }
 
@@ -100,7 +140,17 @@ public class OutsideContainerJpaTests {
 
         @Override
         public List<Appointment> getByName(String name) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            EntityManager em = entityManagerFactory.createEntityManager();
+            try {
+                TypedQuery<Appointment> query = em.createQuery("SELECT a FROM "
+                        + "Appointment a WHERE LOWER(a.clientName) LIKE :custName",
+                        Appointment.class).setParameter("custName", name.toLowerCase());
+                return query.getResultList();
+            } catch (NoResultException e) {
+                return null;
+            } finally {
+                em.close();
+            }
         }
 
         @Override

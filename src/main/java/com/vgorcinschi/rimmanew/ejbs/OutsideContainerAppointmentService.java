@@ -5,8 +5,6 @@
  */
 package com.vgorcinschi.rimmanew.ejbs;
 
-import com.vgorcinschi.rimmanew.ejbs.AppointmentRepository;
-import com.vgorcinschi.rimmanew.ejbs.AppointmentService;
 import com.vgorcinschi.rimmanew.entities.Appointment;
 import com.vgorcinschi.rimmanew.model.AppointmentWrapper;
 import java.sql.Date;
@@ -14,7 +12,6 @@ import java.sql.Time;
 import java.util.List;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
-import javax.inject.Inject;
 
 /**
  *
@@ -23,14 +20,13 @@ import javax.inject.Inject;
 public class OutsideContainerAppointmentService implements AppointmentService{
     private final AppointmentRepository repository;
 
-    @Inject
     public OutsideContainerAppointmentService(AppointmentRepository repository) {
         this.repository = repository;
     }
 
     @Override
-    public void save(Appointment appointment) {
-        if (findById(appointment.getId()) != null) 
+    public void save(Appointment appointment) {        
+        if (Long.valueOf(appointment.getId()) != null) 
             repository.update(appointment);
         else 
             repository.add(appointment);
