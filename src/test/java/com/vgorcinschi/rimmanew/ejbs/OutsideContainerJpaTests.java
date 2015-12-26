@@ -109,6 +109,20 @@ public class OutsideContainerJpaTests {
                 + "Their count should be equal to one (today at least).",
                 1, appointmentService.findByType("waxing").size());
     }
+    
+    @Test
+    public void testFindByDateAndTime(){
+        assertEquals("Daria Petrovna", appointmentService
+                .findByDateAndTime(localToSqlDate(LocalDate.of(2015, 7, 8)), 
+                        localToSqlTime(LocalTime.of(11, 00))).getClientName());
+    }
+    
+    @Test
+    public void testFindByDateAndType(){
+        assertEquals(1, appointmentService
+                .findByDateAndType(localToSqlDate(LocalDate.of(2015, 12, 30)), 
+                        "waxing").size());
+    }
 
     //stub class for the repository using driver on the test classpath
     public class JpaAppointmentRepositoryStub implements AppointmentRepository {
@@ -229,12 +243,36 @@ public class OutsideContainerJpaTests {
 
         @Override
         public Appointment getByDateAndTime(Date date, Time time) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            EntityManager em = entityManagerFactory.createEntityManager();
+            try {
+                TypedQuery<Appointment> query 
+                        = em.createQuery("SELECT a FROM Appointment a "
+                                + "WHERE a.date = :date AND a.time ="
+                                + " :time", Appointment.class)
+                        .setParameter("date", date).setParameter("time", time);
+                return query.getSingleResult();
+            } catch (Exception e) {
+                return null;
+            } finally {
+                em.close();
+            }
         }
 
         @Override
         public List<Appointment> getByDateAndType(Date date, String type) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            EntityManager em = entityManagerFactory.createEntityManager();
+            try {
+                TypedQuery<Appointment> query = 
+                        em.createQuery("SELECT a FROM Appointment a WHERE a.date "
+                                + "= :date AND a.type= :type", Appointment.class)
+                        .setParameter("date", date)
+                        .setParameter("type", type);
+                return query.getResultList();
+            } catch (Exception e) {
+                return null;
+            } finally {
+                em.close();
+            }
         }
 
         @Override
