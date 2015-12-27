@@ -11,6 +11,7 @@ import com.vgorcinschi.rimmanew.util.EntityManagerFactoryProvider;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToSqlDate;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToSqlTime;
 import java.sql.Date;
+import static java.sql.Date.valueOf;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -20,6 +21,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.transaction.UserTransaction;
 import org.junit.After;
@@ -109,19 +111,42 @@ public class OutsideContainerJpaTests {
                 + "Their count should be equal to one (today at least).",
                 1, appointmentService.findByType("waxing").size());
     }
-    
+
     @Test
-    public void testFindByDateAndTime(){
+    public void testFindByDateAndTime() {
         assertEquals("Daria Petrovna", appointmentService
-                .findByDateAndTime(localToSqlDate(LocalDate.of(2015, 7, 8)), 
+                .findByDateAndTime(localToSqlDate(LocalDate.of(2015, 7, 8)),
                         localToSqlTime(LocalTime.of(11, 00))).getClientName());
+    }
+
+    @Test
+    public void testFindByDateAndType() {
+        assertEquals(1, appointmentService
+                .findByDateAndType(localToSqlDate(LocalDate.of(2015, 12, 30)),
+                        "waxing").size());
+    }
+
+    @Test
+    public void testDeleteOne() {
+        Appointment dummy2 = new Appointment(2,
+                valueOf(LocalDate.of(2015, 12, 14)), localToSqlTime(LocalTime.of(14, 00)),
+                "manicure", "Aglaia Ivanovna", "cratita@mail.md", "Vin, vin");
+        appointmentService.save(dummy2);
+        appointmentService.deleteOne(appointmentService
+                .findByName("Aglaia Ivanovna").get(0).getEntity());
+        assertEquals(appointmentService
+                .findByName("Aglaia Ivanovna").size(), 0);
     }
     
     @Test
-    public void testFindByDateAndType(){
-        assertEquals(1, appointmentService
-                .findByDateAndType(localToSqlDate(LocalDate.of(2015, 12, 30)), 
-                        "waxing").size());
+    public void testBeforeADate(){
+        Appointment dummy2 = new Appointment(2,
+                valueOf(LocalDate.of(2015, 07, 07)), localToSqlTime(LocalTime.of(14, 00)),
+                "manicure", "Aglaia Ivanovna", "cratita@mail.md", "Vin, vin");
+        appointmentService.save(dummy2);
+        appointmentService.deleteAllBefore(valueOf(LocalDate.of(2015, 07, 07)));
+        assertEquals(appointmentService
+                .findByDate(valueOf(LocalDate.of(2015, 07, 07))).size(), 0);
     }
 
     //stub class for the repository using driver on the test classpath
@@ -140,8 +165,8 @@ public class OutsideContainerJpaTests {
         public void add(Appointment appointment) {
             EntityManager em = entityManagerFactory.createEntityManager();
             EntityTransaction trans = em.getTransaction();
-            trans.begin();
             try {
+                trans.begin();
                 em.joinTransaction();
                 em.persist(appointment);
                 trans.commit();
@@ -156,8 +181,8 @@ public class OutsideContainerJpaTests {
         public void update(Appointment appointment) {
             EntityManager em = entityManagerFactory.createEntityManager();
             EntityTransaction trans = em.getTransaction();
-            trans.begin();
             try {
+                trans.begin();
                 em.merge(appointment);
                 trans.commit();
             } catch (Exception e) {
@@ -245,7 +270,7 @@ public class OutsideContainerJpaTests {
         public Appointment getByDateAndTime(Date date, Time time) {
             EntityManager em = entityManagerFactory.createEntityManager();
             try {
-                TypedQuery<Appointment> query 
+                TypedQuery<Appointment> query
                         = em.createQuery("SELECT a FROM Appointment a "
                                 + "WHERE a.date = :date AND a.time ="
                                 + " :time", Appointment.class)
@@ -262,8 +287,8 @@ public class OutsideContainerJpaTests {
         public List<Appointment> getByDateAndType(Date date, String type) {
             EntityManager em = entityManagerFactory.createEntityManager();
             try {
-                TypedQuery<Appointment> query = 
-                        em.createQuery("SELECT a FROM Appointment a WHERE a.date "
+                TypedQuery<Appointment> query
+                        = em.createQuery("SELECT a FROM Appointment a WHERE a.date "
                                 + "= :date AND a.type= :type", Appointment.class)
                         .setParameter("date", date)
                         .setParameter("type", type);
@@ -277,12 +302,34 @@ public class OutsideContainerJpaTests {
 
         @Override
         public void deleteOne(Appointment appointment) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            EntityManager em = entityManagerFactory.createEntityManager();
+            EntityTransaction trans = em.getTransaction();
+            try {
+                trans.begin();
+                em.remove(em.merge(appointment));
+                trans.commit();
+            } catch (Exception e) {
+                trans.rollback();
+            } finally {
+                em.close();
+            }
         }
 
         @Override
         public void deleteAllBefore(Date date) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            EntityManager em = entityManagerFactory.createEntityManager();
+            EntityTransaction trans = em.getTransaction();
+            try {
+                trans.begin();
+                Query query = em.createQuery("DELETE FROM Appointment a WHERE "
+                        + "a.date <= :date").setParameter("date", date);
+                query.executeUpdate();
+                trans.commit();
+            } catch (Exception e) {
+                trans.rollback();
+            } finally {
+                em.close();
+            }
         }
 
     }
