@@ -5,6 +5,7 @@
  */
 package com.vgorcinschi.rimmanew.model;
 
+import com.vgorcinschi.rimmanew.annotations.JpaService;
 import com.vgorcinschi.rimmanew.ejbs.AppointmentService;
 import com.vgorcinschi.rimmanew.entities.Appointment;
 import com.vgorcinschi.rimmanew.helpers.InternationalizableDateBuilder;
@@ -34,6 +35,7 @@ import static java.util.stream.Collectors.toList;
 import java.util.stream.IntStream;
 import javax.ejb.EJB;
 import javax.enterprise.inject.Default;
+import javax.inject.Inject;
 
 /**
  *
@@ -51,8 +53,8 @@ public class AppointmentFormBean implements Serializable {
     private String name;
     private String email, message, type;
     
-    @EJB
-    @Default
+    @Inject
+    @JpaService
     private AppointmentService service;
    
     public AppointmentFormBean() {

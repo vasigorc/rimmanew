@@ -12,7 +12,9 @@ import java.sql.Time;
 import java.util.List;
 import javax.ejb.Singleton;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceContextType;
 
 /**
  *
@@ -20,9 +22,10 @@ import javax.persistence.PersistenceContext;
  */
 @Singleton
 @JpaRepository
-public class JpaAppointmentRepository implements AppointmentRepository{
-    
-    @PersistenceContext(unitName = "appointmentsManagement")
+public class JpaAppointmentRepository implements AppointmentRepository {
+
+    @PersistenceContext(unitName = "appointmentsManagement",
+            type = PersistenceContextType.TRANSACTION)
     EntityManager em;
 
     @Override
@@ -37,48 +40,90 @@ public class JpaAppointmentRepository implements AppointmentRepository{
 
     @Override
     public Appointment get(long id) {
-        return this.em.createQuery("SELECT a FROM Appointment a WHERE a.id = :id", 
-                Appointment.class).setParameter("id", id).getSingleResult();
+        try {
+            return this.em.createQuery("SELECT a FROM Appointment a WHERE a.id = :id",
+                    Appointment.class).setParameter("id", id).getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     @Override
     public List<Appointment> getAll() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            return em.createNamedQuery("findAllAppointments", Appointment.class).getResultList();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     @Override
     public List<Appointment> getByName(String name) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            return em.createQuery("SELECT a FROM "
+                    + "Appointment a WHERE LOWER(a.clientName) LIKE :custName",
+                    Appointment.class)
+                    .setParameter("custName", name.toLowerCase()).getResultList();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     @Override
     public List<Appointment> getByDate(Date date) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            return em.createQuery("SELECT a FROM Appointment a "
+                    + "WHERE a.date = :date", Appointment.class)
+                    .setParameter("date", date).getResultList();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     @Override
     public List<Appointment> getByType(String type) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            return em.createQuery("SELECT a FROM Appointment a "
+                    + "WHERE a.type = :type", Appointment.class)
+                    .setParameter("type", type).getResultList();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     @Override
     public Appointment getByDateAndTime(Date date, Time time) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            return em.createQuery("SELECT a FROM Appointment a "
+                    + "WHERE a.date = :date AND a.time ="
+                    + " :time", Appointment.class)
+                    .setParameter("date", date).setParameter("time", time).getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 
     @Override
     public List<Appointment> getByDateAndType(Date date, String type) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            return em.createQuery("SELECT a FROM Appointment a WHERE a.date "
+                                + "= :date AND a.type= :type", Appointment.class)
+                        .setParameter("date", date)
+                        .setParameter("type", type).getResultList();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override
     public void deleteOne(Appointment appointment) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        em.remove(em.merge(appointment));
     }
 
     @Override
     public void deleteAllBefore(Date date) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        em.createQuery("DELETE FROM Appointment a WHERE "
+                        + "a.date <= :date").setParameter("date", date).executeUpdate();
     }
-    
+
 }
