@@ -28,7 +28,7 @@ public class SpecialDay implements Serializable {
     private Date date;
     private Time startAt, endAt, breakStart,
             breakEnd;
-    private int duration;
+    private long duration;
     private boolean isInThePast;
 
     public SpecialDay() {
@@ -99,11 +99,11 @@ public class SpecialDay implements Serializable {
     }
 
     @Column(name = "duration_per_appointment")
-    public int getDuration() {
+    public long getDuration() {
         return duration;
     }
 
-    public void setDuration(int duration) {
+    public void setDuration(long duration) {
         this.duration = duration;
     }
 
