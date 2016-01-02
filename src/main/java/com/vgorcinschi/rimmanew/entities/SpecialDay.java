@@ -29,19 +29,22 @@ public class SpecialDay implements Serializable {
     private Time startAt, endAt, breakStart,
             breakEnd;
     private long duration;
-    private boolean isInThePast;
+    private boolean isBlocked;
+    private String message;
 
     public SpecialDay() {
     }
 
-    public SpecialDay(Date date, Time startAt, Time endAt, Time breakStart, Time breakEnd, int duration, boolean isInThePast) {
+    public SpecialDay(Date date, Time startAt, Time endAt, Time breakStart, 
+            Time breakEnd, int duration, boolean isBlocked, String message) {
         this.date = date;
         this.startAt = startAt;
         this.endAt = endAt;
         this.breakStart = breakStart;
         this.breakEnd = breakEnd;
         this.duration = duration;
-        this.isInThePast = isInThePast;
+        this.isBlocked = isBlocked;
+        this.message=message;
     }
 
     @Id
@@ -107,14 +110,20 @@ public class SpecialDay implements Serializable {
         this.duration = duration;
     }
 
-    @Column(name="is_in_the_past")
-    public boolean isIsInThePast() {
-        return isInThePast;
+    @Column(name="is_blocked")
+    public boolean isBlocked() {
+        return isBlocked;
     }
 
-    public void setIsInThePast(boolean isInThePast) {
-        this.isInThePast = isInThePast;
+    public void setIsBlocked(boolean isBlocked) {
+        this.isBlocked = isBlocked;
     }
-    
-    
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 }

@@ -5,7 +5,7 @@
  */
 package com.vgorcinschi.rimmanew.ejbs;
 
-import com.vgorcinschi.rimmanew.model.ScheduleDay;
+import com.vgorcinschi.rimmanew.entities.SpecialDay;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -20,15 +20,16 @@ import javax.ejb.LockType;
  */
 @Local
 @Lock(LockType.WRITE)
-public interface AbnormalSchedule {
+public interface SpecialDayRepository {
 
+    //Create
+    boolean setSpecialDay(SpecialDay sd);
+    //Read
     @AccessTimeout(unit = TimeUnit.SECONDS, value = 15)
-    Optional<ScheduleDay> getUnavailableDay(LocalDate ld);
-
-    boolean setUnavailableDay(ScheduleDay sd);
-
-    @AccessTimeout(unit = TimeUnit.SECONDS, value = 15)
-    Optional<ScheduleDay> getSpecialDay(LocalDate ld);
-
-    boolean setSpecialDay(ScheduleDay sd);
+    Optional<SpecialDay> getSpecialDay(LocalDate ld);
+    //Update
+    boolean updateSpecialDay(SpecialDay sd);
+    //Delete
+    boolean deleteSpecialDay(SpecialDay sd);
+    
 }

@@ -5,6 +5,7 @@
  */
 package com.vgorcinschi.rimmanew.ejbs;
 
+import com.vgorcinschi.rimmanew.annotations.Production;
 import java.time.Duration;
 import java.time.LocalTime;
 import javax.ejb.Singleton;
@@ -16,12 +17,13 @@ import javax.ejb.Startup;
  */
 @Singleton
 @Startup
-public class NormalScheduleImpl implements NormalSchedule{
+@Production
+public class DefaultNormalScheduleImpl implements NormalSchedule{
 
     private LocalTime dayStart, dayEnd, breakStart, breakEnd;
     private Duration duration;
 
-    public NormalScheduleImpl() {
+    public DefaultNormalScheduleImpl() {
     }
     
     @Override

@@ -5,13 +5,15 @@
  */
 package com.vgorcinschi.rimmanew.util;
 
-
 import com.vgorcinschi.rimmanew.rest.weatherjaxb.Time;
 import java.time.DayOfWeek;
+import java.time.Duration;
+import static java.time.Duration.between;
 import java.time.LocalDate;
 import static java.time.LocalDate.of;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -79,5 +81,36 @@ public class Java8Toolkit {
         Function<LocalDate, java.util.Date> sqlizer;
         sqlizer = (from) -> new java.util.Date(from.getYear() - 1900, from.getMonthValue() - 1, from.getDayOfMonth());
         return sqlizer.apply(localDate);
+    }
+
+    //this is not used, the recursive method below proved faster (88 msecs vs 0 msecs)
+    public static List<LocalTime> durationSplitr(LocalTime l1, LocalTime l2, Duration d) {
+        List<LocalTime> avails = new LinkedList<>();
+        //LocalTime is an immutable class, so we don't need to clone the original
+        //imported object to maintain the referential transparency
+        LocalTime sliding = l1;
+        Duration intermediary = between(sliding, l2);
+        while (d.toMinutes() <= intermediary.toMinutes()) {
+            avails.add(sliding);
+            sliding = sliding.plusMinutes(d.toMinutes());
+            intermediary = between(sliding, l2);
+        }
+        return avails;
+    }
+
+    public static List<LocalTime> recursiveDurationSplitr(Duration d, LocalTime l1,
+            LocalTime l2) {
+        List<LocalTime> list = new LinkedList<>();
+        return durationSplitrHelper(d, l1, l2, list);
+    }
+
+    public static List<LocalTime> durationSplitrHelper(Duration d, LocalTime l1,
+            LocalTime l2, List<LocalTime> list) {
+        if (d.toMinutes() <= between(l1, l2).toMinutes()) {
+            list.add(l1);
+            return durationSplitrHelper(d, l1.plusMinutes(d.toMinutes()), l2, list);
+        } else {
+            return list;
+        }
     }
 }
