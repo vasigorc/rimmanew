@@ -15,8 +15,7 @@ import org.junit.runners.Suite.SuiteClasses;
  * @author vgorcinschi
  */
 @RunWith(value=org.junit.runners.Suite.class)
-@SuiteClasses(value={AppointmentCDIMockTests.class, CDIIntegrationTesting.class,
-InjectionTesting.class, ServiceMethodsTests.class})
+@SuiteClasses(value={InjectionTesting.class, ServiceMethodsTests.class})
 public class InmutableInMemoryRepositoryTestsSuite {
     
     public InmutableInMemoryRepositoryTestsSuite() {

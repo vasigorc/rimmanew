@@ -3,7 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.vgorcinschi.rimmanew.model;
+package com.vgorcinschi.rimmanew.helpers;
+
+import java.time.LocalDate;
 
 /**
  *
@@ -15,5 +17,5 @@ package com.vgorcinschi.rimmanew.model;
  * 3. then it is Normal Day
  */
 public interface ScheduleHandler {
-    void handleRequest();
+    void handleRequest(LocalDate l);
 }

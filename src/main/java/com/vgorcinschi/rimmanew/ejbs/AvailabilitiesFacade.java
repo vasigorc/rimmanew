@@ -6,6 +6,7 @@
 package com.vgorcinschi.rimmanew.ejbs;
 
 import com.vgorcinschi.rimmanew.model.ScheduleDay;
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import javax.ejb.AccessTimeout;
@@ -18,5 +19,5 @@ import javax.ejb.Local;
 @Local
 public interface AvailabilitiesFacade {
     @AccessTimeout(unit = TimeUnit.SECONDS, value = 7)
-    Optional<ScheduleDay> searchAvailabilities();
+    Optional<ScheduleDay> searchAvailabilities(LocalDate l);
 }

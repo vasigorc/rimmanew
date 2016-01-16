@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:jsf="http://xmlns.jcp.org/jsf"
+      xmlns:util="http://xmlns.jcp.org/jsf/composite/util">
+    <ui:composition>
+        <h:panelGroup id="requestComponent">
+            <!--normal or special schedules-->
+
+            <ui:fragment rendered="#{not appointmentFormBean.schedD.blocked and 
+                                     not appointmentFormBean.schedD.undefined
+                                     and appointmentFormBean.schedD.slots.present}">
+                <div style="margin-left: 0.5em;" class="col-xs-6 col-md-4">
+                    <util:appintake
+                        radioOptions="#{appointmentFormBean.schedD.slots.get()}"
+                        radioValue="#{appointmentFormBean.selectedTime}"
+                        mapKeyValues="#{appointmentFormBean.types}"
+                        selectMenuValue="#{appointmentFormBean.type}"
+                        selectMenuLabel="#{copy.type}"
+                        emailLabel="#{copy.email}"
+                        emailValue="#{appointmentFormBean.email}"
+                        clientLabel="#{copy.namePrompt}"
+                        clientValue="#{appointmentFormBean.name}"
+                        messagelLabel="#{copy.importantMsg}"
+                        messageValue="#{appointmentFormBean.message}"
+                        buttonText="#{copy.book}"
+                        actionMethod="#{appointmentFormBean.bookAction()}">                        
+                    </util:appintake>
+                </div>            
+            </ui:fragment>
+            <!--blocked day-->
+            <ui:fragment rendered="${appointmentFormBean.schedD.blocked}">
+                <div style="margin-left: 0.5em;" class="postit col-xs-6">
+                    <p>#{bigcopy.closedDay}</p>
+                    <p>#{appointmentFormBean.schedD.message}</p>
+                </div>
+            </ui:fragment>
+            <!--undefined day-->
+            <ui:fragment rendered="${appointmentFormBean.schedD.undefined}">
+                <div style="color: #FF6600; margin-left: 0.5em; border-style: solid; border-width: 0.15em; 
+                     border-color: #FF6600; border-radius: 1.2em;" class="col-xs-6 col-md-4">
+                    <h1 style="margin-left: 45%;"><i class="glyphicon glyphicon-hand-up"></i></h1>
+                    <p style="font-weight: bolder; font-size: 130%;">#{bigcopy.undefinedScheduleOne} 
+                        <input disabled="true" class="btn btn-default" type="button" value="#{copy.submitButton}"/>
+                        #{bigcopy.undefinedScheduleTwo}</p>
+                </div>
+            </ui:fragment>
+            <!--all appointments booked on otherwise applicable day-->
+            <ui:fragment rendered="${not appointmentFormBean.schedD.blocked and 
+                                     not appointmentFormBean.schedD.undefined
+                                     and not appointmentFormBean.schedD.slots.present}">
+
+            </ui:fragment>
+        </h:panelGroup>
+    </ui:composition>
+</html>

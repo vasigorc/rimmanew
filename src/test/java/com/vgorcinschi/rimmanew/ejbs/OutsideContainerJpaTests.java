@@ -6,25 +6,27 @@
 package com.vgorcinschi.rimmanew.ejbs;
 
 import com.vgorcinschi.rimmanew.entities.Appointment;
+import com.vgorcinschi.rimmanew.entities.DivizableDay;
 import com.vgorcinschi.rimmanew.model.AppointmentWrapper;
 import com.vgorcinschi.rimmanew.util.EntityManagerFactoryProvider;
+import static com.vgorcinschi.rimmanew.util.Java8Toolkit.getAvailabilitiesPerWorkingDay;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToSqlDate;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToSqlTime;
+import static com.vgorcinschi.rimmanew.util.Java8Toolkit.noBreakInSchedule;
 import java.sql.Date;
 import static java.sql.Date.valueOf;
 import java.sql.Time;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import static java.time.LocalTime.of;
 import java.util.List;
-import static java.util.Optional.of;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import javax.transaction.UserTransaction;
-import org.junit.After;
 import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -137,9 +139,9 @@ public class OutsideContainerJpaTests {
         assertEquals(appointmentService
                 .findByName("Aglaia Ivanovna").size(), 0);
     }
-    
+
     @Test
-    public void testBeforeADate(){
+    public void testBeforeADate() {
         Appointment dummy2 = new Appointment(2,
                 valueOf(LocalDate.of(2015, 07, 07)), localToSqlTime(LocalTime.of(14, 00)),
                 "manicure", "Aglaia Ivanovna", "cratita@mail.md", "Vin, vin");
@@ -147,6 +149,21 @@ public class OutsideContainerJpaTests {
         appointmentService.deleteAllBefore(valueOf(LocalDate.of(2015, 07, 07)));
         assertEquals(appointmentService
                 .findByDate(valueOf(LocalDate.of(2015, 07, 07))).size(), 0);
+    }
+
+    @Test
+    public void testGetAvailabilitiesPerWorkingDay() {
+        
+        List<LocalTime> testList = getAvailabilitiesPerWorkingDay
+                .apply(new DivizableDayStub(), 
+                        repository.getByDate(localToSqlDate(LocalDate.of(2015, 12, 30))), 
+                        noBreakInSchedule);
+        System.out.println(testList);
+        assertEquals("The returned list should not include "
+                + "localtimes of saved appointments", testList.contains(
+                        appointmentService.findByDateAndTime(localToSqlDate(
+                                LocalDate.of(2015, 12, 30)), 
+                                localToSqlTime(of(16, 0))).getTime()), false);
     }
 
     //stub class for the repository using driver on the test classpath
@@ -331,5 +348,34 @@ public class OutsideContainerJpaTests {
                 em.close();
             }
         }
+    }
+
+    public class DivizableDayStub implements DivizableDay {
+
+        @Override
+        public LocalTime getStartAt() {
+            return of(10, 0);
+        }
+
+        @Override
+        public LocalTime getEndAt() {
+            return of(17, 0);
+        }
+
+        @Override
+        public Duration getDuration() {
+            return Duration.ofMinutes(30);
+        }
+
+        @Override
+        public LocalTime getBreakStart() {
+            return of(12, 0);
+        }
+
+        @Override
+        public LocalTime getBreakEnd() {
+            return of(13, 0);
+        }
+
     }
 }

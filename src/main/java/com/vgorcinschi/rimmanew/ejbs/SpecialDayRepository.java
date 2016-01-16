@@ -7,7 +7,6 @@ package com.vgorcinschi.rimmanew.ejbs;
 
 import com.vgorcinschi.rimmanew.entities.SpecialDay;
 import java.time.LocalDate;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import javax.ejb.AccessTimeout;
 import javax.ejb.Local;
@@ -22,11 +21,13 @@ import javax.ejb.LockType;
 @Lock(LockType.WRITE)
 public interface SpecialDayRepository {
 
+    //TODO Add SpecialDayService for the Admin part, where we will
+    //need differentiation between update & add
     //Create
     boolean setSpecialDay(SpecialDay sd);
     //Read
     @AccessTimeout(unit = TimeUnit.SECONDS, value = 15)
-    Optional<SpecialDay> getSpecialDay(LocalDate ld);
+    SpecialDay getSpecialDay(LocalDate ld);
     //Update
     boolean updateSpecialDay(SpecialDay sd);
     //Delete

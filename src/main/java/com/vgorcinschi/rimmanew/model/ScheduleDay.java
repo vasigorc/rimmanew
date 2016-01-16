@@ -16,4 +16,6 @@ import java.util.Optional;
 public interface ScheduleDay {
     boolean isBlocked();
     Optional<List<LocalTime>> getSlots();
+    boolean isUndefined();
+    String getMessage();
 }

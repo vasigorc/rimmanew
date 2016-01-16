@@ -5,7 +5,11 @@
  */
 package com.vgorcinschi.rimmanew.util;
 
+import com.vgorcinschi.rimmanew.entities.Appointment;
+import com.vgorcinschi.rimmanew.entities.DivizableDay;
+import com.vgorcinschi.rimmanew.helpers.TriFunction;
 import com.vgorcinschi.rimmanew.rest.weatherjaxb.Time;
+import static com.vgorcinschi.rimmanew.util.ExecutorFactoryProvider.getSingletonExecutorOf30;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import static java.time.Duration.between;
@@ -15,8 +19,14 @@ import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import static java.util.stream.Collectors.toList;
 
 /**
  *
@@ -113,4 +123,43 @@ public class Java8Toolkit {
             return list;
         }
     }
+
+    //if either BreakStart or BreakEnd are null then we consider that
+    //there is no break in the day
+    public static Predicate<DivizableDay> noBreakInSchedule = (DivizableDay dd)
+            -> dd.getBreakStart() == null || dd.getBreakEnd() == null;
+    /**
+     * a static TriFunction that takes as @args: 1. an implementation of
+     * DivizableDay(getMethods for a normal or special schedule) 2. a list of
+     * already booked times (LocalTimes to be precise) 3. a Predicate that will
+     * test whether there is a break in the day or not return a list of
+     * availabilities (LocalTimes)
+     */
+    public static TriFunction<DivizableDay, List<Appointment>, Predicate<DivizableDay>, 
+            List<LocalTime>> getAvailabilitiesPerWorkingDay = 
+            (DivizableDay dd, List<Appointment> appsList, Predicate<DivizableDay> predicate)
+            -> {
+                //initializing the list that will be returned (not shared
+                //with other threads, nor passed to other methods)
+                @SuppressWarnings("UnusedAssignment")
+                List<LocalTime> avails = new LinkedList<>();
+                if (predicate.test(dd)) 
+                    avails = recursiveDurationSplitr(dd.getDuration(), dd.getStartAt(), dd.getEndAt());
+                else{
+                    //querying all availabilities before noon in a separate thread
+                    Future<List<LocalTime>> beforeNoon = 
+                            CompletableFuture.supplyAsync(()->recursiveDurationSplitr(dd.getDuration(), dd.getStartAt(), dd.getBreakStart()),
+                                    getSingletonExecutorOf30());
+                    avails = recursiveDurationSplitr(dd.getDuration(), dd.getBreakEnd(), dd.getEndAt());
+                    try {                         
+                         avails.addAll(beforeNoon.get(1500, TimeUnit.MILLISECONDS));
+                    } catch (InterruptedException|ExecutionException|TimeoutException e) {
+                        //TODO logging has to go here
+                    }                    
+                }
+                //subtracting from avails LocalTimes mapped from appsList
+                avails.removeAll(appsList.stream().map(a->a.getTime().toLocalTime()).collect(toList()));
+                return avails.stream().sorted().collect(toList());
+            };
+
 }

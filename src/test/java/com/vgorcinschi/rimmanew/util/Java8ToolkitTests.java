@@ -44,5 +44,5 @@ public class Java8ToolkitTests {
         long duration = (System.nanoTime() - start) / 1_000_000;
         assertEquals(3, test.size());
         System.out.println("Recursive result is: " + test + "\nResult returned in " +duration+ " msecs\n");
-    }
+    } 
 }

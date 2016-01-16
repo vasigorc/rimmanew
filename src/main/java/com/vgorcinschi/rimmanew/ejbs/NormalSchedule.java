@@ -5,6 +5,7 @@
  */
 package com.vgorcinschi.rimmanew.ejbs;
 
+import com.vgorcinschi.rimmanew.entities.DivizableDay;
 import java.time.Duration;
 import java.time.LocalTime;
 import javax.ejb.Local;
@@ -17,15 +18,20 @@ import javax.ejb.LockType;
  */
 @Local
 @Lock(LockType.WRITE)    
-public interface NormalSchedule {
-    void setDayStart(LocalTime lt);
-    LocalTime getDayStart();
-    void setDayEnd(LocalTime lt);
-    LocalTime getDayEnd();
+public interface NormalSchedule extends DivizableDay{
+    void setStartAt(LocalTime lt);
+    @Override
+    LocalTime getStartAt();
+    void setEndAt(LocalTime lt);
+    @Override
+    LocalTime getEndAt();
     void setDuration(Duration d);
+    @Override
     Duration getDuration();
     void setBreakStart(LocalTime lt);
+    @Override
     LocalTime getBreakStart();
     void setBreakEnd(LocalTime lt);
+    @Override
     LocalTime getBreakEnd();
 }

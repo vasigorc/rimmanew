@@ -15,6 +15,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  *
@@ -22,6 +23,7 @@ import javax.persistence.Id;
  */
 @Entity
 @Access(AccessType.PROPERTY)
+@Table(name = "special_day")
 public class SpecialDay implements Serializable {
 
     private long id;

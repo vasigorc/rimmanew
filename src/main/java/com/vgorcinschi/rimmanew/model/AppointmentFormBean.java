@@ -6,7 +6,9 @@
 package com.vgorcinschi.rimmanew.model;
 
 import com.vgorcinschi.rimmanew.annotations.JpaService;
+import com.vgorcinschi.rimmanew.annotations.Production;
 import com.vgorcinschi.rimmanew.ejbs.AppointmentService;
+import com.vgorcinschi.rimmanew.ejbs.AvailabilitiesFacade;
 import com.vgorcinschi.rimmanew.entities.Appointment;
 import com.vgorcinschi.rimmanew.helpers.InternationalizableDateBuilder;
 import com.vgorcinschi.rimmanew.helpers.InternationalizableDateImpl;
@@ -24,17 +26,13 @@ import javax.enterprise.context.SessionScoped;
 import java.io.Serializable;
 import static java.time.LocalDate.now;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import static java.util.stream.Collectors.toList;
-import java.util.stream.IntStream;
-import javax.ejb.EJB;
-import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 
 /**
@@ -52,15 +50,21 @@ public class AppointmentFormBean implements Serializable {
     private LocalTime selectedTime;
     private String name;
     private String email, message, type;
+    private ScheduleDay schedD;
     
     @Inject
     @JpaService
     private AppointmentService service;
+    
+    @Inject
+    @Production
+    private AvailabilitiesFacade facade;
    
     public AppointmentFormBean() {
         bookedAlready = new ArrayList<>();
         types = new LinkedHashMap<>(4, (float) 0.75);
         selectedDate = localToUtilDate(getNextSuitableDate(now(), isAWeekEnd, nextNotWeekEnd));
+        schedD = new UndefinedDaySchedule();
     }
 
     public AppointmentService getService() {
@@ -78,11 +82,9 @@ public class AppointmentFormBean implements Serializable {
     public void setSelectedDate(Date selectedDate) {
         this.selectedDate = selectedDate;
         setDatePickerActivated(true);
-        /*
-         Here will go the logic about checking the status
-         and the availabilities of the SceduleDay
-         */
-        setBookedAlready(service.findByDate(DateConverters.utilToSql(selectedDate)));
+         //Checking the status and the availabilities of the SceduleDay
+        setSchedD(facade.searchAvailabilities(selectedDate.toInstant()
+                .atZone(ZoneId.of("America/Montreal")).toLocalDate()).get());
     }
 
     public boolean isDatePickerActivated() {
@@ -99,21 +101,7 @@ public class AppointmentFormBean implements Serializable {
 
     public void setBookedAlready(List<AppointmentWrapper> dayAppointments) {
         this.bookedAlready = dayAppointments;
-    }
-
-    /*
-     This will be replaced altogether
-     As the client doesn't need a list of appointments,
-     but rather a list of availabilities. The given below
-     is only a temporary hack
-     */
-    public List<LocalTime> getAvailabilities() {
-        List<Integer> freeSpots = IntStream.rangeClosed(9, 16).filter(i -> i != 12).boxed().collect(toList());
-        IntStream takenSpots = new LinkedList<>(getBookedAlready()).stream().mapToInt(wrapper
-                -> wrapper.getTime().getHour());
-        freeSpots.removeAll(takenSpots.boxed().collect(toList()));
-        return freeSpots.stream().map(i -> LocalTime.of(i, 0)).collect(toList());
-    }
+    }   
 
     public Map<String, String> getTypes() {
         if (types.isEmpty()) {
@@ -191,5 +179,13 @@ public class AppointmentFormBean implements Serializable {
     
     public String getLocalizedType(){
         return getLocalizedLabel(type);
+    }
+
+    public ScheduleDay getSchedD() {
+        return schedD;
+    }
+
+    public void setSchedD(ScheduleDay schedD) {
+        this.schedD = schedD;
     }
 }
