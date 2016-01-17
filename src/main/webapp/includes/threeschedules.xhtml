@@ -7,7 +7,6 @@ and open the template in the editor.
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:f="http://java.sun.com/jsf/core"
       xmlns:ui="http://java.sun.com/jsf/facelets"
       xmlns:jsf="http://xmlns.jcp.org/jsf"
       xmlns:util="http://xmlns.jcp.org/jsf/composite/util">
@@ -38,17 +37,18 @@ and open the template in the editor.
             </ui:fragment>
             <!--blocked day-->
             <ui:fragment rendered="${appointmentFormBean.schedD.blocked}">
-                <div style="margin-left: 0.5em;" class="postit col-xs-6">
+                <div style="color: #878773; border-color: #878773;" 
+                     class="col-xs-6 col-md-4 borderClass">
+                    <h1 style="margin-left: 45%;"><i class="glyphicon glyphicon-warning-sign"></i></h1>
                     <p>#{bigcopy.closedDay}</p>
-                    <p>#{appointmentFormBean.schedD.message}</p>
+                    <br>#{appointmentFormBean.schedD.message}</br>
                 </div>
             </ui:fragment>
             <!--undefined day-->
             <ui:fragment rendered="${appointmentFormBean.schedD.undefined}">
-                <div style="color: #FF6600; margin-left: 0.5em; border-style: solid; border-width: 0.15em; 
-                     border-color: #FF6600; border-radius: 1.2em;" class="col-xs-6 col-md-4">
+                <div style="color: #FF6600; border-color: #FF6600;" class="col-xs-6 col-md-4 borderClass">
                     <h1 style="margin-left: 45%;"><i class="glyphicon glyphicon-hand-up"></i></h1>
-                    <p style="font-weight: bolder; font-size: 130%;">#{bigcopy.undefinedScheduleOne} 
+                    <p>#{bigcopy.undefinedScheduleOne} 
                         <input disabled="true" class="btn btn-default" type="button" value="#{copy.submitButton}"/>
                         #{bigcopy.undefinedScheduleTwo}</p>
                 </div>
