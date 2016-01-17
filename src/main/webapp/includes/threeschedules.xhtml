@@ -16,7 +16,8 @@ and open the template in the editor.
 
             <ui:fragment rendered="#{not appointmentFormBean.schedD.blocked and 
                                      not appointmentFormBean.schedD.undefined
-                                     and appointmentFormBean.schedD.slots.present}">
+                                     and appointmentFormBean.schedD.slots.present
+                                     and appointmentFormBean.schedD.slots.get().size()!=0}">
                 <div style="margin-left: 0.5em;" class="col-xs-6 col-md-4">
                     <util:appintake
                         radioOptions="#{appointmentFormBean.schedD.slots.get()}"
@@ -56,7 +57,11 @@ and open the template in the editor.
             <!--all appointments booked on otherwise applicable day-->
             <ui:fragment rendered="${not appointmentFormBean.schedD.blocked and 
                                      not appointmentFormBean.schedD.undefined
-                                     and not appointmentFormBean.schedD.slots.present}">
+                                     and appointmentFormBean.schedD.slots.get().size()==0}">
+                <div style="color: #5B87D2; border-color: #5B87D2;" class="col-xs-6 col-md-4 borderClass">
+                    <h1 style="margin-left: 45%;"><i class="glyphicon glyphicon-remove-circle"></i></h1>
+                    <p>#{bigcopy.allAppsAreOff}</p>
+                </div>
 
             </ui:fragment>
         </h:panelGroup>

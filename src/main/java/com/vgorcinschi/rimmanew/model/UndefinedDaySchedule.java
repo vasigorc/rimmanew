@@ -6,6 +6,7 @@
 package com.vgorcinschi.rimmanew.model;
 
 import java.time.LocalTime;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,7 +26,7 @@ public class UndefinedDaySchedule implements ScheduleDay{
 
     @Override
     public Optional<List<LocalTime>> getSlots() {
-        return Optional.empty();
+        return Optional.of(new LinkedList<LocalTime>());
     }
 
     @Override

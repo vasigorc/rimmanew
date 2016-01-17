@@ -37,6 +37,10 @@
                     <groupId>nekohtml</groupId>
                     <artifactId>xercesMinimal</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.apache.maven.wagon</groupId>
+                    <artifactId>wagon-webdav-jackrabbit</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
