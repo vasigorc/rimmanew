@@ -5,6 +5,9 @@
  */
 package com.vgorcinschi.rimmanew.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.vgorcinschi.rimmanew.rest.services.SqlDateAdapter;
+import com.vgorcinschi.rimmanew.rest.services.SqlTimeAdapter;
 import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Time;
@@ -19,6 +22,11 @@ import javax.persistence.Id;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  *
@@ -29,14 +37,23 @@ import javax.persistence.Transient;
         query="SELECT a FROM Appointment a order by a.date DESC")
 @Access(AccessType.PROPERTY)
 @Table(name = "appointment")
+@XmlRootElement(name="appointment")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Appointment implements Serializable {
 
+    @XmlElement
     private long id;
+    @XmlJavaTypeAdapter(SqlDateAdapter.class)
     private Date date;
+    @XmlJavaTypeAdapter(SqlTimeAdapter.class)
     private Time time;
+    @XmlElement
     private String type;
+    @XmlElement
     private String clientName;
+    @XmlElement
     private String email;
+    @XmlElement
     private String message;
 
     public Appointment() {
@@ -118,6 +135,7 @@ public class Appointment implements Serializable {
     }
 
     @Transient
+    @JsonIgnore
     public LocalTime getLocalTimeRepr() {
         return time.toLocalTime();
     }

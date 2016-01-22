@@ -5,6 +5,7 @@
  */
 package com.vgorcinschi.rimmanew.rest;
 
+import com.vgorcinschi.rimmanew.rest.clients.WeatherForecastClient;
 import com.vgorcinschi.rimmanew.rest.weatherjaxb.Clouds;
 import com.vgorcinschi.rimmanew.rest.weatherjaxb.DailyWeatherReport;
 import com.vgorcinschi.rimmanew.rest.weatherjaxb.Humidity;

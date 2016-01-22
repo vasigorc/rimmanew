@@ -5,6 +5,7 @@
  */
 package com.vgorcinschi.rimmanew.rest;
 
+import com.vgorcinschi.rimmanew.rest.clients.WeatherForecastClient;
 import com.vgorcinschi.rimmanew.rest.weatherjaxb.DailyWeatherReport;
 import org.junit.After;
 import org.junit.Before;

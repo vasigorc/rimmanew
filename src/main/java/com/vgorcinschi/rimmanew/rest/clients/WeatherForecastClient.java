@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.vgorcinschi.rimmanew.rest;
+package com.vgorcinschi.rimmanew.rest.clients;
 
 import com.vgorcinschi.rimmanew.rest.weatherjaxb.CustomForecastUnmarshaller;
 import java.io.Closeable;

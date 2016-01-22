@@ -8,7 +8,7 @@ package com.vgorcinschi.rimmanew.model;
 import com.vgorcinschi.rimmanew.model.dailyforecast.DailyForecast;
 import com.vgorcinschi.rimmanew.model.dailyforecast.TimeAdapter;
 import com.vgorcinschi.rimmanew.model.dailyforecast.UnavailableForecast;
-import com.vgorcinschi.rimmanew.rest.WeatherForecastClient;
+import com.vgorcinschi.rimmanew.rest.clients.WeatherForecastClient;
 import com.vgorcinschi.rimmanew.rest.weatherjaxb.DailyWeatherReport;
 import com.vgorcinschi.rimmanew.rest.weatherjaxb.Time;
 import static com.vgorcinschi.rimmanew.util.DateConverters.utilToSql;
