@@ -5,15 +5,13 @@
  */
 package com.vgorcinschi.rimmanew.rest.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vgorcinschi.rimmanew.annotations.JpaRepository;
 import com.vgorcinschi.rimmanew.ejbs.AppointmentRepository;
 import com.vgorcinschi.rimmanew.entities.Appointment;
 import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.inject.Inject;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
@@ -49,7 +47,11 @@ public class AppointmentResourceService {
 
     @POST
     @Produces("application/json")
-    public Response bookAppointment() {
+    public Response bookAppointment(@FormParam("date") String appDate, 
+            @FormParam("time") String appTime, @FormParam("type") String appType, 
+            @FormParam("clientName") String clientName, 
+            @DefaultValue("") @FormParam("email") String clientEmail, 
+            @DefaultValue("") @FormParam("message") String clientMsg) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

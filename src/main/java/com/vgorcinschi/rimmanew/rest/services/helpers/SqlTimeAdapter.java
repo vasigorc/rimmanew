@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.vgorcinschi.rimmanew.rest.services;
+package com.vgorcinschi.rimmanew.rest.services.helpers;
 
 import java.sql.Time;
 import javax.xml.bind.annotation.adapters.XmlAdapter;

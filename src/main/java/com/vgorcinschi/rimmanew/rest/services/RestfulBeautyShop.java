@@ -5,6 +5,7 @@
  */
 package com.vgorcinschi.rimmanew.rest.services;
 
+import com.vgorcinschi.rimmanew.rest.services.helpers.SqlDateConverterProvider;
 import java.util.HashSet;
 import java.util.Set;
 import javax.ws.rs.ApplicationPath;
@@ -15,10 +16,11 @@ import javax.ws.rs.core.Application;
  * @author vgorcinschi
  */
 @ApplicationPath("/rest")
-public class RestfulBeautyShop extends Application{
+public class RestfulBeautyShop extends Application {
 
-    public RestfulBeautyShop() {}
-    
+    public RestfulBeautyShop() {
+    }
+
     @Override
     public Set<Object> getSingletons() {
         return super.getSingletons(); //To change body of generated methods, choose Tools | Templates.
@@ -28,6 +30,8 @@ public class RestfulBeautyShop extends Application{
     public Set<Class<?>> getClasses() {
         HashSet<Class<?>> set = new HashSet<>();
         set.add(AppointmentResourceService.class);
+        set.add(SqlDateConverterProvider.class);
+        set.add(SqlDateConverterProvider.class);
         return set;
     }
 }

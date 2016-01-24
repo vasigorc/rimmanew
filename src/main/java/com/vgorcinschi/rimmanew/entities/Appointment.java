@@ -6,8 +6,8 @@
 package com.vgorcinschi.rimmanew.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.vgorcinschi.rimmanew.rest.services.SqlDateAdapter;
-import com.vgorcinschi.rimmanew.rest.services.SqlTimeAdapter;
+import com.vgorcinschi.rimmanew.rest.services.helpers.SqlDateAdapter;
+import com.vgorcinschi.rimmanew.rest.services.helpers.SqlTimeAdapter;
 import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Time;
