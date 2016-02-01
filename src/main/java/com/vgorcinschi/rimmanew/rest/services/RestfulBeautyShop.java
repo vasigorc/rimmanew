@@ -5,7 +5,9 @@
  */
 package com.vgorcinschi.rimmanew.rest.services;
 
+import com.vgorcinschi.rimmanew.rest.services.helpers.BadRequestExceptionMapper;
 import com.vgorcinschi.rimmanew.rest.services.helpers.SqlDateConverterProvider;
+import com.vgorcinschi.rimmanew.rest.services.helpers.SqlTimeConverterProvider;
 import java.util.HashSet;
 import java.util.Set;
 import javax.ws.rs.ApplicationPath;
@@ -30,8 +32,9 @@ public class RestfulBeautyShop extends Application {
     public Set<Class<?>> getClasses() {
         HashSet<Class<?>> set = new HashSet<>();
         set.add(AppointmentResourceService.class);
+        set.add(BadRequestExceptionMapper.class);
         set.add(SqlDateConverterProvider.class);
-        set.add(SqlDateConverterProvider.class);
+        set.add(SqlTimeConverterProvider.class);
         return set;
     }
 }

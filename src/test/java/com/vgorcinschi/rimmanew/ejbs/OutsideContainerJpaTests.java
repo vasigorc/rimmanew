@@ -42,6 +42,7 @@ public class OutsideContainerJpaTests {
     EntityManagerFactory entityManagerFactory;
     AppointmentService appointmentService;
     AppointmentRepository repository;
+    
     //field to control the execution of some queries
     int count = 1;
 
@@ -165,7 +166,10 @@ public class OutsideContainerJpaTests {
                                 LocalDate.of(2015, 12, 30)), 
                                 localToSqlTime(of(16, 0))).getTime()), false);
     }
-
+    public AppointmentRepository getRepository() {
+        return repository;
+    }
+    
     //stub class for the repository using driver on the test classpath
     public class JpaAppointmentRepositoryStub implements AppointmentRepository {
 
@@ -184,7 +188,6 @@ public class OutsideContainerJpaTests {
             EntityTransaction trans = em.getTransaction();
             try {
                 trans.begin();
-                em.joinTransaction();
                 em.persist(appointment);
                 trans.commit();
             } catch (Exception e) {
