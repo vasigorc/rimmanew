@@ -17,7 +17,6 @@ public class SqlDateConverter implements ParamConverter<Date> {
 
     @Override
     public Date fromString(String value) {
-        System.out.println("entered date");
         if (!value.matches("\\d{4}-\\d{2}-\\d{2}"))
             throw new BadRequestException(value+ " wasn't recognized as "
                     + "a valid date on the server side. Please follow this "

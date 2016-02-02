@@ -51,7 +51,7 @@ public class AppointmentResourceServiceTests {
     @Test(expected = BadRequestException.class)
     public void testAPastDateAttempt() {
         service.bookAppointment(Java8Toolkit.localToSqlDate(LocalDate.of(2014, 01, 12)),
-                localToSqlTime(LocalTime.of(15, 00)), "massage", "Rimma",
+                "15:00", "massage", "Rimma",
                 "valid@email.ca", "any");
     }
 
@@ -59,7 +59,7 @@ public class AppointmentResourceServiceTests {
     public void testADateMoreThen3MonthsInTheFuture() {
         try {
             service.bookAppointment(Java8Toolkit.localToSqlDate(LocalDate.of(2019, 01, 12)),
-                    localToSqlTime(LocalTime.of(15, 00)), "massage", "Rimma",
+                    "15:00", "massage", "Rimma",
                     "valid@email.ca", "any");
         } catch (BadRequestException e) {
             assertEquals(e.getMessage(), "You cannot take appointment on a "
@@ -72,7 +72,7 @@ public class AppointmentResourceServiceTests {
         try {
             service.bookAppointment(
                     Java8Toolkit.localToSqlDate(LocalDate.now().plusMonths(2)),
-                    localToSqlTime(LocalTime.of(15, 00)), "massage", "",
+                    "15:00", "massage", "",
                     "valid@email.ca", "any");
         } catch (BadRequestException e) {
             assertEquals(e.getMessage(), "The request has been rejected because "
@@ -85,7 +85,7 @@ public class AppointmentResourceServiceTests {
     public void integrationTestException(){
         service.bookAppointment(
                     Java8Toolkit.localToSqlDate(LocalDate.now().plusDays((long)new Random().nextInt(90))),
-                    localToSqlTime(LocalTime.of(15, 00)), "massage", "Rimma",
+                    "15:00", "massage", "Rimma",
                     "valid%40email.ca", "any");
     }
     

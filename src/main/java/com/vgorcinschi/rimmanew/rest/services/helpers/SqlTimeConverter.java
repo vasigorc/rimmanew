@@ -23,14 +23,13 @@ public class SqlTimeConverter implements ParamConverter<Time> {
         //in case the ParamConverter does not do URI deconding
         value = value.replaceAll("%3A", ":");
         //in case if the client has not sent the seconds we still need to 
-        //append them so that the Constructor works
-        if (value.matches("([01]?[0-9]|2[0-3]):[0-5][0-9]") && value.length() < 6) {
-            value = value.concat(":00");
-        }
+        //append them so that the Constructor works        
         if (!value.matches(TIME24HOURS_PATTERN)) {
             throw new BadRequestException(value + " is not an accepted Time format "
                     + "please use this pattern: hh:mm:SS");
         }
+        if (value.length() < 6) 
+            value = value.concat(":00");
         return Time.valueOf(value);
     }
 

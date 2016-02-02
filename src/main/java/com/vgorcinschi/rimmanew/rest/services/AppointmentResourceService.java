@@ -8,6 +8,7 @@ package com.vgorcinschi.rimmanew.rest.services;
 import com.vgorcinschi.rimmanew.annotations.JpaRepository;
 import com.vgorcinschi.rimmanew.ejbs.AppointmentRepository;
 import com.vgorcinschi.rimmanew.entities.Appointment;
+import com.vgorcinschi.rimmanew.rest.services.helpers.SqlTimeConverter;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToSqlDate;
 import java.sql.Date;
 import java.sql.Time;
@@ -60,13 +61,14 @@ public class AppointmentResourceService {
     @Produces("application/json")
     @Consumes("application/x-www-form-urlencoded")
     public Response bookAppointment(@FormParam("date") Date appDate,
-            @FormParam("time") Time appTime, @FormParam("type") String appType,
+            @FormParam("time") String appTime, @FormParam("type") String appType,
             @FormParam("clientName") String clientName, @FormParam("email") String clientEmail,
             @DefaultValue("") @FormParam("message") String clientMsg) {
         //externalize the validation of all fields to concentrate on "positive"
         //scenario only
         validator(appDate, appType, clientName, clientEmail);
-        Appointment appointment = build(appDate, appTime, appType,clientName, 
+        Time converted = new SqlTimeConverter().fromString(appTime);
+        Appointment appointment = build(appDate, converted, appType,clientName, 
                     clientEmail, clientMsg);
         try {
             repository.add(appointment);

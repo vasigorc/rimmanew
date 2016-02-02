@@ -22,7 +22,7 @@ public class SqlDateConverterProvider implements ParamConverterProvider {
 
     @Override
     public <T> ParamConverter<T> getConverter(Class<T> rawType, Type genericType, Annotation[] annotations) {
-        if (rawType.getName().equals(Date.class.getName())) {
+        if (rawType.equals(Date.class)) {
             return new ParamConverter<T>() {
 
                 @Override
@@ -37,7 +37,7 @@ public class SqlDateConverterProvider implements ParamConverterProvider {
 
                 @Override
                 public String toString(T value) {
-                    if (value==null) {
+                    if (value == null) {
                         return null;
                     }
                     return value.toString();
