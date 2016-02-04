@@ -10,6 +10,7 @@ import com.vgorcinschi.rimmanew.entities.DivizableDay;
 import com.vgorcinschi.rimmanew.helpers.TriFunction;
 import com.vgorcinschi.rimmanew.rest.weatherjaxb.Time;
 import static com.vgorcinschi.rimmanew.util.ExecutorFactoryProvider.getSingletonExecutorOf30;
+import java.net.URI;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import static java.time.Duration.between;
@@ -19,14 +20,18 @@ import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import static java.util.stream.Collectors.toList;
+import javax.ws.rs.core.UriBuilder;
 
 /**
  *
@@ -135,31 +140,39 @@ public class Java8Toolkit {
      * test whether there is a break in the day or not return a list of
      * availabilities (LocalTimes)
      */
-    public static TriFunction<DivizableDay, List<Appointment>, Predicate<DivizableDay>, 
-            List<LocalTime>> getAvailabilitiesPerWorkingDay = 
-            (DivizableDay dd, List<Appointment> appsList, Predicate<DivizableDay> predicate)
+    public static TriFunction<DivizableDay, List<Appointment>, Predicate<DivizableDay>, List<LocalTime>> getAvailabilitiesPerWorkingDay
+            = (DivizableDay dd, List<Appointment> appsList, Predicate<DivizableDay> predicate)
             -> {
                 //initializing the list that will be returned (not shared
                 //with other threads, nor passed to other methods)
                 @SuppressWarnings("UnusedAssignment")
                 List<LocalTime> avails = new LinkedList<>();
-                if (predicate.test(dd)) 
+                if (predicate.test(dd)) {
                     avails = recursiveDurationSplitr(dd.getDuration(), dd.getStartAt(), dd.getEndAt());
-                else{
+                } else {
                     //querying all availabilities before noon in a separate thread
-                    Future<List<LocalTime>> beforeNoon = 
-                            CompletableFuture.supplyAsync(()->recursiveDurationSplitr(dd.getDuration(), dd.getStartAt(), dd.getBreakStart()),
-                                    getSingletonExecutorOf30());
+                    Future<List<LocalTime>> beforeNoon
+                    = CompletableFuture.supplyAsync(() -> recursiveDurationSplitr(dd.getDuration(), dd.getStartAt(), dd.getBreakStart()),
+                            getSingletonExecutorOf30());
                     avails = recursiveDurationSplitr(dd.getDuration(), dd.getBreakEnd(), dd.getEndAt());
-                    try {                         
-                         avails.addAll(beforeNoon.get(1500, TimeUnit.MILLISECONDS));
-                    } catch (InterruptedException|ExecutionException|TimeoutException e) {
+                    try {
+                        avails.addAll(beforeNoon.get(1500, TimeUnit.MILLISECONDS));
+                    } catch (InterruptedException | ExecutionException | TimeoutException e) {
                         //TODO logging has to go here
-                    }                    
+                    }
                 }
                 //subtracting from avails LocalTimes mapped from appsList
-                avails.removeAll(appsList.stream().map(a->a.getTime().toLocalTime()).collect(toList()));
+                avails.removeAll(appsList.stream().map(a -> a.getTime().toLocalTime()).collect(toList()));
                 return avails.stream().sorted().collect(toList());
             };
+    public static Supplier<UriBuilder> appsUriBuilder = () -> UriBuilder.fromPath("RimmaNew/rest").scheme("http")
+            .host("localhost").port(8080);
 
+    public static BiFunction<Supplier<UriBuilder>, Map<String, String>, URI> uriGenerator
+            = (supplier, map) -> {
+                UriBuilder clone = supplier.get().clone();
+                if(map.containsKey("path"))
+                    clone.path(map.get("path"));
+                return clone.buildFromMap(map);
+            };
 }

@@ -9,13 +9,19 @@ import com.vgorcinschi.rimmanew.annotations.JpaRepository;
 import com.vgorcinschi.rimmanew.ejbs.AppointmentRepository;
 import com.vgorcinschi.rimmanew.entities.Appointment;
 import com.vgorcinschi.rimmanew.rest.services.helpers.SqlTimeConverter;
+import com.vgorcinschi.rimmanew.util.Java8Toolkit;
+import static com.vgorcinschi.rimmanew.util.Java8Toolkit.appsUriBuilder;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToSqlDate;
+import static com.vgorcinschi.rimmanew.util.Java8Toolkit.uriGenerator;
 import java.net.URI;
 import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import static java.util.Optional.ofNullable;
+import java.util.function.Supplier;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
@@ -89,31 +95,29 @@ public class AppointmentResourceService {
     @Path("{id}")
     @Produces("application/json")
     @Consumes("application/x-www-form-urlencoded")
-    public Response updateAppointment(@PathParam("id") int id, 
-            @FormParam("date") Date appDate, @FormParam("time") String appTime, 
-            @FormParam("type") String appType, @FormParam("clientName") String clientName, 
-            @FormParam("email") String clientEmail, @DefaultValue("") 
+    public Response updateAppointment(@PathParam("id") int id,
+            @FormParam("date") Date appDate, @FormParam("time") String appTime,
+            @FormParam("type") String appType, @FormParam("clientName") String clientName,
+            @FormParam("email") String clientEmail, @DefaultValue("")
             @FormParam("message") String clientMsg) {
-        if (Integer.valueOf(id) == null) {
+        if (Integer.valueOf(id) == null) 
             throw new BadRequestException("The id of the "
                     + "appintment that you wish to modify hasn't been provided.");
-        }
         //externalize the validation of all fields to concentrate on "positive"
         //scenario only
         validator(appDate, appType, clientName, clientEmail);
         Time converted = new SqlTimeConverter().fromString(appTime);
         Appointment appointment = repository.get(id);
-        if (ofNullable(appointment).isPresent()) {            
+        if (ofNullable(appointment).isPresent()) {
             repository.update(build(appointment, appDate, converted, appType, clientName,
-                clientEmail, clientMsg));
-            //prepare the link to the updated entity
-            UriBuilder builder = UriBuilder.fromPath("RimmaNew/rest/appointments/{id}");
-            builder.scheme("http").host("{hostname}").port(8080);
-            URI uri = builder.build("localhost", id);
-            return Response.ok(uri).build();
-            
+                    clientEmail, clientMsg));
+            //parameters for the return link
+            Map<String, String> map = new HashMap<>();
+            map.put("path", "appointments/" + Integer.toString(id));
+            return Response.ok(uriGenerator.apply(appsUriBuilder, map)).build();
+
         }
-        throw new BadRequestException("The appointment with "+id+" doesn't exist!");
+        throw new BadRequestException("The appointment with " + id + " doesn't exist!");
     }
 
     public boolean validator(Date appDate, String appType,
@@ -157,5 +161,4 @@ public class AppointmentResourceService {
         }
         return appointment;
     }
-
 }
