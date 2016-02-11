@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <h:head>
+        <h:outputStylesheet library="css" name="bootstrap.min.css"/>
+        <title>#{copy.uriPropsPage}</title>
+    </h:head>
+    <h:body>
+        <div class="row">
+            <div style="margin-left: 1em;" class="col-xs-6 col-sm-4">
+                <h1>#{copy.updateSiteConfigs}</h1>
+                <h:form>
+                    <h:panelGrid columns="2">
+                        <div class="form-group">
+                            <label for="inputScheme">#{copy.inputScheme}</label>
+                            <h:panelGroup>
+                                <h:selectOneMenu required="true" requiredMessage="#{bigcopy.validateScheme}" 
+                                                 value="#{companyPropertiesBean.schemeName}" 
+                                                 class="form-control" id="inputScheme">
+                                    <f:selectItem itemValue="http" itemLabel="HTTP"/>
+                                    <f:selectItem itemValue="https" itemLabel="HTTPS"/>
+                                </h:selectOneMenu>
+                                <p class="help-block">
+                                    <h:message errorStyle="margin-top: 1em; padding: 5px; line-height: 1.4286;
+                                               background-color: #EEEEEE; color: #EE3630;
+                                               vertical-align: top; border-top: 1px solid #ffffff;
+                                               border-radius: 10px;" for="inputScheme"/></p> 
+                            </h:panelGroup>
+                        </div>
+                        <div class="form-group">                            
+                            <label for="inputPort">#{copy.inputPort}</label>
+                            <h:inputText class="form-control" id="inputPort"
+                                         value="#{companyPropertiesBean.port}">
+                            </h:inputText>                            
+                        </div>
+                        <div class="form-group">
+                            <label for="inputHost">#{copy.inputHost}</label>
+                            <h:panelGroup>
+                                <h:inputText class="form-control" id="inputHost"
+                                             value="#{companyPropertiesBean.hostName}">                                    
+                                    <f:validator validatorId="inputHostValidator"/>
+                                    <f:ajax event="blur" render="inputHostMessageId"/>
+                                </h:inputText>
+                                <p class="help-block">
+                                    <h:message id="inputHostMessageId" errorStyle="margin-top: 1em; padding: 5px; line-height: 1.4286;
+                                               background-color: #EEEEEE; color: #EE3630;
+                                               vertical-align: top; border-top: 1px solid #ffffff;
+                                               border-radius: 10px;" for="inputHost"/></p>
+                            </h:panelGroup>                            
+                        </div>
+                        <h:commandButton action="#{companyPropertiesBean.updateUriProperties()}" class="btn btn-default" id="submitUriChanges"
+                                         style="margin-top: 0.5em" value="#{bigcopy.submitUriChanges}"
+                                         type="button">
+                            <f:ajax event="click" render="updateUriStatus" execute="@form"></f:ajax>
+                        </h:commandButton>
+                    </h:panelGrid>
+                </h:form>
+                <br/>
+                <h:panelGroup id="updateUriStatus">
+                    <!--all went well-->
+                    <ui:fragment rendered="#{companyPropertiesBean.updateTried 
+                                             and companyPropertiesBean.urisUpdated}">
+                        <p class="text-success">#{bigcopy.uriValidationSucceeded}</p>
+                    </ui:fragment>
+                    <!--not really-->
+                    <ui:fragment rendered="#{companyPropertiesBean.updateTried 
+                                             and not companyPropertiesBean.urisUpdated}">
+                        <p class="text-danger">#{bigcopy.uriValidationFailed}</p>
+                    </ui:fragment>
+                </h:panelGroup>
+            </div>
+        </div>
+    </h:body>
+</html>

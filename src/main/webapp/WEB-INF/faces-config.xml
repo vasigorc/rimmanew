@@ -1,15 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <faces-config version="2.2"
-    xmlns="http://xmlns.jcp.org/xml/ns/javaee"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_2.xsd">
+              xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_2.xsd">
     <application>
         <locale-config>
             <default-locale>fr</default-locale>
             <supported-locale>en</supported-locale>
             <supported-locale>ru</supported-locale>
         </locale-config>
-            <message-bundle>com.vgorcinschi.rimmanew.messagebundles.messages</message-bundle>
+        <message-bundle>com.vgorcinschi.rimmanew.messagebundles.messages</message-bundle>
         <resource-bundle>
             <base-name>com.vgorcinschi.rimmanew.messagebundles.messages</base-name>
             <var>copy</var>
@@ -17,6 +17,10 @@
         <resource-bundle>
             <base-name>com.vgorcinschi.rimmanew.messagebundles.bigcopies</base-name>
             <var>bigcopy</var>
+        </resource-bundle>
+        <resource-bundle>
+            <base-name>com.vgorcinschi.rimmanew.entproperties.uriinfo</base-name>
+            <var>uriinfo</var>
         </resource-bundle>
     </application>
     <navigation-rule>
