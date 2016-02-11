@@ -23,7 +23,7 @@ import javax.faces.context.FacesContext;
  * @author vgorcinschi
  */
 @Named(value = "companyPropertiesBean")
-@SessionScoped
+@ApplicationScoped
 public class CompanyPropertiesBean implements Serializable {
 
     private String hostName, schemeName;
