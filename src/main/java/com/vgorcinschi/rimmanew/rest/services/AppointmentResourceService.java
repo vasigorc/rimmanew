@@ -8,25 +8,25 @@ package com.vgorcinschi.rimmanew.rest.services;
 import com.vgorcinschi.rimmanew.annotations.JpaRepository;
 import com.vgorcinschi.rimmanew.ejbs.AppointmentRepository;
 import com.vgorcinschi.rimmanew.entities.Appointment;
+import com.vgorcinschi.rimmanew.rest.services.helpers.JaxbAppointmentListWrapper;
+import com.vgorcinschi.rimmanew.rest.services.helpers.JaxbAppointmentListWrapperBuilder;
 import com.vgorcinschi.rimmanew.rest.services.helpers.SqlTimeConverter;
-import com.vgorcinschi.rimmanew.util.Java8Toolkit;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.appsUriBuilder;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToSqlDate;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.uriGenerator;
-import java.net.URI;
 import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import static java.util.Optional.ofNullable;
-import java.util.function.Supplier;
+import static java.util.stream.Collectors.toList;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
-import javax.ws.rs.Encoded;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
@@ -36,9 +36,9 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.UriBuilder;
 
 /**
  *
@@ -100,9 +100,10 @@ public class AppointmentResourceService {
             @FormParam("type") String appType, @FormParam("clientName") String clientName,
             @FormParam("email") String clientEmail, @DefaultValue("")
             @FormParam("message") String clientMsg) {
-        if (Integer.valueOf(id) == null) 
+        if (Integer.valueOf(id) == null) {
             throw new BadRequestException("The id of the "
                     + "appintment that you wish to modify hasn't been provided.");
+        }
         //externalize the validation of all fields to concentrate on "positive"
         //scenario only
         validator(appDate, appType, clientName, clientEmail);
@@ -118,6 +119,43 @@ public class AppointmentResourceService {
 
         }
         throw new BadRequestException("The appointment with " + id + " doesn't exist!");
+    }
+
+    @GET
+    @Produces("application/json")
+    public Response getAppointments(@QueryParam("offset") int offset,
+            @QueryParam("size") int size) {
+        //start by getting all appointments from EJB - the only available method
+        List<Appointment> list = repository.getAll();
+        //externalize requested size validation
+        int answerSize = sizeValidator(list.size(), offset, size);
+        List<Appointment> current = list.stream().skip(offset).limit(answerSize)
+                .collect(toList());
+        JaxbAppointmentListWrapper response = 
+                new JaxbAppointmentListWrapperBuilder(size, list.size(), 
+                        offset, current).compose();
+        return Response.ok(response).build();
+    }
+
+    public int sizeValidator(int listSize, int requestOffset, int requestSize) {
+        int answerSize;
+        if (requestSize < 1) {
+            throw new BadRequestException("You haven't requested any appointments");
+        }
+        if(listSize < 1){
+            throw new BadRequestException("There are no appointments that meet "
+                    + "your request");
+        }
+        if ((listSize - requestOffset)<1) {
+            throw new BadRequestException("There are less appointments in the "
+                    + "system than you have requested");
+        }
+        if ((listSize - requestOffset) < requestSize) {
+            answerSize = listSize - requestOffset;
+        } else {
+            answerSize = requestSize;
+        }
+        return answerSize;
     }
 
     public boolean validator(Date appDate, String appType,

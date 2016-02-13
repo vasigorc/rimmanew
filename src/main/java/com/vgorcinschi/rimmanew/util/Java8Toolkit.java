@@ -10,6 +10,7 @@ import com.vgorcinschi.rimmanew.entities.DivizableDay;
 import com.vgorcinschi.rimmanew.helpers.TriFunction;
 import com.vgorcinschi.rimmanew.rest.weatherjaxb.Time;
 import static com.vgorcinschi.rimmanew.util.ExecutorFactoryProvider.getSingletonExecutorOf30;
+import static java.lang.Integer.parseInt;
 import java.net.URI;
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -21,6 +22,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -165,8 +167,16 @@ public class Java8Toolkit {
                 avails.removeAll(appsList.stream().map(a -> a.getTime().toLocalTime()).collect(toList()));
                 return avails.stream().sorted().collect(toList());
             };
-    public static Supplier<UriBuilder> appsUriBuilder = () -> UriBuilder.fromPath("RimmaNew/rest").scheme("http")
-            .host("localhost").port(8080);
+    public static Supplier<UriBuilder> appsUriBuilder = () -> {
+        Properties props = PropertiesProvider.getUriProperties();
+        UriBuilder uriBuilder= UriBuilder.fromPath("RimmaNew/rest").scheme(props.getProperty("scheme"))
+            .host(props.getProperty("host"));
+        if(props.getProperty("port")==null||props.getProperty("port").equals(""))
+                return uriBuilder;
+        else
+            return uriBuilder.port(parseInt(props.getProperty("port")));
+        
+    };
 
     public static BiFunction<Supplier<UriBuilder>, Map<String, String>, URI> uriGenerator
             = (supplier, map) -> {
