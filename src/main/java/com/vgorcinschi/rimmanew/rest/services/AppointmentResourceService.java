@@ -132,7 +132,7 @@ public class AppointmentResourceService {
         List<Appointment> current = list.stream().skip(offset).limit(answerSize)
                 .collect(toList());
         JaxbAppointmentListWrapper response = 
-                new JaxbAppointmentListWrapperBuilder(size, list.size(), 
+                new JaxbAppointmentListWrapperBuilder(answerSize, list.size(), 
                         offset, current).compose();
         return Response.ok(response).build();
     }

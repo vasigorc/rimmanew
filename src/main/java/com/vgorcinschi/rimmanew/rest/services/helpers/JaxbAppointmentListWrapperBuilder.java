@@ -54,19 +54,21 @@ public class JaxbAppointmentListWrapperBuilder {
         Map<String, String> first = new HashMap<>();
         first.put("offset", valueOf(0));
         first.put("size", valueOf(requestSize));
+        first.put("path", "appointments");
         response.setFirst(uriGenerator.apply(appsUriBuilder, first));
     }
 
     //setting the last URI for response
     public void setLastURI() {
         Map<String, String> last = new HashMap<>();
-        if ((remainder - requestSize) < 1) {
+        if (remainder > requestSize) {
             last.put("size", valueOf(requestSize));
-            last.put("offset", valueOf((listSize - remainder) - 1));
+            last.put("offset", valueOf(listSize - requestSize));
         } else {
             last.put("size", valueOf(remainder));
-            last.put("offset", valueOf((listSize - requestSize) - 1));
+            last.put("offset", valueOf(listSize - remainder));
         }
+        last.put("path", "appointments");
         response.setLast(uriGenerator.apply(appsUriBuilder, last));
     }
 
@@ -80,12 +82,13 @@ public class JaxbAppointmentListWrapperBuilder {
             response.setNext(response.getLast());
         } else {
             Map<String, String> next = new HashMap<>();
-            next.put("offset", valueOf(remainder - 1));
-            if ((remainder - requestSize) < 1) {
+            next.put("offset", valueOf(current.size() + requestOffset));
+            if (remainder > requestSize) {
                 next.put("size", valueOf(requestSize));
             } else {
                 next.put("size", valueOf(remainder));
             }
+            next.put("path", "appointments");
             response.setNext(uriGenerator.apply(appsUriBuilder, next));
         }
     }
@@ -98,6 +101,7 @@ public class JaxbAppointmentListWrapperBuilder {
             Map<String, String> previous = new HashMap<>();
             previous.put("offset", valueOf(requestOffset - requestSize));
             previous.put("size", valueOf(requestSize));
+            previous.put("path", "appointments");
             response.setPrevious(uriGenerator.apply(appsUriBuilder, previous));
         }
     }

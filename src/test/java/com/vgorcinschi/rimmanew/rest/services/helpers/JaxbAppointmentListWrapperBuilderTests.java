@@ -43,12 +43,16 @@ public class JaxbAppointmentListWrapperBuilderTests {
     @Test
     public void testCurrentLoadReturned() {
         List<Appointment> list = repository.getAll();
-        List<Appointment> current = list.stream().skip(20).limit(20)
+        List<Appointment> current = list.stream().skip(5).limit(5)
                 .collect(toList());
         JaxbAppointmentListWrapper response = 
-                new JaxbAppointmentListWrapperBuilder(20, list.size(), 
-                        20, current).compose();
-        assertEquals(current.size(), response.getCurrent().size());
-        System.out.println(response.getFirst().toASCIIString());
+                new JaxbAppointmentListWrapperBuilder(5, list.size(), 
+                        5, current).compose();
+        assertNotEquals(list.size(), response.getReturnedSize());
+        assertEquals(current.size(), response.getReturnedSize());
+        System.out.println("First: "+response.getFirst().toASCIIString());
+        System.out.println("Last: "+response.getLast());
+        System.out.println("Next: "+response.getNext());
+        System.out.println("Previous: "+response.getPrevious());
     }
 }

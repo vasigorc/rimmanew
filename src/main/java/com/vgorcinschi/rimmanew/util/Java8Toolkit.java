@@ -183,6 +183,10 @@ public class Java8Toolkit {
                 UriBuilder clone = supplier.get().clone();
                 if(map.containsKey("path"))
                     clone.path(map.get("path"));
-                return clone.buildFromMap(map);
+                if(map.containsKey("offset"))
+                    clone.queryParam("offset", map.get("offset"));
+                if(map.containsKey("size"))
+                    clone.queryParam("size", map.get("size"));
+                return clone.build();
             };
 }
