@@ -3,16 +3,24 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.vgorcinschi.rimmanew.rest.services.helpers;
+package com.vgorcinschi.rimmanew.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.vgorcinschi.rimmanew.ejbs.AppointmentRepository;
 import com.vgorcinschi.rimmanew.ejbs.OutsideContainerJpaTests;
 import com.vgorcinschi.rimmanew.rest.services.AppointmentResourceService;
+import com.vgorcinschi.rimmanew.rest.services.helpers.SqlDateConverter;
+import com.vgorcinschi.rimmanew.rest.services.helpers.SqlTimeConverter;
 import com.vgorcinschi.rimmanew.util.Java8Toolkit;
 import java.time.LocalDate;
 import java.util.Random;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.core.Response;
+import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
+import static org.hamcrest.Matchers.containsString;
 import org.junit.After;
 import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
@@ -78,30 +86,61 @@ public class AppointmentResourceServiceTests {
                     + "name or client email");
         }
     }
-    
+
     @Test//(expected = InternalServerErrorException.class)
-    public void integrationTestException(){
+    public void integrationTestException() {
         service.bookAppointment(
-                    Java8Toolkit.localToSqlDate(LocalDate.now().plusDays((long)new Random().nextInt(90))),
-                    "15:00", "massage", "Rimma",
-                    "valid%40email.ca", "any");
+                Java8Toolkit.localToSqlDate(LocalDate.now().plusDays((long) new Random().nextInt(90))),
+                "15:00", "massage", "Rimma",
+                "valid%40email.ca", "any");
     }
-    
+
     @Test
-    public void dateConverterProviderTest(){
+    public void dateConverterProviderTest() {
         assertNotNull(dateConverter.fromString("2016-02-03"));
         Assert.assertThat(dateConverter.fromString("2016-02-03"), Matchers.instanceOf(java.sql.Date.class));
     }
-    
+
     @Test
-    public void timeConverterProviderTest(){
+    public void timeConverterProviderTest() {
         assertNotNull(timeConverter.fromString("15:00"));
         Assert.assertThat(timeConverter.fromString("15:00"), Matchers.instanceOf(java.sql.Time.class));
     }
-    
+
     @Test
-    public void timeConverterProviderNonASCIIsafe(){
+    public void timeConverterProviderNonASCIIsafe() {
         assertNotNull(timeConverter.fromString("15%3A00"));
         Assert.assertThat(timeConverter.fromString("15%3A00"), Matchers.instanceOf(java.sql.Time.class));
+    }
+
+    @Test
+    public void zeroSizeAppointmentsRequestTest() {
+        try {
+            service.getAppointments(5, 0);
+        } catch (BadRequestException e) {
+            assertEquals(e.getMessage(), "You haven't requested any appointments");
+        }
+    }
+    
+    @Test
+    public void offsetTooBigRequestTest(){
+        try {
+            service.getAppointments(50, 5);
+        } catch (BadRequestException e) {
+            System.out.println(e.getMessage());
+            assertEquals(e.getMessage(), "There are less appointments in the "
+                    + "system than you have requested");            
+        }
+    }
+    
+    @Test
+    public void jsonAllAppointmentsRootNameTest() throws JsonProcessingException{
+        Response response = service.getAppointments(10, 5);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
+        String output = mapper.writeValueAsString(response.getEntity());
+        
+        MatcherAssert.assertThat(output, containsString("appointments"));
+        System.out.println(output);
     }
 }

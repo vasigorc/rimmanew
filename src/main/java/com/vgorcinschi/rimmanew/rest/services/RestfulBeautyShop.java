@@ -6,6 +6,7 @@
 package com.vgorcinschi.rimmanew.rest.services;
 
 import com.vgorcinschi.rimmanew.rest.services.helpers.BadRequestExceptionMapper;
+import com.vgorcinschi.rimmanew.rest.services.helpers.InternalServerErrorExceptionMapper;
 import com.vgorcinschi.rimmanew.rest.services.helpers.SqlDateConverterProvider;
 import java.util.HashSet;
 import java.util.Set;
@@ -32,6 +33,7 @@ public class RestfulBeautyShop extends Application {
         HashSet<Class<?>> set = new HashSet<>();
         set.add(AppointmentResourceService.class);
         set.add(BadRequestExceptionMapper.class);
+        set.add(InternalServerErrorExceptionMapper.class);
         set.add(SqlDateConverterProvider.class);
         return set;
     }

@@ -126,13 +126,20 @@ public class AppointmentResourceService {
     public Response getAppointments(@QueryParam("offset") int offset,
             @QueryParam("size") int size) {
         //start by getting all appointments from EJB - the only available method
-        List<Appointment> list = repository.getAll();
+        List<Appointment> list;
+        try {
+            list = repository.getAll();
+        } catch (Exception e) {
+            throw new InternalServerErrorException("Something happened in the application "
+                    + "and this apointment could not get saved. Please contact us "
+                    + "to inform us of this issue.");
+        }
         //externalize requested size validation
         int answerSize = sizeValidator(list.size(), offset, size);
         List<Appointment> current = list.stream().skip(offset).limit(answerSize)
                 .collect(toList());
-        JaxbAppointmentListWrapper response = 
-                new JaxbAppointmentListWrapperBuilder(answerSize, list.size(), 
+        JaxbAppointmentListWrapper response
+                = new JaxbAppointmentListWrapperBuilder(answerSize, list.size(),
                         offset, current).compose();
         return Response.ok(response).build();
     }
@@ -142,11 +149,11 @@ public class AppointmentResourceService {
         if (requestSize < 1) {
             throw new BadRequestException("You haven't requested any appointments");
         }
-        if(listSize < 1){
+        if (listSize < 1) {
             throw new BadRequestException("There are no appointments that meet "
                     + "your request");
         }
-        if ((listSize - requestOffset)<1) {
+        if ((listSize - requestOffset) < 1) {
             throw new BadRequestException("There are less appointments in the "
                     + "system than you have requested");
         }
