@@ -113,13 +113,9 @@ public class AppointmentResourceServiceTests {
         Assert.assertThat(timeConverter.fromString("15%3A00"), Matchers.instanceOf(java.sql.Time.class));
     }
 
-    @Test
+    @Test(expected=BadRequestException.class)
     public void zeroSizeAppointmentsRequestTest() {
-        try {
-            service.getAppointments(5, 0);
-        } catch (BadRequestException e) {
-            assertEquals(e.getMessage(), "You haven't requested any appointments");
-        }
+       service.getAppointments(5, 0);
     }
     
     @Test
@@ -127,7 +123,6 @@ public class AppointmentResourceServiceTests {
         try {
             service.getAppointments(50, 5);
         } catch (BadRequestException e) {
-            System.out.println(e.getMessage());
             assertEquals(e.getMessage(), "There are less appointments in the "
                     + "system than you have requested");            
         }

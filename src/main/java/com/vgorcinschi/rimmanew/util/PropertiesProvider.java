@@ -28,9 +28,8 @@ public class PropertiesProvider {
                 if (uriProperties == null) {
                     uriProperties = new Properties();
                     try (final InputStream stream
-                            = PropertiesProvider.class.getClass()
-                            .getResourceAsStream(
-                                    "/com/vgorcinschi/rimmanew/entproperties/uriinfo.properties")) {
+                            = PropertiesProvider.class
+                                    .getResourceAsStream("/com/vgorcinschi/rimmanew/entproperties/uriinfo.properties")) {
                                 uriProperties.load(stream);
                             } catch (NullPointerException npe) {
                                 uriProperties.setProperty("scheme", "unknown");

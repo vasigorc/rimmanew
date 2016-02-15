@@ -5,6 +5,10 @@
  */
 package com.vgorcinschi.rimmanew.rest.services;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.vgorcinschi.rimmanew.annotations.JpaRepository;
 import com.vgorcinschi.rimmanew.ejbs.AppointmentRepository;
 import com.vgorcinschi.rimmanew.entities.Appointment;
@@ -22,6 +26,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import static java.util.Optional.ofNullable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import static java.util.stream.Collectors.toList;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
@@ -141,7 +147,16 @@ public class AppointmentResourceService {
         JaxbAppointmentListWrapper response
                 = new JaxbAppointmentListWrapperBuilder(answerSize, list.size(),
                         offset, current).compose();
-        return Response.ok(response).build();
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
+        String output;
+        try {
+            output =mapper.writeValueAsString(response);
+        } catch (JsonProcessingException ex) {
+            Logger.getLogger(AppointmentResourceService.class.getName()).log(Level.SEVERE, null, ex);
+            output="Code error serializing the appointments that you have requested";
+        }
+        return Response.ok(output).build();
     }
 
     public int sizeValidator(int listSize, int requestOffset, int requestSize) {

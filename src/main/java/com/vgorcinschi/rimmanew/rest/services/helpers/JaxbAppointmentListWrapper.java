@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.vgorcinschi.rimmanew.entities.Appointment;
 import java.net.URI;
@@ -19,8 +20,9 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  * @author vgorcinschi
  */
-@XmlRootElement(name="appointments")
+@JsonRootName(value="appointments")
 @JsonInclude(Include.NON_NULL)
+@XmlRootElement
 public class JaxbAppointmentListWrapper {
 
     private List<Appointment> current;
@@ -90,7 +92,7 @@ public class JaxbAppointmentListWrapper {
         this.all = all;
     }
 
-    @JsonProperty("size")
+    @JsonProperty("currentReturnedSize")
     public int getReturnedSize() {
         return returnedSize;
     }
