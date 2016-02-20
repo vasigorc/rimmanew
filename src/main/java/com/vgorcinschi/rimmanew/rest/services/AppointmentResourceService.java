@@ -14,7 +14,10 @@ import com.vgorcinschi.rimmanew.ejbs.AppointmentRepository;
 import com.vgorcinschi.rimmanew.entities.Appointment;
 import com.vgorcinschi.rimmanew.rest.services.helpers.JaxbAppointmentListWrapper;
 import com.vgorcinschi.rimmanew.rest.services.helpers.JaxbAppointmentListWrapperBuilder;
+import com.vgorcinschi.rimmanew.rest.services.helpers.SqlDateConverter;
 import com.vgorcinschi.rimmanew.rest.services.helpers.SqlTimeConverter;
+import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.AppointmentsQueryCandidate;
+import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.AppointmentsQueryCandidatesTriage;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.appsUriBuilder;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToSqlDate;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.uriGenerator;
@@ -25,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import static java.util.Optional.ofNullable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -129,8 +133,8 @@ public class AppointmentResourceService {
 
     @GET
     @Produces("application/json")
-    public Response getAppointments(@QueryParam("offset") int offset,
-            @QueryParam("size") int size) {
+    public Response getAppointments(@DefaultValue("0") @QueryParam("offset") int offset,
+            @DefaultValue("10") @QueryParam("size") int size) {
         //start by getting all appointments from EJB - the only available method
         List<Appointment> list;
         try {
@@ -151,12 +155,44 @@ public class AppointmentResourceService {
         mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
         String output;
         try {
-            output =mapper.writeValueAsString(response);
+            output = mapper.writeValueAsString(response);
         } catch (JsonProcessingException ex) {
             Logger.getLogger(AppointmentResourceService.class.getName()).log(Level.SEVERE, null, ex);
-            output="Code error serializing the appointments that you have requested";
+            output = "Code error serializing the appointments that you have requested";
         }
         return Response.ok(output).build();
+    }
+
+    @GET
+    @Path("experimental")
+    @Produces("application/json")
+    public Response getExperimental(@FormParam("date") String appDate,
+            @FormParam("time") String appTime, @FormParam("type") String appType,
+            @FormParam("clientName") String clientName,
+            @DefaultValue("0") @QueryParam("offset") int offset,
+            @DefaultValue("10") @QueryParam("size") int size) {
+        /*
+            The following converters are throwing BadRequestException
+            in case these values were provided by the client, but had an
+            illegal format. This is also the reason why we haven't 
+            used JAX-RS auto conversion in the method arguments
+        */
+        Time timeConverted;
+        Date dateConverted;
+        if (appTime!=null||!appTime.equals("")) {
+             timeConverted = new SqlTimeConverter().fromString(appTime);
+        }
+        if (appDate!=null||!appDate.equals("")) {
+            dateConverted = new SqlDateConverter().fromString(appDate);
+        }
+        //now we should be ready to call the triage class that will 
+        //designate the main query that will be called from repository
+        //as it is possible that none of the Appointment params are specified
+        //the return type for the triage is Optional
+        Optional<AppointmentsQueryCandidate> winner = 
+                new AppointmentsQueryCandidatesTriage(appDate, 
+                        appTime, appType, clientName).triage();
+        return null;
     }
 
     public int sizeValidator(int listSize, int requestOffset, int requestSize) {
