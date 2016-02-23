@@ -18,6 +18,7 @@ import com.vgorcinschi.rimmanew.rest.services.helpers.SqlDateConverter;
 import com.vgorcinschi.rimmanew.rest.services.helpers.SqlTimeConverter;
 import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.AppointmentsQueryCandidate;
 import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.AppointmentsQueryCandidatesTriage;
+import com.vgorcinschi.rimmanew.util.ExecutorFactoryProvider;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.appsUriBuilder;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToSqlDate;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.uriGenerator;
@@ -30,6 +31,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import static java.util.Optional.ofNullable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static java.util.stream.Collectors.toList;
@@ -172,26 +177,53 @@ public class AppointmentResourceService {
             @DefaultValue("0") @QueryParam("offset") int offset,
             @DefaultValue("10") @QueryParam("size") int size) {
         /*
-            The following converters are throwing BadRequestException
-            in case these values were provided by the client, but had an
-            illegal format. This is also the reason why we haven't 
-            used JAX-RS auto conversion in the method arguments
-        */
-        Time timeConverted;
-        Date dateConverted;
-        if (appTime!=null||!appTime.equals("")) {
-             timeConverted = new SqlTimeConverter().fromString(appTime);
+         The following converters are throwing BadRequestException
+         in case these values were provided by the client, but had an
+         illegal format. This is also the reason why we haven't 
+         used JAX-RS auto conversion in the method arguments
+         */
+        Time timeConverted = null;
+        Date dateConverted = null;
+        CompletableFuture<AppointmentsQueryCandidatesTriage> future
+                = CompletableFuture.supplyAsync(() -> {
+                    return new AppointmentsQueryCandidatesTriage(appDate,
+                            appTime, appType, clientName);
+                }, ExecutorFactoryProvider.getSingletonExecutorOf30());
+        if (appTime != null && !appTime.equals("")) {
+            timeConverted = new SqlTimeConverter().fromString(appTime);
         }
-        if (appDate!=null||!appDate.equals("")) {
+        if (appDate != null && !appDate.equals("")) {
             dateConverted = new SqlDateConverter().fromString(appDate);
         }
         //now we should be ready to call the triage class that will 
         //designate the main query that will be called from repository
         //as it is possible that none of the Appointment params are specified
-        //the return type for the triage is Optional
-        Optional<AppointmentsQueryCandidate> winner = 
-                new AppointmentsQueryCandidatesTriage(appDate, 
-                        appTime, appType, clientName).triage();
+        //the return type for the triage() method is Optional
+        AppointmentsQueryCandidatesTriage triage;
+        try {
+            triage = future.get(500, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
+            throw new InternalServerErrorException("Server took too long to"
+                    + " response. Please try again later");
+        }
+        System.out.println(triage.allProps());
+        Optional<AppointmentsQueryCandidate> winner = triage.triage();
+        //unverified map with all params as strings - may contain empty values
+        Map<String, Object> stringMap = triage.allProps();
+        //we will replace the strings with Date and Time objects for further calcs
+        Map<String, Object> objectMap = new HashMap<>();
+        //populate objectMap with non-empty strings only
+        stringMap.forEach((k, v) -> {
+            if (!v.equals("")) {
+                objectMap.put(k, v);
+            }
+        });
+        if (ofNullable(timeConverted).isPresent()) {
+            objectMap.put("time", timeConverted);
+        }
+        if (ofNullable(dateConverted).isPresent()) {
+            objectMap.put("date", dateConverted);
+        }
         return null;
     }
 
