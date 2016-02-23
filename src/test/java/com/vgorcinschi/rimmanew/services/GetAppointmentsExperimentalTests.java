@@ -16,12 +16,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import static java.util.Optional.ofNullable;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.InternalServerErrorException;
 import static org.hamcrest.Matchers.instanceOf;
@@ -267,5 +266,62 @@ public class GetAppointmentsExperimentalTests {
             objectMap.put("date", dateConverted);
         }
         assertTrue(objectMap.size()==4);
+    }
+    
+    @Test(expected = BadRequestException.class)
+    public void cancelCompletableFutureOnOtherExceptionTest(){
+        Time timeConverted = null;
+        Date dateConverted = null;
+        appDate = "date";
+        appTime = "";
+        appType = "";
+        clientName = "";
+        CompletableFuture<AppointmentsQueryCandidatesTriage> future
+                = CompletableFuture.supplyAsync(() -> {
+                    return new AppointmentsQueryCandidatesTriage(appDate,
+                            appTime, appType, clientName);
+                }, ExecutorFactoryProvider.getSingletonExecutorOf30());
+        /*
+            CompletableFuture should be terminated within any if
+        */
+        if (appTime != null && !appTime.equals("")) {
+            future.completeExceptionally(new CancellationException());
+            System.out.println("Completable Future cancelled: "+future.isCancelled());
+            timeConverted = new SqlTimeConverter().fromString(appTime);
+        }
+        if (appDate != null && !appDate.equals("")) {
+            future.completeExceptionally(new CancellationException());
+            System.out.println("Completable Future cancelled: "+future.isCancelled());
+            dateConverted = new SqlDateConverter().fromString(appDate);
+        }
+        //now we should be ready to call the triage class that will 
+        //designate the main query that will be called from repository
+        //as it is possible that none of the Appointment params are specified
+        //the return type for the triage is Optional
+        AppointmentsQueryCandidatesTriage triage;
+        try {
+            triage = future.get(500, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
+            throw new InternalServerErrorException("Server took too long to"
+                    + " response. Please try again later");
+        }
+        System.out.println(triage.allProps());
+        Optional<AppointmentsQueryCandidate> winner = triage.triage();
+        //unverified map with all params as strings - may contain empty values
+        Map<String, Object> stringMap = triage.allProps();
+        //we will replace the strings with Date and Time objects for further calcs
+        Map<String, Object> objectMap = new HashMap<>();
+        //populate objectMap with non-empty strings only
+        stringMap.forEach((k, v) -> {
+            if (!v.equals("")) {
+                objectMap.put(k, v);
+            }
+        });
+        if (ofNullable(timeConverted).isPresent()) {
+            objectMap.put("time", timeConverted);
+        }
+        if (ofNullable(dateConverted).isPresent()) {
+            objectMap.put("date", dateConverted);
+        }
     }
 }

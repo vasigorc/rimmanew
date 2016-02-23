@@ -51,6 +51,8 @@ public class JaxbAppointmentListWrapperBuilderTests {
         params.add(array4);
         int[] array5 = {2, 7};
         params.add(array5);
+        int[] array6 = {23, 1};
+        params.add(array6);
         return params;
     }
 

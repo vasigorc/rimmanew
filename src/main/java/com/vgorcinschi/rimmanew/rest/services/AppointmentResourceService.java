@@ -31,6 +31,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import static java.util.Optional.ofNullable;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -190,9 +191,11 @@ public class AppointmentResourceService {
                             appTime, appType, clientName);
                 }, ExecutorFactoryProvider.getSingletonExecutorOf30());
         if (appTime != null && !appTime.equals("")) {
+            future.completeExceptionally(new CancellationException());
             timeConverted = new SqlTimeConverter().fromString(appTime);
         }
         if (appDate != null && !appDate.equals("")) {
+            future.completeExceptionally(new CancellationException());
             dateConverted = new SqlDateConverter().fromString(appDate);
         }
         //now we should be ready to call the triage class that will 
