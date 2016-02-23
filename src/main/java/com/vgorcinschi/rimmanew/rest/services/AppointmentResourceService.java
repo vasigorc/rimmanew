@@ -177,26 +177,28 @@ public class AppointmentResourceService {
             @FormParam("clientName") String clientName,
             @DefaultValue("0") @QueryParam("offset") int offset,
             @DefaultValue("10") @QueryParam("size") int size) {
+        Time timeConverted = null;
+        Date dateConverted = null;
+        //we will pick the best query candidate asynchronously/terminate the
+        //thread exceptionally if the result not needed
+        CompletableFuture<AppointmentsQueryCandidatesTriage> future
+                = CompletableFuture.supplyAsync(() -> {
+                    return new AppointmentsQueryCandidatesTriage(appDate,
+                            appTime, appType, clientName);
+                }, ExecutorFactoryProvider.getSingletonExecutorOf30());
         /*
          The following converters are throwing BadRequestException
          in case these values were provided by the client, but had an
          illegal format. This is also the reason why we haven't 
          used JAX-RS auto conversion in the method arguments
          */
-        Time timeConverted = null;
-        Date dateConverted = null;
-        CompletableFuture<AppointmentsQueryCandidatesTriage> future
-                = CompletableFuture.supplyAsync(() -> {
-                    return new AppointmentsQueryCandidatesTriage(appDate,
-                            appTime, appType, clientName);
-                }, ExecutorFactoryProvider.getSingletonExecutorOf30());
         if (appTime != null && !appTime.equals("")) {
-            future.completeExceptionally(new CancellationException());
-            timeConverted = new SqlTimeConverter().fromString(appTime);
+            //future is passed to be cancelled if needed
+            timeConverted = new SqlTimeConverter(future).fromString(appTime);
         }
         if (appDate != null && !appDate.equals("")) {
-            future.completeExceptionally(new CancellationException());
-            dateConverted = new SqlDateConverter().fromString(appDate);
+            //future is passed to be cancelled if needed
+            dateConverted = new SqlDateConverter(future).fromString(appDate);
         }
         //now we should be ready to call the triage class that will 
         //designate the main query that will be called from repository
@@ -209,7 +211,6 @@ public class AppointmentResourceService {
             throw new InternalServerErrorException("Server took too long to"
                     + " response. Please try again later");
         }
-        System.out.println(triage.allProps());
         Optional<AppointmentsQueryCandidate> winner = triage.triage();
         //unverified map with all params as strings - may contain empty values
         Map<String, Object> stringMap = triage.allProps();

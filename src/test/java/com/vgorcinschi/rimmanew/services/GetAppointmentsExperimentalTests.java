@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import static java.util.Optional.ofNullable;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +27,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 
 /**
  *
@@ -221,10 +221,6 @@ public class GetAppointmentsExperimentalTests {
     public void withCompletableFutureTest() {
         Time timeConverted = null;
         Date dateConverted = null;
-//        appDate = "";
-//        appTime = "";
-//        appType = "";
-//        clientName = "";
         CompletableFuture<AppointmentsQueryCandidatesTriage> future
                 = CompletableFuture.supplyAsync(() -> {
                     return new AppointmentsQueryCandidatesTriage(appDate,
@@ -285,14 +281,12 @@ public class GetAppointmentsExperimentalTests {
             CompletableFuture should be terminated within any if
         */
         if (appTime != null && !appTime.equals("")) {
-            future.completeExceptionally(new CancellationException());
-            System.out.println("Completable Future cancelled: "+future.isCancelled());
-            timeConverted = new SqlTimeConverter().fromString(appTime);
+            System.out.println("Before -is completable Future cancelled: "+future.isCancelled());
+            timeConverted = new SqlTimeConverter(future).fromString(appTime);
         }
         if (appDate != null && !appDate.equals("")) {
-            future.completeExceptionally(new CancellationException());
-            System.out.println("Completable Future cancelled: "+future.isCancelled());
-            dateConverted = new SqlDateConverter().fromString(appDate);
+            System.out.println("Before - is completable Future cancelled: "+future.isCancelled());
+            dateConverted = new SqlDateConverter(future).fromString(appDate);
         }
         //now we should be ready to call the triage class that will 
         //designate the main query that will be called from repository
