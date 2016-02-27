@@ -188,11 +188,26 @@ public class AppointmentResourceService {
             dateConverted = new SqlDateConverter().fromString(appDate);
         }
         //now we should be ready to call the triage class that will designate
-        //the main query that will be called from repository as it is possible
-        //that none of the Appointment params are specified the return type is Optional
+        //the main query that will be called from repository 
         AppointmentsQueryCandidatesTriage triage = new AppointmentsQueryCandidatesTriage(appDate,
                 appTime, appType, clientName);
-        Optional<AppointmentsQueryCandidate> winner = triage.triage();
+        //as it is possible that none of the Appointment params are specified the return type is Optional
+        //In addition - we will need some more stuff performed in between, so
+        //we wll call it asynchroinously
+        CompletableFuture<Optional<AppointmentsQueryCandidate>> futureWinner
+                = CompletableFuture.supplyAsync(() -> {
+                    Optional<AppointmentsQueryCandidate> winner = triage.triage();
+                    return winner;
+                }, ExecutorFactoryProvider.getSingletonExecutorOf30());
+        //but eventually we need a list of appointments and not a type of query
+        //so let us extend our asynchronous call
+        CompletableFuture<List<Appointment>> futureList = futureWinner.thenApplyAsync((winner) -> {
+            if (!winner.isPresent()) {
+                return repository.getAll();
+            } else {
+                return new QueryCommandControl().executeQuery(winner.get(), repository);
+            }
+        });
         //unverified map with all params as strings - may contain empty values
         Map<String, Object> stringMap = triage.allProps();
         //we will replace the strings with Date and Time objects for further calcs
@@ -210,22 +225,56 @@ public class AppointmentResourceService {
             checkedParameters.put("date", dateConverted);
         }
         List<Appointment> initialSelection = new LinkedList<>();
-        CompletableFuture<List<Appointment>> futureList = supplyAsync(
-                () -> {
-                    if (!winner.isPresent()) {
-                        return repository.getAll();
-                    } else {
-                        return new QueryCommandControl().executeQuery(winner.get(), repository);
-                    }
-                }, ExecutorFactoryProvider.getSingletonExecutorOf30());
+
         Set<String> unusedKeys = checkedParameters.keySet();
+        Optional<AppointmentsQueryCandidate> winner = Optional.empty();
+        try {
+            winner = futureWinner.get(500, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
+            Logger.getLogger(AppointmentResourceService.class.getName()).log(Level.SEVERE, null, ex);
+            throw new InternalServerErrorException("It took the application "
+                    + "too long to grab the results. Please contact the support team;");
+        }
         if (winner.isPresent()) {
             unusedKeys.removeAll(winner.get().getParams().keySet());
         }
-        //if the list.size() ==0 return a corresponding Response
-        //else do the forEach on checkedParameters to filter futureList.stream() 
-        //with the remaining keys of checkedParameters
-        //collect toList() and proceed with th rest of the code
+        try {
+            //if the list.size() ==0 return a corresponding Response
+            //do the forEach on checkedParameters to filter futureList.stream()
+            //with the remaining keys of checkedParameters
+            //collect toList() and proceed with th rest of the code
+            initialSelection = futureList.get(500, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
+            Logger.getLogger(AppointmentResourceService.class.getName()).log(Level.SEVERE, null, ex);
+            throw new InternalServerErrorException("It took the application "
+                    + "too long to grab the results. Please contact the support team;");
+        }
+        //preparing our object mapper
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
+        String output;
+        //if the list.size() ==0 return a corresponding Response        
+        if (initialSelection.isEmpty()) {
+            /*
+             first params is the requested size
+             second param is 0 because there is no results for the requested query
+             third param is the requested offset
+             */
+            JaxbAppointmentListWrapper response
+                    = new JaxbAppointmentListWrapperBuilder(size, 0,
+                            offset, initialSelection).compose();
+            try {
+                output = mapper.writeValueAsString(response);
+            } catch (JsonProcessingException ex) {
+                Logger.getLogger(AppointmentResourceService.class.getName()).log(Level.SEVERE, null, ex);
+                output = "Code error serializing the appointments that you have requested";
+            }
+            return Response.ok(output).build();
+        } else {
+            //else we'll do the forEach on checkedParameters to filter futureList.stream() 
+            //with the remaining keys of checkedParameters
+            //collect toList() and proceed with th rest of the code
+        }
         return null;
     }
 
