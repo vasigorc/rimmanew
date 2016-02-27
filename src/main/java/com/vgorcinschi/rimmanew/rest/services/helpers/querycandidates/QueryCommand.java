@@ -15,6 +15,7 @@ import java.util.List;
  * the sole purpose of this interface is to
  * return a list of appointments
  */
+@FunctionalInterface
 public interface QueryCommand {
     List<Appointment> execute (AppointmentsQueryCandidate cand, AppointmentRepository repo);
 }

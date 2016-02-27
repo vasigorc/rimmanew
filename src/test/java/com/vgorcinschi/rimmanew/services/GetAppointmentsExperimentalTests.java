@@ -5,21 +5,32 @@
  */
 package com.vgorcinschi.rimmanew.services;
 
+import com.vgorcinschi.rimmanew.ejbs.AppointmentRepository;
+import com.vgorcinschi.rimmanew.ejbs.OutsideContainerJpaTests;
+import com.vgorcinschi.rimmanew.entities.Appointment;
 import com.vgorcinschi.rimmanew.rest.services.helpers.SqlDateConverter;
 import com.vgorcinschi.rimmanew.rest.services.helpers.SqlTimeConverter;
 import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.AppointmentsQueryCandidate;
 import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.AppointmentsQueryCandidatesTriage;
+import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.QueryCommandControl;
 import com.vgorcinschi.rimmanew.util.ExecutorFactoryProvider;
+import static com.vgorcinschi.rimmanew.util.ExecutorFactoryProvider.getSingletonExecutorOf30;
 import java.sql.Date;
 import java.sql.Time;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import static java.util.Optional.ofNullable;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import static java.util.concurrent.CompletableFuture.supplyAsync;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.InternalServerErrorException;
 import static org.hamcrest.Matchers.instanceOf;
@@ -34,24 +45,27 @@ import org.junit.Ignore;
  * @author vgorcinschi
  */
 public class GetAppointmentsExperimentalTests {
-
+    
     private String appDate, appTime, appType, clientName;
-
+    private final AppointmentRepository repository;
+    
     public GetAppointmentsExperimentalTests() {
+        OutsideContainerJpaTests tests = new OutsideContainerJpaTests();
+        this.repository = tests.getRepository();
     }
-
+    
     @Before
     public void setUp() {
-        appDate = "2016-03-05";
-        appTime = "11:00";
+        appDate = "2016-02-19";
+        appTime = "10:00";
         appType = "massage";
-        clientName = "Elena";
+        clientName = "Egzbeta";
     }
-
+    
     @After
     public void tearDown() {
     }
-
+    
     @Test
     public void takeOneTest() {
         Time timeConverted = null;
@@ -90,7 +104,7 @@ public class GetAppointmentsExperimentalTests {
         assertThat(objectMap.get("time"), instanceOf(java.sql.Time.class));
         assertThat(objectMap.get("date"), instanceOf(java.sql.Date.class));
     }
-
+    
     @Test
     public void timeInvalidFormat() {
         Time timeConverted = null;
@@ -132,7 +146,7 @@ public class GetAppointmentsExperimentalTests {
             System.out.println(e.getMessage());
         }
     }
-
+    
     @Test
     public void dateInvalidFormat() {
         Time timeConverted = null;
@@ -174,7 +188,7 @@ public class GetAppointmentsExperimentalTests {
             System.out.println(e.getMessage());
         }
     }
-
+    
     @Test
     public void noParamsPassedTest() {
         Time timeConverted = null;
@@ -216,106 +230,404 @@ public class GetAppointmentsExperimentalTests {
         assertTrue("The object map should remain empty as"
                 + " there were no params provided", objectMap.isEmpty());
     }
-
+    
     @Test
-    public void withCompletableFutureTest() {
+    public void experimentalScenarioTest() {
         Time timeConverted = null;
         Date dateConverted = null;
-        CompletableFuture<AppointmentsQueryCandidatesTriage> future
-                = CompletableFuture.supplyAsync(() -> {
-                    return new AppointmentsQueryCandidatesTriage(appDate,
-                            appTime, appType, clientName);
-                }, ExecutorFactoryProvider.getSingletonExecutorOf30());
         if (appTime != null && !appTime.equals("")) {
             timeConverted = new SqlTimeConverter().fromString(appTime);
         }
         if (appDate != null && !appDate.equals("")) {
             dateConverted = new SqlDateConverter().fromString(appDate);
         }
-        //now we should be ready to call the triage class that will 
-        //designate the main query that will be called from repository
-        //as it is possible that none of the Appointment params are specified
-        //the return type for the triage is Optional
-        AppointmentsQueryCandidatesTriage triage;
-        try {
-            triage = future.get(500, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-            throw new InternalServerErrorException("Server took too long to"
-                    + " response. Please try again later");
-        }
-        System.out.println(triage.allProps());
+        //now we should be ready to call the triage class that will designate
+        //the main query that will be called from repository as it is possible
+        //that none of the Appointment params are specified the return type is Optional
+        AppointmentsQueryCandidatesTriage triage = new AppointmentsQueryCandidatesTriage(appDate,
+                appTime, appType, clientName);
         Optional<AppointmentsQueryCandidate> winner = triage.triage();
+        System.out.println("experimentalScenarioTest\n"
+                + "Winner is: " + winner.get().getSignature());
         //unverified map with all params as strings - may contain empty values
         Map<String, Object> stringMap = triage.allProps();
         //we will replace the strings with Date and Time objects for further calcs
-        Map<String, Object> objectMap = new HashMap<>();
+        Map<String, Object> checkedParameters = new HashMap<>();
         //populate objectMap with non-empty strings only
         stringMap.forEach((k, v) -> {
             if (!v.equals("")) {
-                objectMap.put(k, v);
+                checkedParameters.put(k, v);
             }
         });
         if (ofNullable(timeConverted).isPresent()) {
-            objectMap.put("time", timeConverted);
+            checkedParameters.put("time", timeConverted);
         }
         if (ofNullable(dateConverted).isPresent()) {
-            objectMap.put("date", dateConverted);
+            checkedParameters.put("date", dateConverted);
         }
-        assertTrue(objectMap.size()==4);
+        List<Appointment> initialSelection = new LinkedList<>();
+        CompletableFuture<List<Appointment>> futureList = supplyAsync(
+                () -> {
+                    if (!winner.isPresent()) {
+                        return repository.getAll();
+                    } else {
+                        return new QueryCommandControl().executeQuery(winner.get(), repository);
+                    }
+                }, ExecutorFactoryProvider.getSingletonExecutorOf30());
+        Set<String> unusedKeys = checkedParameters.keySet();
+        if (winner.isPresent()) {
+            unusedKeys.removeAll(winner.get().getParams().keySet());
+        }
+        try {
+            //if the list.size() ==0 return a corresponding Response
+            //do the forEach on checkedParameters to filter futureList.stream()
+            //with the remaining keys of checkedParameters
+            //collect toList() and proceed with th rest of the code
+            initialSelection = futureList.get(500, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
+            Logger.getLogger(GetAppointmentsExperimentalTests.class.getName()).log(Level.SEVERE, null, ex);
+            throw new InternalServerErrorException("It took the application "
+                    + "too long to grab the results. Please contact the support team;");
+        }
+        assertFalse(initialSelection.isEmpty());
+        System.out.println("Returned list: ");
+        initialSelection.stream().forEach((a) -> {
+            System.out.println(a.getClientName());
+        });
     }
     
-    @Test(expected = BadRequestException.class)
-    public void cancelCompletableFutureOnOtherExceptionTest(){
+    @Test(expected = InternalServerErrorException.class)
+    public void timeoutMock() {
         Time timeConverted = null;
         Date dateConverted = null;
-        appDate = "date";
+        if (appTime != null && !appTime.equals("")) {
+            timeConverted = new SqlTimeConverter().fromString(appTime);
+        }
+        if (appDate != null && !appDate.equals("")) {
+            dateConverted = new SqlDateConverter().fromString(appDate);
+        }
+        //now we should be ready to call the triage class that will designate
+        //the main query that will be called from repository as it is possible
+        //that none of the Appointment params are specified the return type is Optional
+        AppointmentsQueryCandidatesTriage triage = new AppointmentsQueryCandidatesTriage(appDate,
+                appTime, appType, clientName);
+        Optional<AppointmentsQueryCandidate> winner = triage.triage();
+        System.out.println("experimentalScenarioTest\n"
+                + "Winner is: " + winner.get().getSignature());
+        //unverified map with all params as strings - may contain empty values
+        Map<String, Object> stringMap = triage.allProps();
+        //we will replace the strings with Date and Time objects for further calcs
+        Map<String, Object> checkedParameters = new HashMap<>();
+        //populate objectMap with non-empty strings only
+        stringMap.forEach((k, v) -> {
+            if (!v.equals("")) {
+                checkedParameters.put(k, v);
+            }
+        });
+        if (ofNullable(timeConverted).isPresent()) {
+            checkedParameters.put("time", timeConverted);
+        }
+        if (ofNullable(dateConverted).isPresent()) {
+            checkedParameters.put("date", dateConverted);
+        }
+        List<Appointment> initialSelection = new LinkedList<>();
+        CompletableFuture<List<Appointment>> futureList = supplyAsync(
+                () -> {
+                    if (!winner.isPresent()) {
+                        return repository.getAll();
+                    } else {
+                        return new QueryCommandControl().executeQuery(winner.get(), repository);
+                    }
+                }, ExecutorFactoryProvider.getSingletonExecutorOf30());
+        Set<String> unusedKeys = checkedParameters.keySet();
+        if (winner.isPresent()) {
+            unusedKeys.removeAll(winner.get().getParams().keySet());
+        }
+        try {
+            //for the purpose of this test we'll just wait 2 nanoseconds
+            //to force InternalServerErrorException
+            initialSelection = futureList.get(2, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
+            Logger.getLogger(GetAppointmentsExperimentalTests.class.getName()).log(Level.SEVERE, null, ex);
+            throw new InternalServerErrorException("It took the application "
+                    + "too long to grab the results. Please contact the support team;");
+        }
+        assertFalse(initialSelection.isEmpty());
+        System.out.println("Returned list: ");
+        initialSelection.stream().forEach((a) -> {
+            System.out.println(a.getClientName());
+        });
+    }
+    
+    @Test
+    public void getAllIsCalledWhenNoParamsAreCalled() {
+        Time timeConverted = null;
+        Date dateConverted = null;
+        appDate = "";
         appTime = "";
         appType = "";
         clientName = "";
-        CompletableFuture<AppointmentsQueryCandidatesTriage> future
-                = CompletableFuture.supplyAsync(() -> {
-                    return new AppointmentsQueryCandidatesTriage(appDate,
-                            appTime, appType, clientName);
-                }, ExecutorFactoryProvider.getSingletonExecutorOf30());
-        /*
-            CompletableFuture should be terminated within any if
-        */
         if (appTime != null && !appTime.equals("")) {
-            System.out.println("Before -is completable Future cancelled: "+future.isCancelled());
-            timeConverted = new SqlTimeConverter(future).fromString(appTime);
+            timeConverted = new SqlTimeConverter().fromString(appTime);
         }
         if (appDate != null && !appDate.equals("")) {
-            System.out.println("Before - is completable Future cancelled: "+future.isCancelled());
-            dateConverted = new SqlDateConverter(future).fromString(appDate);
+            dateConverted = new SqlDateConverter().fromString(appDate);
         }
-        //now we should be ready to call the triage class that will 
-        //designate the main query that will be called from repository
-        //as it is possible that none of the Appointment params are specified
-        //the return type for the triage is Optional
-        AppointmentsQueryCandidatesTriage triage;
+        //now we should be ready to call the triage class that will designate
+        //the main query that will be called from repository as it is possible
+        //that none of the Appointment params are specified the return type is Optional
+        AppointmentsQueryCandidatesTriage triage = new AppointmentsQueryCandidatesTriage(appDate,
+                appTime, appType, clientName);
+        Optional<AppointmentsQueryCandidate> winner = triage.triage();
+        System.out.println("experimentalScenarioTest\n"
+                + "Winner is returned: " + winner.isPresent());
+        //unverified map with all params as strings - may contain empty values
+        Map<String, Object> stringMap = triage.allProps();
+        //we will replace the strings with Date and Time objects for further calcs
+        Map<String, Object> checkedParameters = new HashMap<>();
+        //populate objectMap with non-empty strings only
+        stringMap.forEach((k, v) -> {
+            if (!v.equals("")) {
+                checkedParameters.put(k, v);
+            }
+        });
+        if (ofNullable(timeConverted).isPresent()) {
+            checkedParameters.put("time", timeConverted);
+        }
+        if (ofNullable(dateConverted).isPresent()) {
+            checkedParameters.put("date", dateConverted);
+        }
+        List<Appointment> initialSelection = new LinkedList<>();
+        CompletableFuture<List<Appointment>> futureList = supplyAsync(
+                () -> {
+                    if (!winner.isPresent()) {
+                        return repository.getAll();
+                    } else {
+                        return new QueryCommandControl().executeQuery(winner.get(), repository);
+                    }
+                }, ExecutorFactoryProvider.getSingletonExecutorOf30());
+        Set<String> unusedKeys = checkedParameters.keySet();
+        if (winner.isPresent()) {
+            unusedKeys.removeAll(winner.get().getParams().keySet());
+        }
         try {
-            triage = future.get(500, TimeUnit.MILLISECONDS);
+            //if the list.size() ==0 return a corresponding Response
+            //do the forEach on checkedParameters to filter futureList.stream()
+            //with the remaining keys of checkedParameters
+            //collect toList() and proceed with th rest of the code
+            initialSelection = futureList.get(500, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-            throw new InternalServerErrorException("Server took too long to"
-                    + " response. Please try again later");
+            Logger.getLogger(GetAppointmentsExperimentalTests.class.getName()).log(Level.SEVERE, null, ex);
+            throw new InternalServerErrorException("It took the application "
+                    + "too long to grab the results. Please contact the support team;");
         }
-        System.out.println(triage.allProps());
+        assertTrue(initialSelection.size() > 10);
+        System.out.println("All list expected: ");
+        initialSelection.stream().forEach((a) -> {
+            System.out.println(a.getClientName());
+        });
+    }
+    
+    @Test
+    public void getByDateTest() {
+        Time timeConverted = null;
+        Date dateConverted = null;
+        appDate = "2016-01-22";
+        appTime = "";
+        appType = "";
+        clientName = "";
+        if (appTime != null && !appTime.equals("")) {
+            timeConverted = new SqlTimeConverter().fromString(appTime);
+        }
+        if (appDate != null && !appDate.equals("")) {
+            dateConverted = new SqlDateConverter().fromString(appDate);
+        }
+        //now we should be ready to call the triage class that will designate
+        //the main query that will be called from repository as it is possible
+        //that none of the Appointment params are specified the return type is Optional
+        AppointmentsQueryCandidatesTriage triage = new AppointmentsQueryCandidatesTriage(appDate,
+                appTime, appType, clientName);
         Optional<AppointmentsQueryCandidate> winner = triage.triage();
         //unverified map with all params as strings - may contain empty values
         Map<String, Object> stringMap = triage.allProps();
         //we will replace the strings with Date and Time objects for further calcs
-        Map<String, Object> objectMap = new HashMap<>();
+        Map<String, Object> checkedParameters = new HashMap<>();
         //populate objectMap with non-empty strings only
         stringMap.forEach((k, v) -> {
             if (!v.equals("")) {
-                objectMap.put(k, v);
+                checkedParameters.put(k, v);
             }
         });
         if (ofNullable(timeConverted).isPresent()) {
-            objectMap.put("time", timeConverted);
+            checkedParameters.put("time", timeConverted);
         }
         if (ofNullable(dateConverted).isPresent()) {
-            objectMap.put("date", dateConverted);
+            checkedParameters.put("date", dateConverted);
         }
+        List<Appointment> initialSelection = new LinkedList<>();
+        CompletableFuture<List<Appointment>> futureList = supplyAsync(
+                () -> {
+                    if (!winner.isPresent()) {
+                        return repository.getAll();
+                    } else {
+                        return new QueryCommandControl().executeQuery(winner.get(), repository);
+                    }
+                }, ExecutorFactoryProvider.getSingletonExecutorOf30());
+        Set<String> unusedKeys = checkedParameters.keySet();
+        if (winner.isPresent()) {
+            unusedKeys.removeAll(winner.get().getParams().keySet());
+        }
+        try {
+            //if the list.size() ==0 return a corresponding Response
+            //do the forEach on checkedParameters to filter futureList.stream()
+            //with the remaining keys of checkedParameters
+            //collect toList() and proceed with th rest of the code
+            initialSelection = futureList.get(500, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
+            Logger.getLogger(GetAppointmentsExperimentalTests.class.getName()).log(Level.SEVERE, null, ex);
+            throw new InternalServerErrorException("It took the application "
+                    + "too long to grab the results. Please contact the support team;");
+        }
+        assertTrue(initialSelection.stream().allMatch((a) -> a.getDate().toString().equalsIgnoreCase("2016-01-22")));
+        System.out.println("Only one date is expected here: ");
+        initialSelection.stream().forEach((a) -> {
+            System.out.println(a.getDate());
+        });
+    }
+    
+    @Test
+    public void getByDateAndTypeTest() {
+        Time timeConverted = null;
+        Date dateConverted = null;
+        appDate = "2016-02-19";
+        appTime = "";
+        appType = "manicure";
+        clientName = "";
+        if (appTime != null && !appTime.equals("")) {
+            timeConverted = new SqlTimeConverter().fromString(appTime);
+        }
+        if (appDate != null && !appDate.equals("")) {
+            dateConverted = new SqlDateConverter().fromString(appDate);
+        }
+        //now we should be ready to call the triage class that will designate
+        //the main query that will be called from repository as it is possible
+        //that none of the Appointment params are specified the return type is Optional
+        AppointmentsQueryCandidatesTriage triage = new AppointmentsQueryCandidatesTriage(appDate,
+                appTime, appType, clientName);
+        Optional<AppointmentsQueryCandidate> winner = triage.triage();
+        System.out.println("getByDateAndTypeTest\n Query type:" + winner.get().getSignature());
+        //unverified map with all params as strings - may contain empty values
+        Map<String, Object> stringMap = triage.allProps();
+        //we will replace the strings with Date and Time objects for further calcs
+        Map<String, Object> checkedParameters = new HashMap<>();
+        //populate objectMap with non-empty strings only
+        stringMap.forEach((k, v) -> {
+            if (!v.equals("")) {
+                checkedParameters.put(k, v);
+            }
+        });
+        if (ofNullable(timeConverted).isPresent()) {
+            checkedParameters.put("time", timeConverted);
+        }
+        if (ofNullable(dateConverted).isPresent()) {
+            checkedParameters.put("date", dateConverted);
+        }
+        List<Appointment> initialSelection = new LinkedList<>();
+        CompletableFuture<List<Appointment>> futureList = supplyAsync(
+                () -> {
+                    if (!winner.isPresent()) {
+                        return repository.getAll();
+                    } else {
+                        return new QueryCommandControl().executeQuery(winner.get(), repository);
+                    }
+                }, ExecutorFactoryProvider.getSingletonExecutorOf30());
+        Set<String> unusedKeys = checkedParameters.keySet();
+        if (winner.isPresent()) {
+            unusedKeys.removeAll(winner.get().getParams().keySet());
+        }
+        try {
+            //if the list.size() ==0 return a corresponding Response
+            //do the forEach on checkedParameters to filter futureList.stream()
+            //with the remaining keys of checkedParameters
+            //collect toList() and proceed with th rest of the code
+            initialSelection = futureList.get(500, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
+            Logger.getLogger(GetAppointmentsExperimentalTests.class.getName()).log(Level.SEVERE, null, ex);
+            throw new InternalServerErrorException("It took the application "
+                    + "too long to grab the results. Please contact the support team;");
+        }
+        assertTrue(initialSelection.size() == 1);
+        System.out.println("Only one appointment is expected here: ");
+        initialSelection.stream().forEach((a) -> {
+            System.out.println(a.getDate());
+        });
+    }
+    
+    @Test
+    public void getByDateTypeTest() {
+        Time timeConverted = null;
+        Date dateConverted = null;
+        appDate = "";
+        appTime = "";
+        appType = "manicure";
+        clientName = "";
+        if (appTime != null && !appTime.equals("")) {
+            timeConverted = new SqlTimeConverter().fromString(appTime);
+        }
+        if (appDate != null && !appDate.equals("")) {
+            dateConverted = new SqlDateConverter().fromString(appDate);
+        }
+        //now we should be ready to call the triage class that will designate
+        //the main query that will be called from repository as it is possible
+        //that none of the Appointment params are specified the return type is Optional
+        AppointmentsQueryCandidatesTriage triage = new AppointmentsQueryCandidatesTriage(appDate,
+                appTime, appType, clientName);
+        Optional<AppointmentsQueryCandidate> winner = triage.triage();
+        System.out.println("getByTypeTest\nQuery type:" + winner.get().getSignature());
+        //unverified map with all params as strings - may contain empty values
+        Map<String, Object> stringMap = triage.allProps();
+        //we will replace the strings with Date and Time objects for further calcs
+        Map<String, Object> checkedParameters = new HashMap<>();
+        //populate objectMap with non-empty strings only
+        stringMap.forEach((k, v) -> {
+            if (!v.equals("")) {
+                checkedParameters.put(k, v);
+            }
+        });
+        if (ofNullable(timeConverted).isPresent()) {
+            checkedParameters.put("time", timeConverted);
+        }
+        if (ofNullable(dateConverted).isPresent()) {
+            checkedParameters.put("date", dateConverted);
+        }
+        List<Appointment> initialSelection = new LinkedList<>();
+        CompletableFuture<List<Appointment>> futureList = supplyAsync(
+                () -> {
+                    if (!winner.isPresent()) {
+                        return repository.getAll();
+                    } else {
+                        return new QueryCommandControl().executeQuery(winner.get(), repository);
+                    }
+                }, ExecutorFactoryProvider.getSingletonExecutorOf30());
+        Set<String> unusedKeys = checkedParameters.keySet();
+        if (winner.isPresent()) {
+            unusedKeys.removeAll(winner.get().getParams().keySet());
+        }
+        try {
+            //if the list.size() ==0 return a corresponding Response
+            //do the forEach on checkedParameters to filter futureList.stream()
+            //with the remaining keys of checkedParameters
+            //collect toList() and proceed with th rest of the code
+            initialSelection = futureList.get(500, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
+            Logger.getLogger(GetAppointmentsExperimentalTests.class.getName()).log(Level.SEVERE, null, ex);
+            throw new InternalServerErrorException("It took the application "
+                    + "too long to grab the results. Please contact the support team;");
+        }
+        assertTrue(initialSelection.stream().allMatch((a) -> a.getType().equals("manicure")));
+        System.out.println("Only one appointment type is expected here: ");
+        initialSelection.stream().forEach((a) -> {
+            System.out.println(a.getType());
+        });        
     }
 }

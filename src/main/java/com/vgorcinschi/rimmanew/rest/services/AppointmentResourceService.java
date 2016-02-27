@@ -5,7 +5,6 @@
  */
 package com.vgorcinschi.rimmanew.rest.services;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -18,6 +17,7 @@ import com.vgorcinschi.rimmanew.rest.services.helpers.SqlDateConverter;
 import com.vgorcinschi.rimmanew.rest.services.helpers.SqlTimeConverter;
 import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.AppointmentsQueryCandidate;
 import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.AppointmentsQueryCandidatesTriage;
+import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.QueryCommandControl;
 import com.vgorcinschi.rimmanew.util.ExecutorFactoryProvider;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.appsUriBuilder;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToSqlDate;
@@ -26,13 +26,15 @@ import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import static java.util.Optional.ofNullable;
-import java.util.concurrent.CancellationException;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import static java.util.concurrent.CompletableFuture.supplyAsync;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -147,8 +149,8 @@ public class AppointmentResourceService {
             list = repository.getAll();
         } catch (Exception e) {
             throw new InternalServerErrorException("Something happened in the application "
-                    + "and this apointment could not get saved. Please contact us "
-                    + "to inform us of this issue.");
+                    + "- we couldn't retrieve the appointments. Please contact"
+                    + " the support team.");
         }
         //externalize requested size validation
         int answerSize = sizeValidator(list.size(), offset, size);
@@ -179,55 +181,51 @@ public class AppointmentResourceService {
             @DefaultValue("10") @QueryParam("size") int size) {
         Time timeConverted = null;
         Date dateConverted = null;
-        //we will pick the best query candidate asynchronously/terminate the
-        //thread exceptionally if the result not needed
-        CompletableFuture<AppointmentsQueryCandidatesTriage> future
-                = CompletableFuture.supplyAsync(() -> {
-                    return new AppointmentsQueryCandidatesTriage(appDate,
-                            appTime, appType, clientName);
-                }, ExecutorFactoryProvider.getSingletonExecutorOf30());
-        /*
-         The following converters are throwing BadRequestException
-         in case these values were provided by the client, but had an
-         illegal format. This is also the reason why we haven't 
-         used JAX-RS auto conversion in the method arguments
-         */
         if (appTime != null && !appTime.equals("")) {
-            //future is passed to be cancelled if needed
-            timeConverted = new SqlTimeConverter(future).fromString(appTime);
+            timeConverted = new SqlTimeConverter().fromString(appTime);
         }
         if (appDate != null && !appDate.equals("")) {
-            //future is passed to be cancelled if needed
-            dateConverted = new SqlDateConverter(future).fromString(appDate);
+            dateConverted = new SqlDateConverter().fromString(appDate);
         }
-        //now we should be ready to call the triage class that will 
-        //designate the main query that will be called from repository
-        //as it is possible that none of the Appointment params are specified
-        //the return type for the triage() method is Optional
-        AppointmentsQueryCandidatesTriage triage;
-        try {
-            triage = future.get(500, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-            throw new InternalServerErrorException("Server took too long to"
-                    + " response. Please try again later");
-        }
+        //now we should be ready to call the triage class that will designate
+        //the main query that will be called from repository as it is possible
+        //that none of the Appointment params are specified the return type is Optional
+        AppointmentsQueryCandidatesTriage triage = new AppointmentsQueryCandidatesTriage(appDate,
+                appTime, appType, clientName);
         Optional<AppointmentsQueryCandidate> winner = triage.triage();
         //unverified map with all params as strings - may contain empty values
         Map<String, Object> stringMap = triage.allProps();
         //we will replace the strings with Date and Time objects for further calcs
-        Map<String, Object> objectMap = new HashMap<>();
+        Map<String, Object> checkedParameters = new HashMap<>();
         //populate objectMap with non-empty strings only
         stringMap.forEach((k, v) -> {
             if (!v.equals("")) {
-                objectMap.put(k, v);
+                checkedParameters.put(k, v);
             }
         });
         if (ofNullable(timeConverted).isPresent()) {
-            objectMap.put("time", timeConverted);
+            checkedParameters.put("time", timeConverted);
         }
         if (ofNullable(dateConverted).isPresent()) {
-            objectMap.put("date", dateConverted);
+            checkedParameters.put("date", dateConverted);
         }
+        List<Appointment> initialSelection = new LinkedList<>();
+        CompletableFuture<List<Appointment>> futureList = supplyAsync(
+                () -> {
+                    if (!winner.isPresent()) {
+                        return repository.getAll();
+                    } else {
+                        return new QueryCommandControl().executeQuery(winner.get(), repository);
+                    }
+                }, ExecutorFactoryProvider.getSingletonExecutorOf30());
+        Set<String> unusedKeys = checkedParameters.keySet();
+        if (winner.isPresent()) {
+            unusedKeys.removeAll(winner.get().getParams().keySet());
+        }
+        //if the list.size() ==0 return a corresponding Response
+        //else do the forEach on checkedParameters to filter futureList.stream() 
+        //with the remaining keys of checkedParameters
+        //collect toList() and proceed with th rest of the code
         return null;
     }
 

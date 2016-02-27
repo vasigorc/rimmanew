@@ -40,12 +40,14 @@ public class JaxbAppointmentListWrapperBuilder {
 
     public JaxbAppointmentListWrapper compose() {
         this.response.setReturnedSize(current.size());
-        setFirstURI();
+        if (!current.isEmpty()) {
+            setFirstURI();
+            setPreviousURI();
+        }        
         if (remainder > 1) {
             setLastURI();
             setNextURI();
-        }
-        setPreviousURI();
+        }        
         return response;
     }
 
