@@ -803,6 +803,6 @@ public class GetAppointmentsExperimentalTests {
     public void requestEndsInEmptyResponseTest(){
         Response response = service.getExperimental("2019-02-12", "", "massage", "", 0, 10);
         assertTrue(response.hasEntity());
-        System.out.println("HTTP response in JSON: "+response.getEntity().toString());
+        System.out.println("Empty wrapper HTTP response in JSON: "+response.getEntity().toString());
     }
 }

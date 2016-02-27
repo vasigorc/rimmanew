@@ -41,6 +41,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static java.util.stream.Collectors.toList;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
@@ -210,23 +211,24 @@ public class AppointmentResourceService {
         });
         //unverified map with all params as strings - may contain empty values
         Map<String, Object> stringMap = triage.allProps();
-        //we will replace the strings with Date and Time objects for further calcs
+        //checkedParameters will contain non-empty values of correct type
         Map<String, Object> checkedParameters = new HashMap<>();
-        //populate objectMap with non-empty strings only
+        //populate checkedParameters with non-empty strings only
         stringMap.forEach((k, v) -> {
             if (!v.equals("")) {
                 checkedParameters.put(k, v);
             }
         });
+        //we will replace the strings with Date and Time objects for further calcs        
         if (ofNullable(timeConverted).isPresent()) {
             checkedParameters.put("time", timeConverted);
         }
         if (ofNullable(dateConverted).isPresent()) {
             checkedParameters.put("date", dateConverted);
         }
-        List<Appointment> initialSelection = new LinkedList<>();
-
+        //set of keys of checked parameters
         Set<String> unusedKeys = checkedParameters.keySet();
+        List<Appointment> initialSelection = new LinkedList<>();
         Optional<AppointmentsQueryCandidate> winner = Optional.empty();
         try {
             winner = futureWinner.get(500, TimeUnit.MILLISECONDS);
@@ -235,6 +237,11 @@ public class AppointmentResourceService {
             throw new InternalServerErrorException("It took the application "
                     + "too long to grab the results. Please contact the support team;");
         }
+        /*
+         we need to remove from checkedParameters 
+         the parameters from the winning QueryCandidate
+         since later have already been used for filtering by JPARepository
+         */
         if (winner.isPresent()) {
             unusedKeys.removeAll(winner.get().getParams().keySet());
         }
@@ -271,11 +278,46 @@ public class AppointmentResourceService {
             }
             return Response.ok(output).build();
         } else {
-            //else we'll do the forEach on checkedParameters to filter futureList.stream() 
-            //with the remaining keys of checkedParameters
-            //collect toList() and proceed with th rest of the code
+            /*
+             we'll do the forEach on unusedKeys to get the value from 
+             checkedParameters to filter initialSelection.stream() 
+             with the remaining keys of checkedParameters
+             collect toList() and proceed with th rest of the code
+             */
+            Stream<Appointment> fineGraining = initialSelection.stream();
+            unusedKeys.forEach((k) -> {
+                switch (k) {
+                    case "name":
+                        fineGraining.filter((a) -> a.getClientName()
+                                .equalsIgnoreCase(checkedParameters.get(k).toString().trim()));
+                        break;
+                    case "type":
+                        fineGraining.filter((a) -> a.getType()
+                                .equalsIgnoreCase(checkedParameters.get(k).toString().trim()));
+                        break;
+                    case "date":
+                        fineGraining.filter((a) -> a.getDate() == (Date) checkedParameters.get(k));
+                        break;
+                    case "time":
+                        fineGraining.filter((a) -> a.getTime() == (Time) checkedParameters.get(k));
+                        break;
+                }
+            });
+            List<Appointment> finalList = fineGraining.collect(toList());
+            //before we skip() and limit() - we need to grasp the total no of matches
+            int totalMatches=finalList.size();
+            //TODO apply the size and offset to finalList, instead
+            JaxbAppointmentListWrapper response
+                    = new JaxbAppointmentListWrapperBuilder(size, totalMatches,
+                            offset, finalList).compose();
+            try {
+                output = mapper.writeValueAsString(response);
+            } catch (JsonProcessingException ex) {
+                Logger.getLogger(AppointmentResourceService.class.getName()).log(Level.SEVERE, null, ex);
+                output = "Code error serializing the appointments that you have requested";
+            }
+            return Response.ok(output).build();
         }
-        return null;
     }
 
     public int sizeValidator(int listSize, int requestOffset, int requestSize) {
