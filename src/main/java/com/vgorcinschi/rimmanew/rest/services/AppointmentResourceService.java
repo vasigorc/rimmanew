@@ -175,9 +175,9 @@ public class AppointmentResourceService {
     @GET
     @Path("experimental")
     @Produces("application/json")
-    public Response getExperimental(@FormParam("date") String appDate,
-            @FormParam("time") String appTime, @FormParam("type") String appType,
-            @FormParam("clientName") String clientName,
+    public Response getExperimental(@QueryParam("date") String appDate,
+            @QueryParam("time") String appTime, @QueryParam("type") String appType,
+            @QueryParam("clientName") String clientName,
             @DefaultValue("0") @QueryParam("offset") int offset,
             @DefaultValue("10") @QueryParam("size") int size) {
         Time timeConverted = null;
@@ -263,12 +263,12 @@ public class AppointmentResourceService {
         //if the list.size() ==0 return a corresponding Response        
         if (initialSelection.isEmpty()) {
             /*
-             first params is the requested size
-             second param is 0 because there is no results for the requested query
+             first params is the "answer" size, which in this case is 0
+             second param is 0 = total returned results from DB for this request
              third param is the requested offset
              */
             JaxbAppointmentListWrapper response
-                    = new JaxbAppointmentListWrapperBuilder(size, 0,
+                    = new JaxbAppointmentListWrapperBuilder(0, 0,
                             offset, initialSelection).compose();
             try {
                 output = mapper.writeValueAsString(response);
@@ -284,31 +284,37 @@ public class AppointmentResourceService {
              with the remaining keys of checkedParameters
              collect toList() and proceed with th rest of the code
              */
-            Stream<Appointment> fineGraining = initialSelection.stream();
-            unusedKeys.forEach((k) -> {
+            for (String k : unusedKeys) {
                 switch (k) {
                     case "name":
-                        fineGraining.filter((a) -> a.getClientName()
-                                .equalsIgnoreCase(checkedParameters.get(k).toString().trim()));
+                        initialSelection = initialSelection.stream().filter((a) -> a.getClientName()
+                                .equalsIgnoreCase(checkedParameters.get(k).toString().trim()))
+                                .collect(toList());
                         break;
                     case "type":
-                        fineGraining.filter((a) -> a.getType()
-                                .equalsIgnoreCase(checkedParameters.get(k).toString().trim()));
+                        initialSelection = initialSelection.stream().filter((a) -> a.getType()
+                                .equalsIgnoreCase(checkedParameters.get(k).toString().trim()))
+                                .collect(toList());
                         break;
                     case "date":
-                        fineGraining.filter((a) -> a.getDate() == (Date) checkedParameters.get(k));
+                        initialSelection = initialSelection.stream().filter(
+                                (a) -> a.getDate() == (Date) checkedParameters.get(k))
+                                .collect(toList());
                         break;
                     case "time":
-                        fineGraining.filter((a) -> a.getTime() == (Time) checkedParameters.get(k));
+                        initialSelection = initialSelection.stream().filter(
+                                (a) -> a.getTime() == (Time) checkedParameters.get(k))
+                                .collect(toList());
                         break;
                 }
-            });
-            List<Appointment> finalList = fineGraining.collect(toList());
-            //before we skip() and limit() - we need to grasp the total no of matches
-            int totalMatches=finalList.size();
+            }
+            int totalMatches = initialSelection.size();
+            //figuring out how many can we actually return
+            int answerSize = sizeValidator(totalMatches, offset, size);
+            List<Appointment> finalList = initialSelection.stream().skip(offset).limit(answerSize).collect(toList());
             //TODO apply the size and offset to finalList, instead
             JaxbAppointmentListWrapper response
-                    = new JaxbAppointmentListWrapperBuilder(size, totalMatches,
+                    = new JaxbAppointmentListWrapperBuilder(answerSize, totalMatches,
                             offset, finalList).compose();
             try {
                 output = mapper.writeValueAsString(response);
@@ -325,11 +331,11 @@ public class AppointmentResourceService {
         if (requestSize < 1) {
             throw new BadRequestException("You haven't requested any appointments");
         }
-        if (listSize < 1) {
-            throw new BadRequestException("There are no appointments that meet "
-                    + "your request");
-        }
-        if ((listSize - requestOffset) < 1) {
+//        if (listSize < 1) {
+//            throw new BadRequestException("There are no appointments that meet "
+//                    + "your request");
+//        }
+        if ((listSize - requestOffset) < 0) {
             throw new BadRequestException("There are less appointments in the "
                     + "system than you have requested");
         }

@@ -805,4 +805,25 @@ public class GetAppointmentsExperimentalTests {
         assertTrue(response.hasEntity());
         System.out.println("Empty wrapper HTTP response in JSON: "+response.getEntity().toString());
     }
+    
+    @Test
+    public void sizeValidatorEmptyListPassedTest(){
+        assertEquals("We are passing here 0 for an empty "
+                + "list size, 1 for the default offset "
+                + "and 10 for the default request size",0, service.sizeValidator(0, 0, 10));
+    }
+    
+    @Test
+    public void requestSkippedAndLimitedToZeroTest(){
+        Response response = service.getExperimental("2016-01-21", "16:00", "massage", "", 0, 10);
+        assertTrue(response.hasEntity());
+        System.out.println("requestSkippedAndLimitedToZeroTest JSON: "+response.getEntity().toString());
+    }
+    
+    @Test
+    public void onlyTimeParamRequestTest(){
+        Response response = service.getExperimental("", "11:00", "", "", 0, 10);
+        assertTrue(response.hasEntity());
+        System.out.println("onlyTimeParamRequestTest JSON: "+response.getEntity().toString());
+    }
 }
