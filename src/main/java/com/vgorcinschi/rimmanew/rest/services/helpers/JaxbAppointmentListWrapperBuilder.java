@@ -50,7 +50,11 @@ public class JaxbAppointmentListWrapperBuilder {
         this.remainder = listSize - (current.size() + requestOffset);
         this.response = new JaxbAppointmentListWrapper(current);
         this.nextIsLast = (listSize - (requestSize + requestOffset) <= requestSize);
-        this.additionalParams = additionalParams;
+        if (additionalParams.size()>0) {
+            this.additionalParams = additionalParams;
+        }else{
+            this.additionalParams = new HashMap<>();
+        }        
     }
 
     public JaxbAppointmentListWrapper compose() {

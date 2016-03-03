@@ -284,7 +284,6 @@ public class AppointmentResourceService {
              with the remaining keys of checkedParameters
              collect toList() and proceed with th rest of the code
              */
-            int count = 1;
             for (String k : unusedKeys) {
                 switch (k) {
                     case "name":
