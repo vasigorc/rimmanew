@@ -51,4 +51,11 @@ public class GetAppsExperimentalIntegrationTests {
         assertTrue(response.hasEntity());
         System.out.println("\nemptyResponseTest JSON: " + response.getEntity().toString());
     }
+    
+    @Test
+    public void onlyDateParamRequestTest(){
+        Response response = service.getExperimental("2016-02-17", "", "", "", 0, 10);
+        assertTrue(response.hasEntity());
+        System.out.println("\nonlyDateParamRequestTest JSON: " + response.getEntity().toString());
+    }
 }

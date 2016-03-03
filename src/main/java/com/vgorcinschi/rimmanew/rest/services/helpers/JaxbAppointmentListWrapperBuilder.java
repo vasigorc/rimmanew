@@ -59,7 +59,7 @@ public class JaxbAppointmentListWrapperBuilder {
 
     public JaxbAppointmentListWrapper compose() {
         this.response.setReturnedSize(current.size());
-        if (!current.isEmpty()) {
+        if (!current.isEmpty() && requestOffset !=0) {
             setFirstURI();
             setPreviousURI();
         }
