@@ -819,11 +819,4 @@ public class GetAppointmentsExperimentalTests {
         assertTrue(response.hasEntity());
         System.out.println("requestSkippedAndLimitedToZeroTest JSON: "+response.getEntity().toString());
     }
-    
-    @Test
-    public void onlyTimeParamRequestTest(){
-        Response response = service.getExperimental("", "11:00", "", "", 0, 10);
-        assertTrue(response.hasEntity());
-        System.out.println("onlyTimeParamRequestTest JSON: "+response.getEntity().toString());
-    }
 }

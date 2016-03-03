@@ -181,12 +181,12 @@ public class Java8Toolkit {
     public static BiFunction<Supplier<UriBuilder>, Map<String, String>, URI> uriGenerator
             = (supplier, map) -> {
                 UriBuilder clone = supplier.get().clone();
-                if(map.containsKey("path"))
-                    clone.path(map.get("path"));
-                if(map.containsKey("offset"))
-                    clone.queryParam("offset", map.get("offset"));
-                if(map.containsKey("size"))
-                    clone.queryParam("size", map.get("size"));
+                map.forEach((k,v)->{
+                    if(k.equals("path"))
+                        clone.path(map.get("path"));
+                    else
+                        clone.queryParam(k, v);
+                });
                 return clone.build();
             };
 }

@@ -284,6 +284,7 @@ public class AppointmentResourceService {
              with the remaining keys of checkedParameters
              collect toList() and proceed with th rest of the code
              */
+            int count = 1;
             for (String k : unusedKeys) {
                 switch (k) {
                     case "name":
@@ -298,12 +299,12 @@ public class AppointmentResourceService {
                         break;
                     case "date":
                         initialSelection = initialSelection.stream().filter(
-                                (a) -> a.getDate() == (Date) checkedParameters.get(k))
+                                (a) -> a.getDate().equals((Date) checkedParameters.get(k)))
                                 .collect(toList());
                         break;
                     case "time":
                         initialSelection = initialSelection.stream().filter(
-                                (a) -> a.getTime() == (Time) checkedParameters.get(k))
+                                (a) -> a.getTime().equals((Time) checkedParameters.get(k)))
                                 .collect(toList());
                         break;
                 }
@@ -312,10 +313,9 @@ public class AppointmentResourceService {
             //figuring out how many can we actually return
             int answerSize = sizeValidator(totalMatches, offset, size);
             List<Appointment> finalList = initialSelection.stream().skip(offset).limit(answerSize).collect(toList());
-            //TODO apply the size and offset to finalList, instead
             JaxbAppointmentListWrapper response
                     = new JaxbAppointmentListWrapperBuilder(answerSize, totalMatches,
-                            offset, finalList).compose();
+                            offset, finalList, checkedParameters).compose();
             try {
                 output = mapper.writeValueAsString(response);
             } catch (JsonProcessingException ex) {

@@ -26,6 +26,7 @@ public class JaxbAppointmentListWrapperBuilder {
     //this var delivers us from evaluating separetely next and last when later
     //are equal
     private final boolean nextIsLast;
+    private final Map<String, Object> additionalParams;
 
     public JaxbAppointmentListWrapperBuilder(int requestSize, int listSize,
             int requestOffset, List<Appointment> current) {
@@ -36,6 +37,20 @@ public class JaxbAppointmentListWrapperBuilder {
         this.remainder = listSize - (current.size() + requestOffset);
         this.response = new JaxbAppointmentListWrapper(current);
         this.nextIsLast = (listSize - (requestSize + requestOffset) <= requestSize);
+        this.additionalParams = new HashMap<>();
+    }
+
+    public JaxbAppointmentListWrapperBuilder(int requestSize, int listSize,
+            int requestOffset, List<Appointment> current,
+            Map<String, Object> additionalParams) {
+        this.requestSize = requestSize;
+        this.listSize = listSize;
+        this.requestOffset = requestOffset;
+        this.current = current;
+        this.remainder = listSize - (current.size() + requestOffset);
+        this.response = new JaxbAppointmentListWrapper(current);
+        this.nextIsLast = (listSize - (requestSize + requestOffset) <= requestSize);
+        this.additionalParams = additionalParams;
     }
 
     public JaxbAppointmentListWrapper compose() {
@@ -43,11 +58,11 @@ public class JaxbAppointmentListWrapperBuilder {
         if (!current.isEmpty()) {
             setFirstURI();
             setPreviousURI();
-        }        
+        }
         if (remainder > 1) {
             setLastURI();
             setNextURI();
-        }        
+        }
         return response;
     }
 
@@ -57,6 +72,11 @@ public class JaxbAppointmentListWrapperBuilder {
         first.put("offset", valueOf(0));
         first.put("size", valueOf(requestSize));
         first.put("path", "appointments");
+        if (!additionalParams.isEmpty()) {
+            additionalParams.forEach((k, v) -> {
+                first.put(k, v.toString());
+            });
+        }
         response.setFirst(uriGenerator.apply(appsUriBuilder, first));
     }
 
@@ -69,6 +89,11 @@ public class JaxbAppointmentListWrapperBuilder {
         } else {
             last.put("size", valueOf(remainder));
             last.put("offset", valueOf(listSize - remainder));
+        }
+        if (!additionalParams.isEmpty()) {
+            additionalParams.forEach((k, v) -> {
+                last.put(k, v.toString());
+            });
         }
         last.put("path", "appointments");
         response.setLast(uriGenerator.apply(appsUriBuilder, last));
@@ -90,6 +115,11 @@ public class JaxbAppointmentListWrapperBuilder {
             } else {
                 next.put("size", valueOf(remainder));
             }
+            if (!additionalParams.isEmpty()) {
+                additionalParams.forEach((k, v) -> {
+                    next.put(k, v.toString());
+                });
+            }
             next.put("path", "appointments");
             response.setNext(uriGenerator.apply(appsUriBuilder, next));
         }
@@ -103,6 +133,11 @@ public class JaxbAppointmentListWrapperBuilder {
             Map<String, String> previous = new HashMap<>();
             previous.put("offset", valueOf(requestOffset - requestSize));
             previous.put("size", valueOf(requestSize));
+            if (!additionalParams.isEmpty()) {
+                additionalParams.forEach((k, v) -> {
+                    previous.put(k, v.toString());
+                });
+            }
             previous.put("path", "appointments");
             response.setPrevious(uriGenerator.apply(appsUriBuilder, previous));
         }
