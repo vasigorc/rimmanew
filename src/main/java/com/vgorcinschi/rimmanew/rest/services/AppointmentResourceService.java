@@ -26,6 +26,7 @@ import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -34,14 +35,12 @@ import java.util.Optional;
 import static java.util.Optional.ofNullable;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import static java.util.concurrent.CompletableFuture.supplyAsync;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static java.util.stream.Collectors.toList;
-import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
@@ -177,7 +176,7 @@ public class AppointmentResourceService {
     @Produces("application/json")
     public Response getExperimental(@QueryParam("date") String appDate,
             @QueryParam("time") String appTime, @QueryParam("type") String appType,
-            @QueryParam("clientName") String clientName,
+            @QueryParam("name") String clientName,
             @DefaultValue("0") @QueryParam("offset") int offset,
             @DefaultValue("10") @QueryParam("size") int size) {
         Time timeConverted = null;
@@ -215,7 +214,7 @@ public class AppointmentResourceService {
         Map<String, Object> checkedParameters = new HashMap<>();
         //populate checkedParameters with non-empty strings only
         stringMap.forEach((k, v) -> {
-            if (!v.equals("")) {
+            if (!v.toString().equals("")) {
                 checkedParameters.put(k, v);
             }
         });
@@ -227,7 +226,7 @@ public class AppointmentResourceService {
             checkedParameters.put("date", dateConverted);
         }
         //set of keys of checked parameters
-        Set<String> unusedKeys = checkedParameters.keySet();
+        Set<String> unusedKeys = new HashSet<>(checkedParameters.keySet());
         List<Appointment> initialSelection = new LinkedList<>();
         Optional<AppointmentsQueryCandidate> winner = Optional.empty();
         try {
@@ -256,6 +255,7 @@ public class AppointmentResourceService {
             throw new InternalServerErrorException("It took the application "
                     + "too long to grab the results. Please contact the support team;");
         }
+        System.out.println("The parameters are: "+checkedParameters);
         //preparing our object mapper
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);

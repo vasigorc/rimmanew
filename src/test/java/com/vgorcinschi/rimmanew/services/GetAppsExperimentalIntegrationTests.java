@@ -40,7 +40,7 @@ public class GetAppsExperimentalIntegrationTests {
 
     @Test
     public void onlyTimeParamRequestTest() {
-        Response response = service.getExperimental("", "11:00:00", "", "", 0, 10);
+        Response response = service.getExperimental("", "11:00:00", "", "", 2, 2);
         assertTrue(response.hasEntity());
         System.out.println("\nonlyTimeParamRequestTest JSON: " + response.getEntity().toString());
     }
@@ -51,11 +51,43 @@ public class GetAppsExperimentalIntegrationTests {
         assertTrue(response.hasEntity());
         System.out.println("\nemptyResponseTest JSON: " + response.getEntity().toString());
     }
-    
+
     @Test
-    public void onlyDateParamRequestTest(){
+    public void onlyDateParamRequestTest() {
         Response response = service.getExperimental("2016-02-17", "", "", "", 0, 10);
         assertTrue(response.hasEntity());
         System.out.println("\nonlyDateParamRequestTest JSON: " + response.getEntity().toString());
+    }
+
+    @Test
+    public void onlyNameParameRequestTest() {
+        Response response = service.getExperimental("", "", "", "Varvara", 0, 10);
+        assertTrue(response.hasEntity());
+        System.out.println("\nonlyNameParameRequestTest JSON: " + response.getEntity().toString());
+    }
+
+    @Test
+    public void typeAndOffsetParamsRequestTest() {
+        Response response = service.getExperimental("", "", "massage", "", 5, 3);
+        assertTrue(response.hasEntity());
+        System.out.println("\ntypeAndOffsetParamsRequestTest JSON: " + response.getEntity().toString());
+    }
+
+    @Test
+    public void dateAndTimeParamsRequestTest() {
+        Response response = service.getExperimental("2016-02-03", "11:00", "", "", 0, 10);
+        assertTrue("We are "
+                + " testing whether the URI contains the"
+                + " date parameter", response.getEntity().toString().contains("date"));
+        System.out.println("\ndateAndTimeParamsRequestTest JSON: " + response.getEntity().toString());
+    }
+
+    @Test
+    public void dateAndTypeSizeRequestTest() {
+        Response response = service.getExperimental("2016-01-19", "", "massage", "", 0, 2);
+        assertTrue("We are "
+                + " testing whether the URI contains the"
+                + " date parameter", response.getEntity().toString().contains("date"));
+        System.out.println("\ndateAndTypeParamsRequestTest JSON: " + response.getEntity().toString());
     }
 }
