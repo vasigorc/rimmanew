@@ -115,13 +115,13 @@ public class AppointmentResourceServiceTests {
 
     @Test(expected=BadRequestException.class)
     public void zeroSizeAppointmentsRequestTest() {
-       service.getAppointments(5, 0);
+       service.getAppointments("", "", "", "", 5, 0);
     }
     
     @Test
     public void offsetTooBigRequestTest(){
         try {
-            service.getAppointments(50, 5);
+            service.getAppointments("", "", "", "", 50, 5);
         } catch (BadRequestException e) {
             assertEquals(e.getMessage(), "There are less appointments in the "
                     + "system than you have requested");            
@@ -130,7 +130,7 @@ public class AppointmentResourceServiceTests {
     
     @Test
     public void jsonAllAppointmentsRootNameTest() throws JsonProcessingException{
-        Response response = service.getAppointments(10, 5);
+        Response response = service.getAppointments("", "", "", "", 10, 5);
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
         String output = mapper.writeValueAsString(response.getEntity());

@@ -801,7 +801,7 @@ public class GetAppointmentsExperimentalTests {
     
     @Test
     public void requestEndsInEmptyResponseTest(){
-        Response response = service.getExperimental("2019-02-12", "", "massage", "", 0, 10);
+        Response response = service.getAppointments("2019-02-12", "", "massage", "", 0, 10);
         assertTrue(response.hasEntity());
         System.out.println("Empty wrapper HTTP response in JSON: "+response.getEntity().toString());
     }
@@ -815,7 +815,7 @@ public class GetAppointmentsExperimentalTests {
     
     @Test
     public void requestSkippedAndLimitedToZeroTest(){
-        Response response = service.getExperimental("2016-01-21", "16:00", "massage", "", 0, 10);
+        Response response = service.getAppointments("2016-01-21", "16:00", "massage", "", 0, 10);
         assertTrue(response.hasEntity());
         System.out.println("requestSkippedAndLimitedToZeroTest JSON: "+response.getEntity().toString());
     }

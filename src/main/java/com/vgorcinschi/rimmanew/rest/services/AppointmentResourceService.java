@@ -141,40 +141,7 @@ public class AppointmentResourceService {
 
     @GET
     @Produces("application/json")
-    public Response getAppointments(@DefaultValue("0") @QueryParam("offset") int offset,
-            @DefaultValue("10") @QueryParam("size") int size) {
-        //start by getting all appointments from EJB - the only available method
-        List<Appointment> list;
-        try {
-            list = repository.getAll();
-        } catch (Exception e) {
-            throw new InternalServerErrorException("Something happened in the application "
-                    + "- we couldn't retrieve the appointments. Please contact"
-                    + " the support team.");
-        }
-        //externalize requested size validation
-        int answerSize = sizeValidator(list.size(), offset, size);
-        List<Appointment> current = list.stream().skip(offset).limit(answerSize)
-                .collect(toList());
-        JaxbAppointmentListWrapper response
-                = new JaxbAppointmentListWrapperBuilder(answerSize, list.size(),
-                        offset, current).compose();
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
-        String output;
-        try {
-            output = mapper.writeValueAsString(response);
-        } catch (JsonProcessingException ex) {
-            Logger.getLogger(AppointmentResourceService.class.getName()).log(Level.SEVERE, null, ex);
-            output = "Code error serializing the appointments that you have requested";
-        }
-        return Response.ok(output).build();
-    }
-
-    @GET
-    @Path("experimental")
-    @Produces("application/json")
-    public Response getExperimental(@QueryParam("date") String appDate,
+    public Response getAppointments(@QueryParam("date") String appDate,
             @QueryParam("time") String appTime, @QueryParam("type") String appType,
             @QueryParam("name") String clientName,
             @DefaultValue("0") @QueryParam("offset") int offset,
@@ -255,7 +222,6 @@ public class AppointmentResourceService {
             throw new InternalServerErrorException("It took the application "
                     + "too long to grab the results. Please contact the support team;");
         }
-        System.out.println("The parameters are: "+checkedParameters);
         //preparing our object mapper
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
@@ -330,10 +296,6 @@ public class AppointmentResourceService {
         if (requestSize < 1) {
             throw new BadRequestException("You haven't requested any appointments");
         }
-//        if (listSize < 1) {
-//            throw new BadRequestException("There are no appointments that meet "
-//                    + "your request");
-//        }
         if ((listSize - requestOffset) < 0) {
             throw new BadRequestException("There are less appointments in the "
                     + "system than you have requested");
