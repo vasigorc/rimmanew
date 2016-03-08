@@ -44,6 +44,7 @@ import static java.util.stream.Collectors.toList;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -289,6 +290,32 @@ public class AppointmentResourceService {
             }
             return Response.ok(output).build();
         }
+    }
+    
+    @DELETE
+    @Path("{id}")
+    @Produces("application/json")
+    public Response deleteAppointment(@PathParam("id") long id){
+        Appointment toDelete = repository.get(id);
+        if (toDelete==null) {
+            throw new BadRequestException("The requested appointment doesn't exist");
+        }
+        try {
+            repository.deleteOne(toDelete);
+        } catch (Exception e) {
+            throw new InternalServerErrorException("An error ocurred in the application "
+                    + "and the requested appointment couldn't be deleted.");
+        }
+        //preparing our object mapper
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
+        String output=null;
+        try {
+            output = mapper.writeValueAsString("appointment with id# "+id+" has been deleted");
+        } catch (JsonProcessingException ex) {
+            Logger.getLogger(AppointmentResourceService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return Response.ok(output).build();
     }
 
     public int sizeValidator(int listSize, int requestOffset, int requestSize) {
