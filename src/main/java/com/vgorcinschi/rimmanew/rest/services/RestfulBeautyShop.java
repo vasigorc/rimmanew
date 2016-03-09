@@ -33,6 +33,7 @@ public class RestfulBeautyShop extends Application {
     public Set<Class<?>> getClasses() {
         HashSet<Class<?>> set = new HashSet<>();
         set.add(AppointmentResourceService.class);
+        set.add(SpecialDayResourceService.class);
         set.add(BadRequestExceptionMapper.class);
         set.add(InternalServerErrorExceptionMapper.class);
         set.add(NotFoundExceptionMapper.class);

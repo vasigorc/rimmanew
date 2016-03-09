@@ -9,6 +9,7 @@ import com.vgorcinschi.rimmanew.annotations.JpaRepository;
 import com.vgorcinschi.rimmanew.entities.SpecialDay;
 import com.vgorcinschi.rimmanew.util.Java8Toolkit;
 import java.time.LocalDate;
+import java.util.List;
 import javax.ejb.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -66,5 +67,15 @@ public class JpaSpecialDayRepository implements SpecialDayRepository {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public List<SpecialDay> getAll() {
+        try {
+            return em.createQuery("SELECT s FROM SpecialDay s order by s.date DESC", 
+                            SpecialDay.class).getResultList();
+        } catch (NoResultException e) {
+            return null;
+        }
     }
 }
