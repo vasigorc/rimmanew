@@ -5,11 +5,18 @@
  */
 package com.vgorcinschi.rimmanew.util;
 
+import com.vgorcinschi.rimmanew.entities.SpecialDay;
+import static com.vgorcinschi.rimmanew.util.Java8Toolkit.genericTypeIdentifier;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.time.Duration;
 import java.time.LocalTime;
+import java.util.LinkedList;
 import java.util.List;
-import org.junit.Before;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import static org.junit.Assert.assertEquals;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -17,6 +24,7 @@ import org.junit.Test;
  * @author vgorcinschi
  */
 public class Java8ToolkitTests {
+    List<SpecialDay> days = new LinkedList<>();
 
     public Java8ToolkitTests() {
     }
@@ -45,4 +53,27 @@ public class Java8ToolkitTests {
         assertEquals(3, test.size());
         System.out.println("Recursive result is: " + test + "\nResult returned in " +duration+ " msecs\n");
     } 
+    
+    @Test
+    public void retrieveTypeTest(){
+        Field stringListField = null;
+        try {
+            stringListField = Java8ToolkitTests.class.getDeclaredField("days");
+        } catch (NoSuchFieldException | SecurityException ex) {
+            Logger.getLogger(Java8ToolkitTests.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        ParameterizedType stringListType = (ParameterizedType) stringListField.getGenericType();
+        Class<?> stringListClass = (Class<?>) stringListType.getActualTypeArguments()[0];
+        assertEquals("com.vgorcinschi.rimmanew.entities.SpecialDay",stringListClass.getTypeName());
+    }
+    
+    @Test
+    public void retrieveTypeWithFunctionTest(){
+        try {
+            assertEquals("com.vgorcinschi.rimmanew.entities.SpecialDay",
+                    genericTypeIdentifier.apply(Java8ToolkitTests.class.getDeclaredField("days")));
+        } catch (NoSuchFieldException | SecurityException ex) {
+            Logger.getLogger(Java8ToolkitTests.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 }

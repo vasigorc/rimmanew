@@ -11,6 +11,8 @@ import com.vgorcinschi.rimmanew.helpers.TriFunction;
 import com.vgorcinschi.rimmanew.rest.weatherjaxb.Time;
 import static com.vgorcinschi.rimmanew.util.ExecutorFactoryProvider.getSingletonExecutorOf30;
 import static java.lang.Integer.parseInt;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.net.URI;
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -169,24 +171,33 @@ public class Java8Toolkit {
             };
     public static Supplier<UriBuilder> appsUriBuilder = () -> {
         Properties props = PropertiesProvider.getUriProperties();
-        UriBuilder uriBuilder= UriBuilder.fromPath("RimmaNew/rest").scheme(props.getProperty("scheme"))
-            .host(props.getProperty("host"));
-        if(props.getProperty("port")==null||props.getProperty("port").equals(""))
-                return uriBuilder;
-        else
+        UriBuilder uriBuilder = UriBuilder.fromPath("RimmaNew/rest").scheme(props.getProperty("scheme"))
+                .host(props.getProperty("host"));
+        if (props.getProperty("port") == null || props.getProperty("port").equals("")) {
+            return uriBuilder;
+        } else {
             return uriBuilder.port(parseInt(props.getProperty("port")));
-        
+        }
+
     };
 
     public static BiFunction<Supplier<UriBuilder>, Map<String, String>, URI> uriGenerator
             = (supplier, map) -> {
                 UriBuilder clone = supplier.get().clone();
-                map.forEach((k,v)->{
-                    if(k.equals("path"))
+                map.forEach((k, v) -> {
+                    if (k.equals("path")) {
                         clone.path(map.get("path"));
-                    else
+                    } else {
                         clone.queryParam(k, v);
+                    }
                 });
                 return clone.build();
+            };
+
+    public static Function<Field, String> genericTypeIdentifier
+            = (generic) -> {
+                ParameterizedType stringListType = (ParameterizedType) generic.getGenericType();
+                Class<?> stringListClass = (Class<?>) stringListType.getActualTypeArguments()[0];
+                return stringListClass.getTypeName();
             };
 }
