@@ -5,9 +5,7 @@
  */
 package com.vgorcinschi.rimmanew.rest.services.helpers;
 
-import com.vgorcinschi.rimmanew.entities.SpecialDay;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.appsUriBuilder;
-import static com.vgorcinschi.rimmanew.util.Java8Toolkit.genericTypeIdentifier;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.uriGenerator;
 import static java.lang.String.valueOf;
 import java.util.HashMap;
@@ -30,7 +28,7 @@ public abstract class GenericBaseJaxbListWrapperBuilder<R> implements JaxbListWr
     protected final boolean nextIsLast;
 
     public GenericBaseJaxbListWrapperBuilder(int requestSize, int listSize, 
-            int requestOffset, List<R> current) throws SecurityException, NoSuchFieldException {
+            int requestOffset, List<R> current) {
         this.requestSize = requestSize;
         this.listSize = listSize;
         this.requestOffset = requestOffset;
