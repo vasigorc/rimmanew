@@ -13,6 +13,13 @@ import com.vgorcinschi.rimmanew.ejbs.SpecialDayRepository;
 import com.vgorcinschi.rimmanew.entities.SpecialDay;
 import com.vgorcinschi.rimmanew.rest.services.helpers.GenericBaseJaxbListWrapper;
 import com.vgorcinschi.rimmanew.rest.services.helpers.JaxbSpecialDayListWrapperBuilder;
+import com.vgorcinschi.rimmanew.rest.services.helpers.SqlDateConverter;
+import com.vgorcinschi.rimmanew.rest.services.helpers.SqlTimeConverter;
+import static com.vgorcinschi.rimmanew.util.Java8Toolkit.allStringsAreGood;
+import static com.vgorcinschi.rimmanew.util.Java8Toolkit.stringNotNullNorEmpty;
+import static java.lang.Long.parseLong;
+import java.sql.Date;
+import java.sql.Time;
 import static java.time.LocalDate.parse;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -24,8 +31,11 @@ import java.util.logging.Logger;
 import static java.util.stream.Collectors.toList;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -116,6 +126,20 @@ public class SpecialDayResourceService {
         return Response.ok(output).build();
     }
 
+    @POST
+    @Produces("application/json")
+    @Consumes("application/x-www-form-urlencoded")
+    public Response addSpecialDay(@FormParam("date") String appDate, @FormParam("start") String startAt,
+            @FormParam("end") String endAt, @FormParam("breakStart") String breakStart,
+            @FormParam("breakEnd") String breakEnd, @FormParam("duration") String duration,
+            @FormParam("blocked") String blocked, @FormParam("message") String message) {
+        /*
+            MUST CONTAIN LOGIC TO WARN THAT THERE ARE ALREADY APPOINTMENTS IN THIS
+            DAY
+        */
+        return null;
+    }
+
     public int sizeValidator(int listSize, int requestOffset, int requestSize) {
         int answerSize;
         if (requestSize < 1) {
@@ -132,5 +156,69 @@ public class SpecialDayResourceService {
             answerSize = requestSize;
         }
         return answerSize;
+    }
+
+    public SpecialDay checkAndBuild(String appDate, String startAt, String endAt, String breakStart,
+            String breakEnd, String duration, String blocked, String message) {
+        //instantiate a SpecialDay and populate while validate
+        SpecialDay sd = new SpecialDay();
+        //first we need to validate the date -without it everything else is 
+        //irrelevant. Throws BadRequestException
+        Date sdDate = new SqlDateConverter().fromString(appDate);
+        sd.setDate(sdDate);
+        //second but almost equaly important is - "Is this a closed day or not?"
+        if (stringNotNullNorEmpty.apply(blocked) && (blocked.equalsIgnoreCase("true") || blocked.equalsIgnoreCase("yes"))) {
+            //no further info is needed - return the object to the caller
+            sd.setIsBlocked(true);
+            return sd;
+        } else {
+            //regardless of balderdash that the user (not) entered we will set it to false
+            sd.setIsBlocked(false);
+        }
+        //now validate start and end times - throws BadRequestException
+        Time sdStart = new SqlTimeConverter().fromString(startAt);
+        Time sdEnd = new SqlTimeConverter().fromString(endAt);
+        //end cannot be before start or even equal to...
+        if (!sdEnd.after(sdStart)) {
+            throw new BadRequestException("You have entered the "
+                    + "end time: " + endAt + ", to be before/equal to the start time:" + startAt + "."
+                    + " Please make sure that the end is after the start \u263A",
+                    Response.status(Response.Status.BAD_REQUEST).build());
+        }
+        sd.setStartAt(sdStart);
+        sd.setEndAt(sdEnd);
+        //duration is the last field without which we cannot save a day with
+        //a special schedule
+        try {
+            long sdDuration = parseLong(duration);
+            sd.setDuration(sdDuration);
+        } catch (NumberFormatException e) {
+            throw new BadRequestException(duration + " is not an accepted Duration format "
+                    + "please enter the number of minutes. Ex: 45",
+                    Response.status(Response.Status.BAD_REQUEST).build());
+        }
+        //remaining fields are all optional
+        //break times need to be BOTH valid only if specified
+        String[] breaks = {breakStart, breakEnd};
+        if (allStringsAreGood.apply(breaks)) {
+            Time stBreakStart = new SqlTimeConverter().fromString(breakStart);
+            Time stBreakEnd = new SqlTimeConverter().fromString(breakEnd);
+            //again the end cannot be after the start
+            if (!stBreakEnd.after(stBreakStart)) {
+                throw new BadRequestException("You have entered the "
+                        + "break end time: " + breakEnd + ", to be before/equal "
+                        + "to the break start time:" + breakStart + "."
+                        + " Please make sure that the end is after the start \u263A",
+                        Response.status(Response.Status.BAD_REQUEST).build());
+            }
+            sd.setBreakStart(stBreakStart);
+            sd.setBreakEnd(stBreakEnd);
+        } else {
+            sd.setBreakStart(null);
+            sd.setBreakEnd(null);
+        }
+        if(stringNotNullNorEmpty.apply(message))
+            sd.setMessage(message);
+        return sd;
     }
 }

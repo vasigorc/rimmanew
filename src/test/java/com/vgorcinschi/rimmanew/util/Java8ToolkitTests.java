@@ -6,6 +6,7 @@
 package com.vgorcinschi.rimmanew.util;
 
 import com.vgorcinschi.rimmanew.entities.SpecialDay;
+import static com.vgorcinschi.rimmanew.util.Java8Toolkit.allStringsAreGood;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.genericTypeIdentifier;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -16,6 +17,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -75,5 +78,17 @@ public class Java8ToolkitTests {
         } catch (NoSuchFieldException | SecurityException ex) {
             Logger.getLogger(Java8ToolkitTests.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    @Test
+    public void allStringsAreGoodTest(){
+        String [] valid = {"Monday", "Tuesday"};
+        String [] invalidWithNull = {null, "Tuesday"};
+        String [] invalidWithEmpty = {"Monday", ""};
+        String [] empty = {};
+        assertTrue(allStringsAreGood.apply(valid));
+        assertFalse(allStringsAreGood.apply(invalidWithEmpty));
+        assertFalse(allStringsAreGood.apply(invalidWithNull));
+        assertFalse(allStringsAreGood.apply(empty));
     }
 }

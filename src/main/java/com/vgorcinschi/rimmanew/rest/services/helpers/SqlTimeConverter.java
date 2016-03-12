@@ -7,6 +7,7 @@ package com.vgorcinschi.rimmanew.rest.services.helpers;
 
 import java.sql.Time;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ParamConverter;
 
 /**
@@ -26,7 +27,8 @@ public class SqlTimeConverter implements ParamConverter<Time> {
         //append them so that the Constructor works        
         if (!value.matches(TIME24HOURS_PATTERN)) {
             throw new BadRequestException(value + " is not an accepted Time format "
-                    + "please use this pattern: hh:mm:SS");
+                    + "please use this pattern: hh:mm:SS", 
+                    Response.status(Response.Status.BAD_REQUEST).build());
         }
         if (value.length() < 6) {
             value = value.concat(":00");

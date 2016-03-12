@@ -10,6 +10,7 @@ import com.vgorcinschi.rimmanew.entities.DivizableDay;
 import com.vgorcinschi.rimmanew.helpers.TriFunction;
 import com.vgorcinschi.rimmanew.rest.weatherjaxb.Time;
 import static com.vgorcinschi.rimmanew.util.ExecutorFactoryProvider.getSingletonExecutorOf30;
+import edu.emory.mathcs.backport.java.util.Arrays;
 import static java.lang.Integer.parseInt;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -200,4 +201,15 @@ public class Java8Toolkit {
                 Class<?> stringListClass = (Class<?>) stringListType.getActualTypeArguments()[0];
                 return stringListClass.getTypeName();
             };
+
+    public static Function<String, Boolean> stringNotNullNorEmpty = (str) -> {
+        return str != null && !str.equals("");
+    };
+    
+    public static Function<String [], Boolean> allStringsAreGood = (array) ->{
+        if (Arrays.asList(array).isEmpty()) {
+            return false;
+        }
+        return Arrays.asList(array).stream().allMatch(str-> str != null && !str.equals(""));
+    };
 }
