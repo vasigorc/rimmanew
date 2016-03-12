@@ -37,7 +37,7 @@ public class EmptyJaxbAppointmentListWrapperTest {
 
     @Test
     public void test() {
-        JaxbAppointmentListWrapper response
+        GenericBaseJaxbListWrapper response
                 = new JaxbAppointmentListWrapperBuilder(0, 0,
                         0, new LinkedList<Appointment>()).compose();
         System.out.println("\nCurrent: " + response.getCurrent());
@@ -52,7 +52,7 @@ public class EmptyJaxbAppointmentListWrapperTest {
 
     @Test
     public void testWithDefaultSizeAndOffset() {
-        JaxbAppointmentListWrapper response
+        GenericBaseJaxbListWrapper response
                 = new JaxbAppointmentListWrapperBuilder(0, 0,
                         0, new LinkedList<Appointment>()).compose();
         System.out.println("\nCurrent: " + response.getCurrent());

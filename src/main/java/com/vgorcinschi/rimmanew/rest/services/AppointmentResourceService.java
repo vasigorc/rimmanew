@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.vgorcinschi.rimmanew.annotations.JpaRepository;
 import com.vgorcinschi.rimmanew.ejbs.AppointmentRepository;
 import com.vgorcinschi.rimmanew.entities.Appointment;
+import com.vgorcinschi.rimmanew.rest.services.helpers.GenericBaseJaxbListWrapper;
 import com.vgorcinschi.rimmanew.rest.services.helpers.JaxbAppointmentListWrapper;
 import com.vgorcinschi.rimmanew.rest.services.helpers.JaxbAppointmentListWrapperBuilder;
 import com.vgorcinschi.rimmanew.rest.services.helpers.SqlDateConverter;
@@ -234,7 +235,7 @@ public class AppointmentResourceService {
              second param is 0 = total returned results from DB for this request
              third param is the requested offset
              */
-            JaxbAppointmentListWrapper response
+            GenericBaseJaxbListWrapper response
                     = new JaxbAppointmentListWrapperBuilder(0, 0,
                             offset, initialSelection).compose();
             try {
@@ -251,7 +252,9 @@ public class AppointmentResourceService {
              with the remaining keys of checkedParameters
              collect toList() and proceed with th rest of the code
              */
-            for (String k : unusedKeys) {
+            for (String k : unusedKeys) {  
+                if(initialSelection.isEmpty())
+                    break;
                 switch (k) {
                     case "name":
                         initialSelection = initialSelection.stream().filter((a) -> a.getClientName()
@@ -279,7 +282,7 @@ public class AppointmentResourceService {
             //figuring out how many can we actually return
             int answerSize = sizeValidator(totalMatches, offset, size);
             List<Appointment> finalList = initialSelection.stream().skip(offset).limit(answerSize).collect(toList());
-            JaxbAppointmentListWrapper response
+            GenericBaseJaxbListWrapper response
                     = new JaxbAppointmentListWrapperBuilder(answerSize, totalMatches,
                             offset, finalList, checkedParameters).compose();
             try {

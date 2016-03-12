@@ -92,7 +92,7 @@ public class AppointmentResourceServiceTests {
         service.bookAppointment(
                 Java8Toolkit.localToSqlDate(LocalDate.now().plusDays((long) new Random().nextInt(90))),
                 "15:00", "massage", "Rimma",
-                "valid%40email.ca", "any");
+                "valid@email.ca", "any");
     }
 
     @Test

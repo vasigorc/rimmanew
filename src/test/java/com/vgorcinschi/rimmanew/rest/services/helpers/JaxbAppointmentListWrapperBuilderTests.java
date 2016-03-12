@@ -61,7 +61,7 @@ public class JaxbAppointmentListWrapperBuilderTests {
         List<Appointment> list = repository.getAll();
         List<Appointment> current = list.stream().skip(paramsArray[0]).limit(paramsArray[1])
                 .collect(toList());
-        JaxbAppointmentListWrapper response
+        GenericBaseJaxbListWrapper response
                 = new JaxbAppointmentListWrapperBuilder(paramsArray[1], list.size(),
                         paramsArray[0], current).compose();
         assertNotEquals(list.size(), response.getReturnedSize());

@@ -6,7 +6,6 @@
 package com.vgorcinschi.rimmanew.rest.services.helpers;
 
 import com.vgorcinschi.rimmanew.entities.SpecialDay;
-import static com.vgorcinschi.rimmanew.util.Java8Toolkit.genericTypeIdentifier;
 import java.util.List;
 
 /**
@@ -19,7 +18,7 @@ public class JaxbSpecialDayListWrapperBuilder
     public JaxbSpecialDayListWrapperBuilder(int requestSize, int listSize, 
             int requestOffset, List<SpecialDay> current) throws SecurityException, NoSuchFieldException {
         super(requestSize, listSize, requestOffset, current);
-        this.pathToAppend = "special day";
+        this.pathToAppend = "specialdays";
         this.response = new JaxbSpecialDayListWrapper((List<SpecialDay>) current);        
     }    
 }

@@ -17,49 +17,36 @@ import java.util.Map;
  *
  * @author vgorcinschi
  */
-public class JaxbAppointmentListWrapperBuilder {
+public class JaxbAppointmentListWrapperBuilder
+        extends GenericBaseJaxbListWrapperBuilder<Appointment> {
 
-    private final JaxbAppointmentListWrapper response;
-    //remainder - how many appointments left in db after offset and current load
-    private final int requestSize, listSize, requestOffset, remainder;
-    private final List<Appointment> current;
-    //this var delivers us from evaluating separetely next and last when later
-    //are equal
-    private final boolean nextIsLast;
     private final Map<String, Object> additionalParams;
 
     public JaxbAppointmentListWrapperBuilder(int requestSize, int listSize,
             int requestOffset, List<Appointment> current) {
-        this.requestSize = requestSize;
-        this.listSize = listSize;
-        this.requestOffset = requestOffset;
-        this.current = current;
-        this.remainder = listSize - (current.size() + requestOffset);
-        this.response = new JaxbAppointmentListWrapper(current);
-        this.nextIsLast = (listSize - (requestSize + requestOffset) <= requestSize);
+        super(requestSize, listSize, requestOffset, current);
+        this.pathToAppend = "appointments";
+        this.response = new JaxbAppointmentListWrapper((List<Appointment>)current);
         this.additionalParams = new HashMap<>();
     }
 
     public JaxbAppointmentListWrapperBuilder(int requestSize, int listSize,
             int requestOffset, List<Appointment> current,
             Map<String, Object> additionalParams) {
-        this.requestSize = requestSize;
-        this.listSize = listSize;
-        this.requestOffset = requestOffset;
-        this.current = current;
-        this.remainder = listSize - (current.size() + requestOffset);
-        this.response = new JaxbAppointmentListWrapper(current);
-        this.nextIsLast = (listSize - (requestSize + requestOffset) <= requestSize);
-        if (additionalParams.size()>0) {
+        super(requestSize, listSize, requestOffset, current);
+        this.pathToAppend = "appointments";
+        this.response = new JaxbAppointmentListWrapper((List<Appointment>)current);
+        if (additionalParams.size() > 0) {
             this.additionalParams = additionalParams;
-        }else{
+        } else {
             this.additionalParams = new HashMap<>();
-        }        
+        }
     }
 
-    public JaxbAppointmentListWrapper compose() {
+    @Override
+    public GenericBaseJaxbListWrapper compose() {
         this.response.setReturnedSize(current.size());
-        if (!current.isEmpty() && requestOffset !=0) {
+        if (!current.isEmpty() && requestOffset != 0) {
             setFirstURI();
             setPreviousURI();
         }
@@ -67,10 +54,11 @@ public class JaxbAppointmentListWrapperBuilder {
             setLastURI();
             setNextURI();
         }
-        return response;
+        return (GenericBaseJaxbListWrapper) response;
     }
 
     //setting the first URI for response
+    @Override
     public void setFirstURI() {
         Map<String, String> first = new HashMap<>();
         first.put("offset", valueOf(0));
@@ -85,6 +73,7 @@ public class JaxbAppointmentListWrapperBuilder {
     }
 
     //setting the last URI for response
+    @Override
     public void setLastURI() {
         Map<String, String> last = new HashMap<>();
         if (remainder > requestSize) {
@@ -104,6 +93,7 @@ public class JaxbAppointmentListWrapperBuilder {
     }
 
     //setting the next URI for response
+    @Override
     public void setNextURI() {
         /*
          if next equals to last - we will simply still steal it from
@@ -130,6 +120,7 @@ public class JaxbAppointmentListWrapperBuilder {
     }
 
     //setting the previous URI for response
+    @Override
     public void setPreviousURI() {
         if (requestOffset == 0 || requestOffset <= requestSize) {
             response.setPrevious(response.getFirst());

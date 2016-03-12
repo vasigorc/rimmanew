@@ -49,7 +49,7 @@ public class GetAppsExperimentalIntegrationTests {
     public void emptyRequestTest() {
         Response response = service.getAppointments("", "", "", "", 0, 10);
         assertTrue(response.hasEntity());
-        System.out.println("\nemptyResponseTest JSON: " + response.getEntity().toString());
+        System.out.println("\nemptyRequestTest JSON: " + response.getEntity().toString());
     }
 
     @Test

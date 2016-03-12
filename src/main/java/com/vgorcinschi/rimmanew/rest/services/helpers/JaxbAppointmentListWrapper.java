@@ -5,99 +5,18 @@
  */
 package com.vgorcinschi.rimmanew.rest.services.helpers;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.vgorcinschi.rimmanew.entities.Appointment;
-import java.net.URI;
 import java.util.List;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
  * @author vgorcinschi
  */
 @JsonRootName(value="appointments")
-@JsonInclude(Include.NON_NULL)
-@XmlRootElement
-public class JaxbAppointmentListWrapper {
+public class JaxbAppointmentListWrapper extends GenericBaseJaxbListWrapper<Appointment>{
 
-    private List<Appointment> current;
-    private URI first, last, next, previous, all;
-    private int returnedSize;
-
-    public JaxbAppointmentListWrapper(List<Appointment> current) {
-        this.current = current;
-    }
-
-    @JsonGetter
-    public List<Appointment> getCurrent() {
-        return current;
-    }
-
-    public void setCurrent(List<Appointment> current) {
-        this.current = current;
-    }
-
-    @JsonGetter    
-    @JsonSerialize(using = URIJsonSerializer.class)
-    public URI getFirst() {
-        return first;
-    }
-
-    public void setFirst(URI first) {
-        this.first = first;
-    }
-
-    @JsonGetter
-    @JsonSerialize(using = URIJsonSerializer.class)
-    public URI getLast() {
-        return last;
-    }
-
-    public void setLast(URI last) {
-        this.last = last;
-    }
-
-    @JsonGetter
-    @JsonSerialize(using = URIJsonSerializer.class)
-    public URI getNext() {
-        return next;
-    }
-
-    public void setNext(URI next) {
-        this.next = next;
-    }
-
-    @JsonGetter
-    @JsonSerialize(using = URIJsonSerializer.class)
-    public URI getPrevious() {
-        return previous;
-    }
-
-    public void setPrevious(URI previous) {
-        this.previous = previous;
-    }
-
-    @JsonGetter
-    @JsonSerialize(using = URIJsonSerializer.class)
-    public URI getAll() {
-        return all;
-    }
-
-    public void setAll(URI all) {
-        this.all = all;
-    }
-
-    @JsonProperty("currentReturnedSize")
-    public int getReturnedSize() {
-        return returnedSize;
-    }
-
-    public void setReturnedSize(int returnedSize) {
-        this.returnedSize = returnedSize;
+   public JaxbAppointmentListWrapper(List<Appointment> current) {
+        super(current);
     }
 }

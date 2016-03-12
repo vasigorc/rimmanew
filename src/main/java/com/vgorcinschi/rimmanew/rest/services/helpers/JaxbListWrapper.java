@@ -5,7 +5,6 @@
  */
 package com.vgorcinschi.rimmanew.rest.services.helpers;
 
-import com.vgorcinschi.rimmanew.entities.Appointment;
 import java.net.URI;
 import java.util.List;
 

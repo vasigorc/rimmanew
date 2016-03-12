@@ -56,7 +56,7 @@ public abstract class GenericBaseJaxbListWrapperBuilder<R> implements JaxbListWr
         Map<String, String> first = new HashMap<>();
         first.put("offset", valueOf(0));
         first.put("size", valueOf(requestSize));
-        first.put("path", pathToAppend.concat("s"));
+        first.put("path", pathToAppend);
         response.setFirst(uriGenerator.apply(appsUriBuilder, first));
     }
 
@@ -70,7 +70,7 @@ public abstract class GenericBaseJaxbListWrapperBuilder<R> implements JaxbListWr
             last.put("size", valueOf(remainder));
             last.put("offset", valueOf(listSize - remainder));
         }
-        last.put("path", pathToAppend.concat("s"));
+        last.put("path", pathToAppend);
         response.setLast(uriGenerator.apply(appsUriBuilder, last));
     }
 
@@ -90,7 +90,7 @@ public abstract class GenericBaseJaxbListWrapperBuilder<R> implements JaxbListWr
             } else {
                 next.put("size", valueOf(remainder));
             }
-            next.put("path", pathToAppend.concat("s"));
+            next.put("path", pathToAppend);
             response.setNext(uriGenerator.apply(appsUriBuilder, next));
         }
     }
@@ -103,7 +103,7 @@ public abstract class GenericBaseJaxbListWrapperBuilder<R> implements JaxbListWr
             Map<String, String> previous = new HashMap<>();
             previous.put("offset", valueOf(requestOffset - requestSize));
             previous.put("size", valueOf(requestSize));
-            previous.put("path", pathToAppend.concat("s"));
+            previous.put("path", pathToAppend);
             response.setPrevious(uriGenerator.apply(appsUriBuilder, previous));
         }
     }

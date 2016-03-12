@@ -7,6 +7,8 @@ package com.vgorcinschi.rimmanew.entities;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRootName;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.vgorcinschi.rimmanew.rest.services.helpers.CustomTimeSerializer;
 import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Time;
@@ -72,6 +74,7 @@ public class SpecialDay implements Serializable {
     }
 
     @Column(name = "start_at")
+    @JsonSerialize(using = CustomTimeSerializer.class)
     public Time getStartAt() {
         return startAt;
     }
@@ -81,6 +84,7 @@ public class SpecialDay implements Serializable {
     }
 
     @Column(name = "end_at")
+    @JsonSerialize(using = CustomTimeSerializer.class)
     public Time getEndAt() {
         return endAt;
     }
@@ -90,6 +94,7 @@ public class SpecialDay implements Serializable {
     }
 
     @Column(name = "break_start")
+    @JsonSerialize(using = CustomTimeSerializer.class)
     public Time getBreakStart() {
         return breakStart;
     }
@@ -99,6 +104,7 @@ public class SpecialDay implements Serializable {
     }
 
     @Column(name = "break_end")
+    @JsonSerialize(using = CustomTimeSerializer.class)
     public Time getBreakEnd() {
         return breakEnd;
     }

@@ -12,7 +12,6 @@ import com.vgorcinschi.rimmanew.annotations.JpaRepository;
 import com.vgorcinschi.rimmanew.ejbs.SpecialDayRepository;
 import com.vgorcinschi.rimmanew.entities.SpecialDay;
 import com.vgorcinschi.rimmanew.rest.services.helpers.GenericBaseJaxbListWrapper;
-import com.vgorcinschi.rimmanew.rest.services.helpers.JaxbSpecialDayListWrapper;
 import com.vgorcinschi.rimmanew.rest.services.helpers.JaxbSpecialDayListWrapperBuilder;
 import static java.time.LocalDate.parse;
 import java.time.format.DateTimeParseException;
