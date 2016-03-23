@@ -87,7 +87,7 @@ public class GetAppsExperimentalIntegrationTests {
         Response response = service.getAppointments("2016-01-19", "", "massage", "", 0, 2);
         assertTrue("We are "
                 + " testing whether the URI contains the"
-                + " date parameter", response.getEntity().toString().contains("date"));
-        System.out.println("\ndateAndTypeParamsRequestTest JSON: " + response.getEntity().toString());
+                + " date parameter", response.getEntity().toString().contains("start"));
+        System.out.println("\ndateAndTypeSizeRequestTest JSON: " + response.getEntity().toString());
     }
 }

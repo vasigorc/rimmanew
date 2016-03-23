@@ -10,7 +10,6 @@ import com.vgorcinschi.rimmanew.entities.DivizableDay;
 import com.vgorcinschi.rimmanew.helpers.TriFunction;
 import com.vgorcinschi.rimmanew.rest.weatherjaxb.Time;
 import static com.vgorcinschi.rimmanew.util.ExecutorFactoryProvider.getSingletonExecutorOf30;
-import edu.emory.mathcs.backport.java.util.Arrays;
 import static java.lang.Integer.parseInt;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -55,6 +54,7 @@ public class Java8Toolkit {
 
     public static Predicate<LocalDate> isAWeekEnd = (LocalDate l)
             -> (l.getDayOfWeek() == DayOfWeek.SATURDAY || l.getDayOfWeek() == DayOfWeek.SUNDAY);
+    
 
     public static Time findGoodTime(List<Time> times, Predicate<Time> t) {
         for (Time time : times) {
@@ -202,14 +202,5 @@ public class Java8Toolkit {
                 return stringListClass.getTypeName();
             };
 
-    public static Function<String, Boolean> stringNotNullNorEmpty = (str) -> {
-        return str != null && !str.equals("");
-    };
     
-    public static Function<String [], Boolean> allStringsAreGood = (array) ->{
-        if (Arrays.asList(array).isEmpty()) {
-            return false;
-        }
-        return Arrays.asList(array).stream().allMatch(str-> str != null && !str.equals(""));
-    };
 }

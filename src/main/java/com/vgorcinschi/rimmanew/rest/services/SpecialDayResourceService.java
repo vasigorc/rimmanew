@@ -9,23 +9,33 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.vgorcinschi.rimmanew.annotations.JpaRepository;
+import com.vgorcinschi.rimmanew.ejbs.AppointmentRepository;
 import com.vgorcinschi.rimmanew.ejbs.SpecialDayRepository;
+import com.vgorcinschi.rimmanew.entities.Appointment;
 import com.vgorcinschi.rimmanew.entities.SpecialDay;
 import com.vgorcinschi.rimmanew.rest.services.helpers.GenericBaseJaxbListWrapper;
 import com.vgorcinschi.rimmanew.rest.services.helpers.JaxbSpecialDayListWrapperBuilder;
 import com.vgorcinschi.rimmanew.rest.services.helpers.SqlDateConverter;
 import com.vgorcinschi.rimmanew.rest.services.helpers.SqlTimeConverter;
-import static com.vgorcinschi.rimmanew.util.Java8Toolkit.allStringsAreGood;
-import static com.vgorcinschi.rimmanew.util.Java8Toolkit.stringNotNullNorEmpty;
+import com.vgorcinschi.rimmanew.util.ExecutorFactoryProvider;
+import com.vgorcinschi.rimmanew.util.InputValidators;
+import static com.vgorcinschi.rimmanew.util.Java8Toolkit.appsUriBuilder;
+import static com.vgorcinschi.rimmanew.util.Java8Toolkit.uriGenerator;
 import static java.lang.Long.parseLong;
 import java.sql.Date;
 import java.sql.Time;
 import static java.time.LocalDate.parse;
 import java.time.format.DateTimeParseException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static java.util.stream.Collectors.toList;
@@ -35,6 +45,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -53,8 +64,16 @@ public class SpecialDayResourceService {
     @JpaRepository
     private SpecialDayRepository repository;
 
+    @Inject
+    @JpaRepository
+    private AppointmentRepository appointmentsRepository;
+
     public void setRepository(SpecialDayRepository repository) {
         this.repository = repository;
+    }
+
+    public void setAppointmentsRepository(AppointmentRepository appointmentsRepository) {
+        this.appointmentsRepository = appointmentsRepository;
     }
 
     @GET
@@ -132,12 +151,62 @@ public class SpecialDayResourceService {
     public Response addSpecialDay(@FormParam("date") String appDate, @FormParam("start") String startAt,
             @FormParam("end") String endAt, @FormParam("breakStart") String breakStart,
             @FormParam("breakEnd") String breakEnd, @FormParam("duration") String duration,
-            @FormParam("blocked") String blocked, @FormParam("message") String message) {
+            @FormParam("blocked") String blocked, @FormParam("message") String message,
+            @FormParam("allowConflicts") String allowConflicts) {
         /*
-            MUST CONTAIN LOGIC TO WARN THAT THERE ARE ALREADY APPOINTMENTS IN THIS
-            DAY
-        */
-        return null;
+         MUST CONTAIN LOGIC TO WARN THAT THERE ARE ALREADY APPOINTMENTS IN THIS
+         DAY
+         */
+        /*
+         validate the date first - to be able to be 
+         able to re-use the checkAndBuild() method and use
+         appointments query asynchronously. Do basic string validation 
+         for isDayBlocked, allowConflicts and date before - for the same purposes
+         */
+        String[] cantDoWithout = {appDate, blocked, allowConflicts};
+        if (!InputValidators.allStringsAreGood.apply(cantDoWithout)) {
+            throw new BadRequestException("You forgot to enter either the special schedule's "
+                    + "day (format: yyyy-MM-dd), whether it is or it is not a "
+                    + "blocked day or whether you permit this schedule day to "
+                    + "conflict with the existing appointments (both true or"
+                    + " false). These fields are mandatory -please try again.",
+                    Response.status(Response.Status.BAD_REQUEST).build());
+        }
+        Date sdDate = new SqlDateConverter().fromString(appDate);
+        CompletableFuture<Optional<List<Appointment>>> conflictingAppointments =
+                CompletableFuture.supplyAsync(
+                        ()->{
+                            return ofNullable(appointmentsRepository.getByDate(sdDate));
+                        }, ExecutorFactoryProvider.getSingletonExecutorOf30());
+        //obtain the new SpecialDay if no 400 Exception is not thrown
+        SpecialDay newbie = checkAndBuild(sdDate, startAt, endAt, breakStart, 
+                breakEnd, duration, blocked, message);
+        Optional<List<Appointment>> conflicts = empty();
+        try {
+            conflicts = conflictingAppointments.get(500, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
+            Logger.getLogger(SpecialDayResourceService.class.getName()).log(Level.SEVERE, null, ex);
+            throw new InternalServerErrorException("It took the application "
+                    + "too long check for the conflicts with the"
+                    + " existing appointments. Please contact the support team;");
+        }
+        if (conflicts.isPresent() && conflicts.get().size() > 0 && !allowConflicts.equals("true")) {
+            /*
+                Make the user aware that there may be conflicts with the existing
+                appointments.
+            */
+            throw new BadRequestException("Please note that there is(are) currently "
+                    + conflicts.get().size()+" appointment(s) on the date that you"
+                    + " have chosen. Check the corresponding check-box to confirm "
+                    + "that you still want to save this day.",
+                    Response.status(Response.Status.BAD_REQUEST).build());
+        } else {
+            repository.setSpecialDay(newbie);
+            //parameters for the return link
+            Map<String, String> map = new HashMap<>();
+            map.put("path", "specialdays/" + Long.toString(newbie.getId()));
+            return Response.ok(uriGenerator.apply(appsUriBuilder, map)).build();
+        }
     }
 
     public int sizeValidator(int listSize, int requestOffset, int requestSize) {
@@ -158,16 +227,13 @@ public class SpecialDayResourceService {
         return answerSize;
     }
 
-    public SpecialDay checkAndBuild(String appDate, String startAt, String endAt, String breakStart,
+    public SpecialDay checkAndBuild(Date sdDate, String startAt, String endAt, String breakStart,
             String breakEnd, String duration, String blocked, String message) {
         //instantiate a SpecialDay and populate while validate
         SpecialDay sd = new SpecialDay();
-        //first we need to validate the date -without it everything else is 
-        //irrelevant. Throws BadRequestException
-        Date sdDate = new SqlDateConverter().fromString(appDate);
         sd.setDate(sdDate);
         //second but almost equaly important is - "Is this a closed day or not?"
-        if (stringNotNullNorEmpty.apply(blocked) && (blocked.equalsIgnoreCase("true") || blocked.equalsIgnoreCase("yes"))) {
+        if (InputValidators.stringNotNullNorEmpty.apply(blocked) && (blocked.equalsIgnoreCase("true") || blocked.equalsIgnoreCase("yes"))) {
             //no further info is needed - return the object to the caller
             sd.setIsBlocked(true);
             return sd;
@@ -176,6 +242,14 @@ public class SpecialDayResourceService {
             sd.setIsBlocked(false);
         }
         //now validate start and end times - throws BadRequestException
+        String[] startAndEnd = {startAt, endAt};
+        if (!InputValidators.allStringsAreGood.apply(startAndEnd)) {
+            throw new BadRequestException("You manifested that this is a "
+                    + "special schedule day and that it is not a blocked day, but you haven't "
+                    + "provided the start and end date of this day. Please provide both. "
+                    + "The required time format is: yyyy-MM-dd",
+                    Response.status(Response.Status.BAD_REQUEST).build());
+        }
         Time sdStart = new SqlTimeConverter().fromString(startAt);
         Time sdEnd = new SqlTimeConverter().fromString(endAt);
         //end cannot be before start or even equal to...
@@ -193,14 +267,20 @@ public class SpecialDayResourceService {
             long sdDuration = parseLong(duration);
             sd.setDuration(sdDuration);
         } catch (NumberFormatException e) {
-            throw new BadRequestException(duration + " is not an accepted Duration format "
-                    + "please enter the number of minutes. Ex: 45",
+            String durationErrorMessage;
+            if (!InputValidators.stringNotNullNorEmpty.apply(duration)) {
+                durationErrorMessage = "You haven't entered a duration. ";
+            } else {
+                durationErrorMessage = duration + " is not an accepted Duration format. ";
+            }
+            throw new BadRequestException(durationErrorMessage + "Please enter the "
+                    + "number of minutes. Ex: 45",
                     Response.status(Response.Status.BAD_REQUEST).build());
         }
         //remaining fields are all optional
         //break times need to be BOTH valid only if specified
         String[] breaks = {breakStart, breakEnd};
-        if (allStringsAreGood.apply(breaks)) {
+        if (InputValidators.allStringsAreGood.apply(breaks)) {
             Time stBreakStart = new SqlTimeConverter().fromString(breakStart);
             Time stBreakEnd = new SqlTimeConverter().fromString(breakEnd);
             //again the end cannot be after the start
@@ -217,8 +297,9 @@ public class SpecialDayResourceService {
             sd.setBreakStart(null);
             sd.setBreakEnd(null);
         }
-        if(stringNotNullNorEmpty.apply(message))
+        if (InputValidators.stringNotNullNorEmpty.apply(message)) {
             sd.setMessage(message);
+        }
         return sd;
     }
 }

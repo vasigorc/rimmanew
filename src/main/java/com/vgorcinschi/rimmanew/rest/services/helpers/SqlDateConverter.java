@@ -5,6 +5,7 @@
  */
 package com.vgorcinschi.rimmanew.rest.services.helpers;
 
+import static com.vgorcinschi.rimmanew.util.InputValidators.stringIsValidDate;
 import java.sql.Date;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
@@ -18,7 +19,7 @@ public class SqlDateConverter implements ParamConverter<Date> {
     
     @Override
     public Date fromString(String value) {
-        if (!value.matches("\\d{4}-\\d{2}-\\d{2}")) {                    
+        if (!value.matches("\\d{4}-\\d{2}-\\d{2}") || !stringIsValidDate.apply(value)) {                    
             throw new BadRequestException(value + " wasn't recognized as "
                     + "a valid date on the server side. Please follow this "
                     + "pattern: yyyy-mm-dd", 

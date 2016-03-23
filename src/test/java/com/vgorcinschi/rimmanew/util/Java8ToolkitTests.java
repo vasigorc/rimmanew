@@ -6,7 +6,7 @@
 package com.vgorcinschi.rimmanew.util;
 
 import com.vgorcinschi.rimmanew.entities.SpecialDay;
-import static com.vgorcinschi.rimmanew.util.Java8Toolkit.allStringsAreGood;
+import static com.vgorcinschi.rimmanew.util.InputValidators.allStringsAreGood;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.genericTypeIdentifier;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -86,9 +86,13 @@ public class Java8ToolkitTests {
         String [] invalidWithNull = {null, "Tuesday"};
         String [] invalidWithEmpty = {"Monday", ""};
         String [] empty = {};
-        assertTrue(allStringsAreGood.apply(valid));
-        assertFalse(allStringsAreGood.apply(invalidWithEmpty));
-        assertFalse(allStringsAreGood.apply(invalidWithNull));
-        assertFalse(allStringsAreGood.apply(empty));
+        String [] bothEmpty = {"",""};
+        String [] bothNull = {null,null};
+        assertTrue(InputValidators.allStringsAreGood.apply(valid));
+        assertFalse(InputValidators.allStringsAreGood.apply(invalidWithEmpty));
+        assertFalse(InputValidators.allStringsAreGood.apply(invalidWithNull));
+        assertFalse(InputValidators.allStringsAreGood.apply(empty));
+        assertFalse(InputValidators.allStringsAreGood.apply(bothEmpty));
+        assertFalse(InputValidators.allStringsAreGood.apply(bothNull));
     }
 }
