@@ -214,7 +214,7 @@ public class SpecialDayResourceService {
     @Path("{id}")
     @Produces("application/json")
     @Consumes("application/x-www-form-urlencoded")
-    public Response updateAppointment(@PathParam("id") int id,
+    public Response updateSpecialDay(@PathParam("id") int id,
             @FormParam("date") String appDate, @FormParam("start") String startAt,
             @FormParam("end") String endAt, @FormParam("breakStart") String breakStart,
             @FormParam("breakEnd") String breakEnd, @FormParam("duration") String duration,

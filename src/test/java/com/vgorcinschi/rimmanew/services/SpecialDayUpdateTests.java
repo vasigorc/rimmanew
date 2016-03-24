@@ -45,7 +45,7 @@ public class SpecialDayUpdateTests {
     @Test
     public void successfullyUpdatedDay() {
         String storedDate = "2016-06-18";
-        Response response = service.updateAppointment(12, storedDate, "9:00", "15:00",
+        Response response = service.updateSpecialDay(12, storedDate, "9:00", "15:00",
                 "12:00", "13:00", "30", "false", "Short day", "true");
         System.out.println("\nsuccessfullyUpdatedDay: " + response.getEntity().toString());
         assertTrue("We are "
