@@ -121,7 +121,7 @@ public class AppointmentResourceService {
             @FormParam("message") String clientMsg) {
         if (Integer.valueOf(id) == null) {
             throw new BadRequestException("The id of the "
-                    + "appintment that you wish to modify hasn't been provided.");
+                    + "appointment that you wish to modify hasn't been provided.");
         }
         //externalize the validation of all fields to concentrate on "positive"
         //scenario only

@@ -170,6 +170,7 @@ public class Java8Toolkit {
                 avails.removeAll(appsList.stream().map(a -> a.getTime().toLocalTime()).collect(toList()));
                 return avails.stream().sorted().collect(toList());
             };
+    
     public static Supplier<UriBuilder> appsUriBuilder = () -> {
         Properties props = PropertiesProvider.getUriProperties();
         UriBuilder uriBuilder = UriBuilder.fromPath("RimmaNew/rest").scheme(props.getProperty("scheme"))
