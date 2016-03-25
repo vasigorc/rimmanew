@@ -78,7 +78,19 @@ public class OutsideContainerSpecialDayRepository implements SpecialDayRepositor
 
     @Override
     public boolean deleteSpecialDay(SpecialDay sd) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        EntityManager em = entityManagerFactory.createEntityManager();
+        EntityTransaction trans = em.getTransaction();
+        try {
+            trans.begin();
+            em.remove(em.merge(sd));
+            trans.commit();
+            return true;
+        } catch (Exception e) {
+            trans.rollback();
+            return false;
+        } finally {
+            em.close();
+        }
     }
 
     @Override

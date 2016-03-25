@@ -153,7 +153,7 @@ public class SpecialDayResourceService {
             @FormParam("end") String endAt, @FormParam("breakStart") String breakStart,
             @FormParam("breakEnd") String breakEnd, @FormParam("duration") String duration,
             @FormParam("blocked") String blocked, @FormParam("message") String message,
-            @FormParam("allowConflicts") String allowConflicts) {
+            @DefaultValue("false") @FormParam("allowConflicts") String allowConflicts) {
         /*
          MUST CONTAIN LOGIC TO WARN THAT THERE ARE ALREADY APPOINTMENTS IN THIS
          DAY
@@ -218,13 +218,7 @@ public class SpecialDayResourceService {
             @FormParam("end") String endAt, @FormParam("breakStart") String breakStart,
             @FormParam("breakEnd") String breakEnd, @FormParam("duration") String duration,
             @FormParam("blocked") String blocked, @FormParam("message") String message,
-            @FormParam("allowConflicts") String allowConflicts) {
-        /*
-         same first step as in addSpecialDay method
-         we do not immediately check if the requested appDate exists or not
-         in order to prevent the legal appDate harvesting by measuring the time
-         difference in responses between entering valid/invalid appDates
-         */
+            @DefaultValue("false") @FormParam("allowConflicts") String allowConflicts) {
         String[] cantDoWithout = {appDate, blocked, allowConflicts};
         if (!InputValidators.allStringsAreGood.apply(cantDoWithout)) {
             throw new BadRequestException("You forgot to enter either the special schedule's "
@@ -241,6 +235,12 @@ public class SpecialDayResourceService {
                         () -> {
                             return ofNullable(appointmentsRepository.getByDate(sdDate));
                         }, ExecutorFactoryProvider.getSingletonExecutorOf30());
+        /*
+         same as in addSpecialDay method
+         we do not immediately check if the requested appDate exists or not
+         in order to prevent the legal appDate harvesting by measuring the time
+         difference in responses between entering valid/invalid appDates
+         */
         CompletableFuture<Optional<SpecialDay>> oldSd
                 = CompletableFuture.supplyAsync(() -> {
                     //safe to use the passed 'appDate' param from the user - already validated
@@ -282,15 +282,15 @@ public class SpecialDayResourceService {
                             + "too long check for the conflicts with the"
                             + " existing appointments. Please contact the support team;");
                 }
-                if (conflicts.isPresent() && conflicts.get().size() > 0 
+                if (conflicts.isPresent() && conflicts.get().size() > 0
                         && !allowConflicts.equals("true")) {
                     /*
                      Make the user is aware that there may be conflicts with the existing
                      appointments.
                      */
                     throw new BadRequestException("Please note that there is(are) currently "
-                            + conflicts.get().size() + " appointment(s) on "+appDate+
-                            ". Check the corresponding check-box to confirm "
+                            + conflicts.get().size() + " appointment(s) on " + appDate
+                            + ". Check the corresponding check-box to confirm "
                             + "that you still want to save this day.",
                             Response.status(Response.Status.BAD_REQUEST).build());
                 } else {
@@ -314,6 +314,88 @@ public class SpecialDayResourceService {
                     + "too long to query the database. Please try again or signal "
                     + "the problem to the support team.");
         }
+    }
+
+    @PUT
+    @Path("{date}")
+    @Produces("application/json")
+    public Response deleteSpecialDay(@PathParam("date") String appDate,
+            @DefaultValue("false") @QueryParam("allowConflicts") String allowConflicts) {
+        String[] cantDoWithout = {appDate, allowConflicts};
+        if (!InputValidators.allStringsAreGood.apply(cantDoWithout)) {
+            throw new BadRequestException("You forgot to enter either the special schedule's "
+                    + "day (format: yyyy-MM-dd), or whether you permit this schedule day to "
+                    + "conflict with the existing appointments (true or"
+                    + " false). Both are mandatory -please try again.",
+                    Response.status(Response.Status.BAD_REQUEST).build());
+        }
+        Date sdDate = new SqlDateConverter().fromString(appDate);
+        //checking for conflicting appointments
+        CompletableFuture<Optional<List<Appointment>>> conflictingAppointments
+                = CompletableFuture.supplyAsync(
+                        () -> {
+                            return ofNullable(appointmentsRepository.getByDate(sdDate));
+                        }, ExecutorFactoryProvider.getSingletonExecutorOf30());
+        /*
+         same as in addSpecialDay method
+         we do not immediately check if the requested appDate exists or not
+         in order to prevent the legal appDate harvesting by measuring the time
+         difference in responses between entering valid/invalid appDates
+         */
+
+        Optional<SpecialDay> oldSpecialDay = ofNullable(repository.getSpecialDay(parse(appDate)));
+        if (!oldSpecialDay.isPresent()) {
+            //forcing to complete the remaining Future. Using this instead
+            //of the cancel() method - the later isn't working in these
+            //circumstances - a known bug - getNow() tested successfully
+            conflictingAppointments.getNow(null);
+            throw new BadRequestException("There is no special schedule "
+                    + "on " + appDate + ". So it is hard to delete it. ",
+                    Response.status(Response.Status.BAD_REQUEST).build());
+        } else {
+            //Checking for conflicting appointments
+            Optional<List<Appointment>> conflicts = empty();
+            try {
+                conflicts = conflictingAppointments.get(500, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException | ExecutionException | TimeoutException ex) {
+                Logger.getLogger(SpecialDayResourceService.class.getName()).log(Level.SEVERE, null, ex);
+                throw new InternalServerErrorException("It took the application "
+                        + "too long check for the conflicts with the"
+                        + " existing appointments. Please contact the support team;");
+            }
+            if (conflicts.isPresent() && conflicts.get().size() > 0
+                    && !allowConflicts.equals("true")) {
+                /*
+                 Make the user is aware that there may be conflicts with the existing
+                 appointments.
+                 */
+                throw new BadRequestException("Please note that there is(are) currently "
+                        + conflicts.get().size() + " appointment(s) on " + appDate
+                        + ". Check the corresponding check-box to confirm "
+                        + "that you still want to delete this day.",
+                        Response.status(Response.Status.BAD_REQUEST).build());
+            } else {
+                //preparing our object mapper
+                ObjectMapper mapper = new ObjectMapper();
+                mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
+                String output = null;
+                try {
+                    output = mapper.writeValueAsString("The special schedule has "
+                            + "on " + appDate + " has been deleted");
+                } catch (JsonProcessingException ex) {
+                    Logger.getLogger(AppointmentResourceService.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                if (repository.deleteSpecialDay(oldSpecialDay.get())) {
+                    return Response.ok(output).build();
+                } else {
+                    throw new InternalServerErrorException("Due to a server "
+                            + "error the special schedule day on " + appDate
+                            + " could not be deleted.",
+                            Response.status(Response.Status.INTERNAL_SERVER_ERROR).build());
+                }
+            }
+        }
+
     }
 
     public int sizeValidator(int listSize, int requestOffset, int requestSize) {
