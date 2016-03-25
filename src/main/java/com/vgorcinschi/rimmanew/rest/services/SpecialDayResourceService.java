@@ -211,20 +211,19 @@ public class SpecialDayResourceService {
     }
 
     @PUT
-    @Path("{id}")
+    @Path("{date}")
     @Produces("application/json")
     @Consumes("application/x-www-form-urlencoded")
-    public Response updateSpecialDay(@PathParam("id") int id,
-            @FormParam("date") String appDate, @FormParam("start") String startAt,
+    public Response updateSpecialDay(@PathParam("date") String appDate, @FormParam("start") String startAt,
             @FormParam("end") String endAt, @FormParam("breakStart") String breakStart,
             @FormParam("breakEnd") String breakEnd, @FormParam("duration") String duration,
             @FormParam("blocked") String blocked, @FormParam("message") String message,
             @FormParam("allowConflicts") String allowConflicts) {
         /*
          same first step as in addSpecialDay method
-         we do not immediately to checking if the requested id exists or not
-         in order to prevent the legal id harvesting by measuring the time
-         difference in responses between entering valid/invalid ids
+         we do not immediately check if the requested appDate exists or not
+         in order to prevent the legal appDate harvesting by measuring the time
+         difference in responses between entering valid/invalid appDates
          */
         String[] cantDoWithout = {appDate, blocked, allowConflicts};
         if (!InputValidators.allStringsAreGood.apply(cantDoWithout)) {
@@ -253,21 +252,21 @@ public class SpecialDayResourceService {
         try {
             newDay = checkAndBuild(sdDate, startAt, endAt, breakStart, breakEnd, duration, blocked, message);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            System.out.println("Completable futures"
-                    + " cancelled: " + conflictingAppointments.cancel(true) + ", "
-                    + oldSd.cancel(true));
+            //cancelling existing Futures - tested successfully
+            oldSd.cancel(true);
+            conflictingAppointments.cancel(true);
             throw e;
         }
         //this line is not reached unless SpecialDay newDay is valid
-        //only now we check whether the requested id exists and throw a 
+        //only now we check whether the requested appDate exists and throw a 
         //400 error with a corresponding message
         try {
             Optional<SpecialDay> oldSpecialDay = oldSd.get(1, TimeUnit.SECONDS);
             if (!oldSpecialDay.isPresent()) {
-                //first cancel the existing completable futures
-                System.out.println("Completable future"
-                        + " cancelled: " + conflictingAppointments.cancel(true));
+                //forcing to complete the remaining Future. Using this instead
+                //of the cancel() method - the later isn't working in these
+                //circumstances - a known bug - getNow() tested successfully
+                conflictingAppointments.getNow(null);
                 throw new BadRequestException("There is no special schedule "
                         + "on " + appDate + ". So it is hard to update it. You can consider "
                         + "creating one instead.",
@@ -283,14 +282,15 @@ public class SpecialDayResourceService {
                             + "too long check for the conflicts with the"
                             + " existing appointments. Please contact the support team;");
                 }
-                if (conflicts.isPresent() && conflicts.get().size() > 0 && !allowConflicts.equals("true")) {
+                if (conflicts.isPresent() && conflicts.get().size() > 0 
+                        && !allowConflicts.equals("true")) {
                     /*
                      Make the user is aware that there may be conflicts with the existing
                      appointments.
                      */
                     throw new BadRequestException("Please note that there is(are) currently "
-                            + conflicts.get().size() + " appointment(s) on the date that you"
-                            + " have chosen. Check the corresponding check-box to confirm "
+                            + conflicts.get().size() + " appointment(s) on "+appDate+
+                            ". Check the corresponding check-box to confirm "
                             + "that you still want to save this day.",
                             Response.status(Response.Status.BAD_REQUEST).build());
                 } else {
@@ -304,7 +304,7 @@ public class SpecialDayResourceService {
                     //send back 200 response along with the resource address of the
                     //updated item
                     Map<String, String> map = new HashMap<>();
-                    map.put("path", "specialdays/" + Long.toString(newDay.getId()));
+                    map.put("path", "specialdays/" + newDay.getDate().toString());
                     return Response.ok(uriGenerator.apply(appsUriBuilder, map)).build();
                 }
             }
@@ -354,7 +354,7 @@ public class SpecialDayResourceService {
             throw new BadRequestException("You manifested that this is a "
                     + "special schedule day and that it is not a blocked day, but you haven't "
                     + "provided the start and end date of this day. Please provide both. "
-                    + "The required time format is: yyyy-MM-dd",
+                    + "The required time format is: HH:ss",
                     Response.status(Response.Status.BAD_REQUEST).build());
         }
         Time sdStart = new SqlTimeConverter().fromString(startAt);
