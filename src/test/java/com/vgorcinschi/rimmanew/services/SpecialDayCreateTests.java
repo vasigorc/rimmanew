@@ -205,4 +205,33 @@ public class SpecialDayCreateTests {
         LocalDate randomDate = LocalDate.ofEpochDay(randomDay);
         return randomDate.toString();
     }
+
+    @Test
+    public void testIfCheckAndBuildExceptionIsRethrown() {
+        String dayRepr = null;
+        while (!stringIsValidDate.apply(dayRepr)) {
+            dayRepr = getRandomStringDate();
+        }
+        try {
+            Response response = service.addSpecialDay(dayRepr, "9:00", "15:00",
+                    "12:00", "12:30", "", "false", "Short day", "false");
+        } catch (Exception e) {
+            assertThat("We are expecting a 400 Error because of the"
+                    + "empty duration field.", e, instanceOf(BadRequestException.class));
+            System.out.println("\ntestIfCheckAndBuildExceptionIsRethrown: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void attemptingToStoreAnEngagedSpecialDay() {
+        //we know that '2016-05-15' is in the database
+        try {
+            Response response = service.addSpecialDay("2016-05-15", "9:00", "15:00",
+                    "12:00", "12:30", "45", "false", "Short day", "false");
+        } catch (Exception e) {
+            assertThat("We are expecting a 400 Error because of the"
+                    + " 'occupied' day.", e, instanceOf(BadRequestException.class));
+            System.out.println("\nattemptingToStoreAnEngagedSpecialDay: " + e.getMessage());
+        }
+    }
 }

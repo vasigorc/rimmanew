@@ -42,6 +42,7 @@ import static java.util.stream.Collectors.toList;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -179,17 +180,54 @@ public class SpecialDayResourceService {
                         () -> {
                             return ofNullable(appointmentsRepository.getByDate(sdDate));
                         }, ExecutorFactoryProvider.getSingletonExecutorOf30());
-        //obtain the new SpecialDay if no 400 Exception is not thrown
-        SpecialDay newbie = checkAndBuild(sdDate, startAt, endAt, breakStart,
-                breakEnd, duration, blocked, message);
-        Optional<List<Appointment>> conflicts = empty();
+        /*
+         Special Schedule Days are intended to be unique. So if there is a
+         Special Schedule Day on the date that was requested by the user
+         we will notify them of that and invite to use the update method instead
+         */
+        CompletableFuture<Optional<SpecialDay>> oldSd
+                = CompletableFuture.supplyAsync(() -> {
+                    //safe to use the passed 'appDate' param from the user - already validated
+                    //above
+                    return ofNullable(repository.getSpecialDay(parse(appDate)));
+                },
+                ExecutorFactoryProvider.getSingletonExecutorOf30());
+        SpecialDay newbie;
         try {
-            conflicts = conflictingAppointments.get(500, TimeUnit.MILLISECONDS);
+            //obtain the new SpecialDay if no 400 Exception is not thrown
+            newbie = checkAndBuild(sdDate, startAt, endAt, breakStart,
+                    breakEnd, duration, blocked, message);
+        } catch (Exception e) {
+            //re-throw the 400 exception after cancelling the futures
+            conflictingAppointments.cancel(true);
+            oldSd.cancel(true);
+            throw e;
+        }
+        Optional<List<Appointment>> conflicts = empty();
+        //extract our Futures and verify whether there is an existing special day
+        try {
+            Optional<SpecialDay> oldSpecialDay = oldSd.get(1, TimeUnit.SECONDS);
+            /*
+             If there is a Special Day on the requested date - inform the
+             user of the next steps
+             */
+            if (oldSpecialDay.isPresent()) {
+                conflictingAppointments.getNow(null);
+                System.out.println("conflictingAppointments Future is complete: " + conflictingAppointments.isDone());
+                throw new BadRequestException("There is already a special schedule "
+                        + "on " + appDate + ". Find and modify it "
+                        + "if you wish to update it.",
+                        Response.status(Response.Status.BAD_REQUEST).build());
+            } else {
+                //else our next step is to start the 'check conflicting appointments
+                //workflow
+                conflicts = conflictingAppointments.get(500, TimeUnit.MILLISECONDS);
+            }
         } catch (InterruptedException | ExecutionException | TimeoutException ex) {
             Logger.getLogger(SpecialDayResourceService.class.getName()).log(Level.SEVERE, null, ex);
             throw new InternalServerErrorException("It took the application "
-                    + "too long check for the conflicts with the"
-                    + " existing appointments. Please contact the support team;");
+                    + "too long to perform server side validation. "
+                    + "Please contact the support team;");
         }
         if (conflicts.isPresent() && conflicts.get().size() > 0 && !allowConflicts.equals("true")) {
             /*
@@ -205,7 +243,7 @@ public class SpecialDayResourceService {
             repository.setSpecialDay(newbie);
             //parameters for the return link
             Map<String, String> map = new HashMap<>();
-            map.put("path", "specialdays/" + Long.toString(newbie.getId()));
+            map.put("path", "specialdays/" + newbie.getDate().toString());
             return Response.ok(uriGenerator.apply(appsUriBuilder, map)).build();
         }
     }
@@ -316,7 +354,7 @@ public class SpecialDayResourceService {
         }
     }
 
-    @PUT
+    @DELETE
     @Path("{date}")
     @Produces("application/json")
     public Response deleteSpecialDay(@PathParam("date") String appDate,
@@ -380,7 +418,7 @@ public class SpecialDayResourceService {
                 mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
                 String output = null;
                 try {
-                    output = mapper.writeValueAsString("The special schedule has "
+                    output = mapper.writeValueAsString("The special schedule "
                             + "on " + appDate + " has been deleted");
                 } catch (JsonProcessingException ex) {
                     Logger.getLogger(AppointmentResourceService.class.getName()).log(Level.SEVERE, null, ex);
