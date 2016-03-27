@@ -8,6 +8,8 @@ package com.vgorcinschi.rimmanew.rest.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.vgorcinschi.rimmanew.annotations.JpaRepository;
 import com.vgorcinschi.rimmanew.ejbs.AppointmentRepository;
 import com.vgorcinschi.rimmanew.ejbs.SpecialDayRepository;
@@ -213,7 +215,6 @@ public class SpecialDayResourceService {
              */
             if (oldSpecialDay.isPresent()) {
                 conflictingAppointments.getNow(null);
-                System.out.println("conflictingAppointments Future is complete: " + conflictingAppointments.isDone());
                 throw new BadRequestException("There is already a special schedule "
                         + "on " + appDate + ". Find and modify it "
                         + "if you wish to update it.",
@@ -244,7 +245,8 @@ public class SpecialDayResourceService {
             //parameters for the return link
             Map<String, String> map = new HashMap<>();
             map.put("path", "specialdays/" + newbie.getDate().toString());
-            return Response.ok(uriGenerator.apply(appsUriBuilder, map)).build();
+            return Response.ok(
+                    getJsonRepr("link", uriGenerator.apply(appsUriBuilder, map).toASCIIString())).build();
         }
     }
 
@@ -343,7 +345,8 @@ public class SpecialDayResourceService {
                     //updated item
                     Map<String, String> map = new HashMap<>();
                     map.put("path", "specialdays/" + newDay.getDate().toString());
-                    return Response.ok(uriGenerator.apply(appsUriBuilder, map)).build();
+                    return Response.ok(
+                            getJsonRepr("link", uriGenerator.apply(appsUriBuilder, map).toASCIIString())).build();
                 }
             }
         } catch (InterruptedException | ExecutionException | TimeoutException ex) {
@@ -413,18 +416,9 @@ public class SpecialDayResourceService {
                         + "that you still want to delete this day.",
                         Response.status(Response.Status.BAD_REQUEST).build());
             } else {
-                //preparing our object mapper
-                ObjectMapper mapper = new ObjectMapper();
-                mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
-                String output = null;
-                try {
-                    output = mapper.writeValueAsString("The special schedule "
-                            + "on " + appDate + " has been deleted");
-                } catch (JsonProcessingException ex) {
-                    Logger.getLogger(AppointmentResourceService.class.getName()).log(Level.SEVERE, null, ex);
-                }
                 if (repository.deleteSpecialDay(oldSpecialDay.get())) {
-                    return Response.ok(output).build();
+                    return Response.ok(getJsonRepr("response", "The special schedule "
+                            + "on " + appDate + " has been deleted")).build();
                 } else {
                     throw new InternalServerErrorException("Due to a server "
                             + "error the special schedule day on " + appDate
@@ -528,5 +522,12 @@ public class SpecialDayResourceService {
             sd.setMessage(message);
         }
         return sd;
+    }
+
+    private String getJsonRepr(String key, String value) {
+        JsonNodeFactory factory = JsonNodeFactory.instance;
+        ObjectNode object = factory.objectNode();
+        object.put(key, value);
+        return object.toString();
     }
 }

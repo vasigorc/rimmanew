@@ -64,7 +64,7 @@ public class DeleteAppointmentsRestTests {
         appointment.setMessage("waxing");
         repository.add(appointment);
         Appointment retrieved = repository.getByName("Uniquename").get(0);
-        service.deleteAppointment(retrieved.getId());
+        System.out.println(service.deleteAppointment(retrieved.getId()).getEntity().toString());
         assertTrue(repository.getByName("Uniquename").isEmpty());
     }
 }

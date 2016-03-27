@@ -89,10 +89,10 @@ public class AppointmentResourceServiceTests {
 
     @Test//(expected = InternalServerErrorException.class)
     public void integrationTestException() {
-        service.bookAppointment(
+        System.out.println(service.bookAppointment(
                 Java8Toolkit.localToSqlDate(LocalDate.now().plusDays((long) new Random().nextInt(90))),
                 "15:00", "massage", "Rimma",
-                "valid@email.ca", "any");
+                "valid@email.ca", "any").getEntity().toString());;
     }
 
     @Test

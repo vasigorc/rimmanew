@@ -10,7 +10,6 @@ import com.vgorcinschi.rimmanew.ejbs.OutsideContainerJpaTests;
 import com.vgorcinschi.rimmanew.ejbs.SpecialDayRepository;
 import com.vgorcinschi.rimmanew.entities.SpecialDay;
 import com.vgorcinschi.rimmanew.rest.services.SpecialDayResourceService;
-import com.vgorcinschi.rimmanew.util.Java8Toolkit;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToSqlDate;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToSqlTime;
 import static java.time.LocalDate.of;
@@ -63,7 +62,8 @@ public class SpecialDayDeleteTests {
         //confirm that it is there
         assertNotNull(repository.getSpecialDay(of(2016, 03, 01)));
         //delete it using the rest service simulation
-        service.deleteSpecialDay("2016-03-01", "true");
+        System.out.println(
+                "\nsuccessfullyDeletedSpecialDay: "+service.deleteSpecialDay("2016-03-01", "true").getEntity().toString());
         //confirm that the special day is no longer there
         assertNull(repository.getSpecialDay(of(2016, 03, 01)));
     }

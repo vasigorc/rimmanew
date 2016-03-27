@@ -8,6 +8,8 @@ package com.vgorcinschi.rimmanew.rest.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.vgorcinschi.rimmanew.annotations.JpaRepository;
 import com.vgorcinschi.rimmanew.ejbs.AppointmentRepository;
 import com.vgorcinschi.rimmanew.entities.Appointment;
@@ -102,7 +104,11 @@ public class AppointmentResourceService {
                 clientEmail, clientMsg);
         try {
             repository.add(appointment);
-            return Response.ok(appointment).build();
+            //parameters for the return link
+            Map<String, String> map = new HashMap<>();
+            map.put("path", "appointments/" + Long.toString(appointment.getId()));
+            return Response.ok(
+                    getJsonRepr("link", uriGenerator.apply(appsUriBuilder, map).toASCIIString())).build();
         } catch (Exception e) {
             throw new InternalServerErrorException("Something happened in the application "
                     + "and this apointment could not get saved. Please contact us "
@@ -134,7 +140,8 @@ public class AppointmentResourceService {
             //parameters for the return link
             Map<String, String> map = new HashMap<>();
             map.put("path", "appointments/" + Integer.toString(id));
-            return Response.ok(uriGenerator.apply(appsUriBuilder, map)).build();
+            return Response.ok(
+                    getJsonRepr("link", uriGenerator.apply(appsUriBuilder, map).toASCIIString())).build();
 
         }
         throw new BadRequestException("The appointment with " + id + " doesn't exist!");
@@ -251,9 +258,10 @@ public class AppointmentResourceService {
              with the remaining keys of checkedParameters
              collect toList() and proceed with th rest of the code
              */
-            for (String k : unusedKeys) {  
-                if(initialSelection.isEmpty())
+            for (String k : unusedKeys) {
+                if (initialSelection.isEmpty()) {
                     break;
+                }
                 switch (k) {
                     case "name":
                         initialSelection = initialSelection.stream().filter((a) -> a.getClientName()
@@ -293,13 +301,13 @@ public class AppointmentResourceService {
             return Response.ok(output).build();
         }
     }
-    
+
     @DELETE
     @Path("{id}")
     @Produces("application/json")
-    public Response deleteAppointment(@PathParam("id") long id){
+    public Response deleteAppointment(@PathParam("id") long id) {
         Appointment toDelete = repository.get(id);
-        if (toDelete==null) {
+        if (toDelete == null) {
             throw new BadRequestException("The requested appointment doesn't exist");
         }
         try {
@@ -308,16 +316,8 @@ public class AppointmentResourceService {
             throw new InternalServerErrorException("An error ocurred in the application "
                     + "and the requested appointment couldn't be deleted.");
         }
-        //preparing our object mapper
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
-        String output=null;
-        try {
-            output = mapper.writeValueAsString("appointment with id# "+id+" has been deleted");
-        } catch (JsonProcessingException ex) {
-            Logger.getLogger(AppointmentResourceService.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return Response.ok(output).build();
+        return Response.ok(getJsonRepr("response", "The appointment with "
+                + "id# " + id + " was deleted")).build();
     }
 
     public int sizeValidator(int listSize, int requestOffset, int requestSize) {
@@ -377,5 +377,12 @@ public class AppointmentResourceService {
             appointment.setMessage(clientMsg);
         }
         return appointment;
+    }
+
+    private String getJsonRepr(String key, String value) {
+        JsonNodeFactory factory = JsonNodeFactory.instance;
+        ObjectNode object = factory.objectNode();
+        object.put(key, value);
+        return object.toString();
     }
 }
