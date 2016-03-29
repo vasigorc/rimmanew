@@ -452,7 +452,7 @@ public class SpecialDayResourceService {
             String breakEnd, String duration, String blocked, String message) {
         //instantiate a SpecialDay and populate while validate
         SpecialDay sd = new SpecialDay();
-        sd.setDate(sdDate);
+        sd.setDate(sdDate);         
         //second but almost equaly important is - "Is this a closed day or not?"
         if (InputValidators.stringNotNullNorEmpty.apply(blocked) && (blocked.equalsIgnoreCase("true") || blocked.equalsIgnoreCase("yes"))) {
             //no further info is needed - return the object to the caller

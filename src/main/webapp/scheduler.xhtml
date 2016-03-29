@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:jsf="http://xmlns.jcp.org/jsf">
+    <head jsf:id="head">
+        <title>Scheduler</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <h:outputStylesheet library="css/bootstrap" name="bootstrap.min.css"/>
+        <h:outputStylesheet library="css/bootstrap" name="bootstrap.css"/>
+        <h:outputStylesheet library="css" name="toggle-switch.css"/>
+        <script type="text/javascript" src="#{request.contextPath}/resources/js/jquery-1.11.3.min.js"></script>
+    </head>
+    <body>
+        <div class="row" style="margin-top: 4em; margin-right: 1em;">
+            <div class="col-xs-12 col-md-8"></div>
+            <div class="col-xs-6 col-md-4">
+                <fieldset>
+                    <legend>View:</legend>
+                    <div class="switch-toggle well">
+                        <input jsf:id="appointmentsRadio" name="view" type="radio" />
+                        <label for="appointmentsRadio" onclick="">Appointments</label>
+
+                        <input jsf:id="specialdaysRadio" name="view" type="radio" checked=""/>
+                        <label for="specialdaysRadio" onclick="">Special Days</label>
+
+                        <a class="btn btn-primary"></a>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <script type="text/javascript" src="#{request.contextPath}/resources/js/knockout-3.3.0.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/js/knockout.mapping-latest.js"></script>
+    </body>
+</html>
