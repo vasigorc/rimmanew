@@ -18,7 +18,7 @@ and open the template in the editor.
         <h:outputStylesheet library="css/bootstrap" name="bootstrap.css"/>
         <h:outputStylesheet library="css" name="toggle-switch.css"/>
         <script type="text/javascript" src="#{request.contextPath}/resources/js/jquery-1.11.3.min.js"></script>
-        <script type="text/javascript" src="#{request.contextPath}/resources/js/scheduler.js"></script>
+        
     </head>
     <body>
         <div class="row" style="margin-top: 4em; margin-right: 1em;">
@@ -27,10 +27,12 @@ and open the template in the editor.
                 <fieldset>
                     <legend>View:</legend>
                     <div id="radioControls" class="switch-toggle well">
-                        <input jsf:id="appointmentsRadio" name="appointmentsRadio" type="radio" />
+                        <input jsf:id="appointmentsRadio" name="appointmentsRadio" type="radio"
+                               data-bind="checked: selectedScope" value="Appointments"/>
                         <label for="appointmentsRadio" onclick="">Appointments</label>
 
-                        <input jsf:id="specialdaysRadio" name="specialdaysRadio" type="radio" checked=""/>
+                        <input jsf:id="specialdaysRadio" name="specialdaysRadio" type="radio"
+                               data-bind="checked: selectedScope" value="Special Days" checked=""/>
                         <label for="specialdaysRadio" onclick="">Special Days</label>
 
                         <a class="btn btn-primary"></a>
@@ -38,13 +40,14 @@ and open the template in the editor.
                 </fieldset>
             </div>
         </div>
-        <div class="row">
+        <div class="row" data-bind="fadeVisible: selectedScope()==='Appointments'">
             <ui:include src="includes/appointmentsManagement.html"/>
         </div>
-        <div class="row">
+        <div class="row" data-bind="fadeVisible: selectedScope()==='Special Days'">
             <ui:include src="includes/specdaysManagement.html"/>
         </div>
         <script type="text/javascript" src="#{request.contextPath}/resources/js/knockout-3.3.0.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/js/knockout.mapping-latest.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/js/scheduler.js"></script>
     </body>
 </html>
