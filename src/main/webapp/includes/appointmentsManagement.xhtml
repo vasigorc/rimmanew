@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+    <ui:composition>
+        <div class="col-xs-12 col-md-8 col-md-offset-2">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th style="display: none;"><h:outputText>id</h:outputText></th>
+                        <th><h:outputText>#{bigcopy.tableDate}</h:outputText></th>
+                        <th><h:outputText>#{bigcopy.tableTime}</h:outputText></th>
+                        <th><h:outputText>#{bigcopy.tableClient}</h:outputText></th>
+                        <th><h:outputText>#{bigcopy.tableType}</h:outputText></th>
+                        <th><h:outputText>#{bigcopy.tableMessage}</h:outputText></th>
+                        <th><h:outputText>#{bigcopy.tableEmail}</h:outputText></th>
+                    </tr>
+                </thead>
+                <tbody data-bind="foreach: Appointments">
+                    <tr>
+                        <td style="display: none;" data-bind="text:id"></td>
+                        <td data-bind="text:date"></td>
+                        <td data-bind="text:time"></td>
+                        <td data-bind="text:clientName"></td>
+                        <td data-bind="text:type"></td>
+                        <td data-bind="text:message"></td>
+                        <td data-bind="text:email"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </ui:composition>
+</html>
