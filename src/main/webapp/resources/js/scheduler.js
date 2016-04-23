@@ -14,10 +14,13 @@ jQuery(function () {
         });
     });
 });
+
+
 //knockout part
 //this has to be taken from the hidden field in the page <- from companyPropertiesBean
-var restServiceRoot = "localhost:8080/RimmaNew/rest";
-var scopeSelector = {
+var restServiceRoot = "http://localhost:8080/RimmaNew/rest";
+
+var scopeModel = {
     selectedScope: ko.observable()
 };
 // Here's a custom Knockout binding that makes elements shown/hidden via jQuery's fadeIn()/fadeOut() methods
@@ -34,8 +37,16 @@ ko.bindingHandlers.fadeVisible = {
         ko.unwrap(value) ? $(element).fadeIn() : $(element).fadeOut();
     }
 };
-ko.applyBindings(scopeSelector);
 
+function Appointment(rawData) {
+    this.id = ko.observable(rawData.id);
+    this.date = ko.observable(new Date(rawData.date));
+    this.time = ko.observable(rawData.time);
+    this.type = ko.observable(rawData.type);
+    this.clientName = ko.observable(rawData.clientName);
+    this.email = ko.observable(rawData.email);
+    this.message = ko.observable(rawData.message);
+}
 //appointments part
 //Initial load
 function appointmentsModel() {
@@ -46,14 +57,13 @@ function appointmentsModel() {
         url: self.serviceURL,
         type: 'get',
         data: null,
-        dataType: 'json',        
+        dataType: 'json',
         success: function (data) {
-            var parsed = JSON.parse(data);
-            var appointments = parsed.current;
-            var mappedAppointments = $.map(appointments, function(item){
+            var appointmentsArray = data.appointments.current;
+            var mappedAppointments = $.map(appointmentsArray, function (item) {
                 return new Appointment(item);
             });
-            self.Appointments(mappedAppointments);
+            self.Appointments = mappedAppointments;
         },
         error: function (xhr, ajaxOptions, thrownError) {
             var err = xhr.responseText;
@@ -62,5 +72,9 @@ function appointmentsModel() {
     });
 }
 
-var appointmentsModelImpl = new appointmentsModel();
-ko.applyBindings(appointmentsModelImpl, document.getElementById('appointmentsModel'));
+var viewModel = {
+    scope: scopeModel,
+    appointments: new appointmentsModel()
+};
+
+ko.applyBindings(viewModel);

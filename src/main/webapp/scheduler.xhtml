@@ -21,19 +21,19 @@ and open the template in the editor.
         <script type="text/javascript" src="#{request.contextPath}/resources/js/jquery-1.11.3.min.js"></script>
 
     </head>
-    <body>
+    <body data-bind="with:scope">
         <div class="row" style="margin-top: 4em; margin-right: 1em;">
             <div class="col-xs-12 col-md-8"></div>
-            <div class="col-xs-6 col-md-4">
+            <div id="selectingScopes" class="col-xs-6 col-md-4">
                 <fieldset>
                     <legend>View:</legend>
                     <div id="radioControls" class="switch-toggle well">
                         <input jsf:id="appointmentsRadio" name="appointmentsRadio" type="radio"
-                               onclick="console.log(scopeSelector.selectedScope())" data-bind="checked: selectedScope" value="#{bigcopy.appointmentsLabel}"/>
+                               data-bind="checked: selectedScope" value="#{bigcopy.appointmentsLabel}"/>
                         <label for="appointmentsRadio" onclick="">#{bigcopy.appointmentsLabel}</label>
 
                         <input jsf:id="specialdaysRadio" name="specialdaysRadio" type="radio"
-                               onclick="console.log(scopeSelector.selectedScope())" data-bind="checked: selectedScope" value="#{bigcopy.specialDaysLabel}"/>
+                               data-bind="checked: selectedScope" value="#{bigcopy.specialDaysLabel}"/>
                         <label for="specialdaysRadio" onclick="">#{bigcopy.specialDaysLabel}</label>
 
                         <a class="btn btn-primary"></a>
@@ -41,11 +41,11 @@ and open the template in the editor.
                 </fieldset>
            </div>
         </div>
-        <div id="appointmentsModel" class="row" data-bind="fadeVisible: selectedScope()==='#{bigcopy.appointmentsLabel}'">
+        <div class="row" data-bind="fadeVisible: selectedScope()==='#{bigcopy.appointmentsLabel}'">
             <ui:include src="includes/appointmentsManagement.xhtml"/>
         </div>
         <div class="row" data-bind="fadeVisible: selectedScope()==='#{bigcopy.specialDaysLabel}'">
-            <ui:include src="includes/specdaysManagement.html"/>
+            <ui:include src="includes/specdaysManagement.xhtml"/>
         </div>
         <script type="text/javascript" src="#{request.contextPath}/resources/js/knockout-3.3.0.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/js/knockout.mapping-latest.js"></script>
