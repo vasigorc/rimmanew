@@ -41,7 +41,7 @@ and open the template in the editor.
                 </fieldset>
            </div>
         </div>
-        <div class="row" data-bind="fadeVisible: selectedScope()==='#{bigcopy.appointmentsLabel}'">
+        <div class="row" data-bind="fadeVisible: selectedScope()==='#{bigcopy.appointmentsLabel}', stopBinding: true">
             <ui:include src="includes/appointmentsManagement.xhtml"/>
         </div>
         <div class="row" data-bind="fadeVisible: selectedScope()==='#{bigcopy.specialDaysLabel}'">
