@@ -20,6 +20,15 @@ jQuery(function () {
 //this has to be taken from the hidden field in the page <- from companyPropertiesBean
 var restServiceRoot = "http://localhost:8080/RimmaNew/rest";
 
+ko.bindingHandlers.stopBinding = {
+    init: function() {
+        return { controlsDescendantBindings: true };
+    }        
+};
+
+//KO 2.1, now allows you to add containerless support for custom bindings
+ko.virtualElements.allowedBindings.stopBinding = true;
+
 var scopeModel = {
     selectedScope: ko.observable()
 };
@@ -38,14 +47,14 @@ ko.bindingHandlers.fadeVisible = {
     }
 };
 
-function Appointment(rawData) {
-    this.id = ko.observable(rawData.id);
-    this.date = ko.observable(new Date(rawData.date));
-    this.time = ko.observable(rawData.time);
-    this.type = ko.observable(rawData.type);
-    this.clientName = ko.observable(rawData.clientName);
-    this.email = ko.observable(rawData.email);
-    this.message = ko.observable(rawData.message);
+function Appointment(id, date, time, type, clientName, email, message) {
+    this.id = ko.observable(id);
+    this.date = ko.observable(new Date(date));
+    this.time = ko.observable(time);
+    this.type = ko.observable(type);
+    this.clientName = ko.observable(clientName);
+    this.email = ko.observable(email);
+    this.message = ko.observable(message);
 }
 //appointments part
 //Initial load
@@ -61,7 +70,8 @@ function appointmentsModel() {
         success: function (data) {
             var appointmentsArray = data.appointments.current;
             var mappedAppointments = $.map(appointmentsArray, function (item) {
-                return new Appointment(item);
+                return new Appointment(item.id, item.date, item.type, item.clientName,
+                item.email, item.message);
             });
             self.Appointments = mappedAppointments;
         },
@@ -72,9 +82,5 @@ function appointmentsModel() {
     });
 }
 
-var viewModel = {
-    scope: scopeModel,
-    appointments: new appointmentsModel()
-};
-
-ko.applyBindings(viewModel);
+ko.applyBindings(scopeModel);
+ko.applyBindings(new appointmentsModel(), document.getElementById("appointmentsModel"));
