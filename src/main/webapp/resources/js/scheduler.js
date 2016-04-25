@@ -60,8 +60,11 @@ function Appointment(id, date, time, type, clientName, email, message) {
 //Initial load
 function appointmentsModel() {
     var self = this;
+    self.viewName = "Appointments' management";
     self.serviceURL = restServiceRoot + "/appointments";
-    self.Appointments = ko.observableArray([]);
+    self.appointments = ko.observableArray([]);
+    self.next= ko.observable();
+    self.last = ko.observable();
     $.ajax({
         url: self.serviceURL,
         type: 'get',
@@ -69,11 +72,16 @@ function appointmentsModel() {
         dataType: 'json',
         success: function (data) {
             var appointmentsArray = data.appointments.current;
+            self.next = data.appointments.next;
+            self.last = data.appointments.last;
             var mappedAppointments = $.map(appointmentsArray, function (item) {
-                return new Appointment(item.id, item.date, item.type, item.clientName,
+                return new Appointment(item.id, item.date, item.time, item.type, item.clientName,
                 item.email, item.message);
             });
-            self.Appointments = mappedAppointments;
+            self.appointments = mappedAppointments;
+            for(var i=0; i<self.appointments.length;i++){
+                console.log(self.appointments[i]);
+            }
         },
         error: function (xhr, ajaxOptions, thrownError) {
             var err = xhr.responseText;
