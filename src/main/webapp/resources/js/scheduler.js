@@ -78,10 +78,7 @@ function appointmentsModel() {
                 return new Appointment(item.id, item.date, item.time, item.type, item.clientName,
                 item.email, item.message);
             });
-            self.appointments = mappedAppointments;
-            for(var i=0; i<self.appointments.length;i++){
-                console.log(self.appointments[i]);
-            }
+            self.appointments(mappedAppointments);
         },
         error: function (xhr, ajaxOptions, thrownError) {
             var err = xhr.responseText;
