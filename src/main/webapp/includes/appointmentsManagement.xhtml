@@ -10,14 +10,20 @@ and open the template in the editor.
       xmlns:ui="http://java.sun.com/jsf/facelets">
     <ui:composition>
         <div id="appointmentsModel" class="col-xs-12 col-md-8 col-md-offset-2">
-            <table class="table table-bordered table-hover">
+            <table id="appointmentsTable" class="table table-bordered table-hover">
                 <thead>
                     <tr>
                         <th style="display: none;">id</th>
-                        <th>#{bigcopy.tableDate}</th>
+                        <th class="hand-on-hover" data-bind="click: sortByDate">
+                            #{bigcopy.tableDate} <i id="appDateCri"></i>
+                        </th>
                         <th>#{bigcopy.tableTime}</th>
-                        <th>#{bigcopy.tableClient}</th>
-                        <th>#{bigcopy.tableType}</th>
+                        <th class="hand-on-hover" data-bind="click: sortByName">
+                            #{bigcopy.tableClient} <i id="appNameCri"></i>
+                        </th>
+                        <th class="hand-on-hover" data-bind="click: sortByType">
+                            #{bigcopy.tableType} <i id="appTypeCri"></i>
+                        </th>
                         <th>#{bigcopy.tableMessage}</th>
                         <th>#{bigcopy.tableEmail}</th>
                     </tr>

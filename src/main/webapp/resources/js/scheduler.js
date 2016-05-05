@@ -21,9 +21,9 @@ jQuery(function () {
 var restServiceRoot = "http://localhost:8080/RimmaNew/rest";
 
 ko.bindingHandlers.stopBinding = {
-    init: function() {
-        return { controlsDescendantBindings: true };
-    }        
+    init: function () {
+        return {controlsDescendantBindings: true};
+    }
 };
 
 //KO 2.1, now allows you to add containerless support for custom bindings
@@ -49,8 +49,8 @@ ko.bindingHandlers.fadeVisible = {
 
 function Appointment(id, date, time, type, clientName, email, message) {
     this.id = ko.observable(id);
-    this.date = ko.observable(new Date(date));
-    this.time = ko.observable(time);
+    this.date = ko.observable(date);
+    this.time = ko.observable(time.substring(0, time.length - 3));
     this.type = ko.observable(type);
     this.clientName = ko.observable(clientName);
     this.email = ko.observable(email);
@@ -63,8 +63,58 @@ function appointmentsModel() {
     self.viewName = "Appointments' management";
     self.serviceURL = restServiceRoot + "/appointments";
     self.appointments = ko.observableArray([]);
-    self.next= ko.observable();
+    self.next = ko.observable();
     self.last = ko.observable();
+    self.dateSortAscending = ko.observable(false);
+    self.nameSortAscending = ko.observable(false);
+    self.typeSortAscending = ko.observable(false);
+    self.cleanUp = function () {
+        $("#appointmentsTable thead tr th").each(function () {
+            $(this).attr('class', 'hand-on-hover');
+        });
+        $("#appointmentsTable thead tr th i").each(function () {
+            $(this).removeAttr('class');
+        });
+    };
+    self.sortByDate = function () {
+        self.appointments.sort(function (a, b) {
+            first = new Date(a);
+            second = new Date(b);
+            return first > second ? -1 : 1;
+        });
+        self.dateSortAscending(!self.dateSortAscending());
+        self.cleanUp();
+        $("#appDateCri").parent().addClass("selected-tab");
+        if (self.dateSortAscending()) {
+            $("#appDateCri").addClass("glyphicon glyphicon-chevron-up");
+        } else {
+            $("#appDateCri").addClass("glyphicon glyphicon-chevron-down");
+        }
+    };
+    self.sortByName = function () {
+        self.appointments.sort(function (a, b) {
+            return a > b ? -1 : 1;
+        });
+        self.nameSortAscending(!self.nameSortAscending());
+        self.cleanUp();
+        $("#appNameCri").parent().addClass("selected-tab");
+        if (self.nameSortAscending())
+            $("#appNameCri").addClass("glyphicon glyphicon-chevron-up");
+        else
+            $("#appNameCri").addClass("glyphicon glyphicon-chevron-down");
+    };
+    self.sortByType = function () {
+        self.appointments.sort(function (a, b) {
+            return a > b ? -1 : 1;
+        });
+        self.typeSortAscending(!self.typeSortAscending());
+        self.cleanUp();
+        $("#appTypeCri").parent().addClass("selected-tab");
+        if(self.typeSortAscending())
+            $("#appTypeCri").addClass("glyphicon glyphicon-chevron-up");
+        else
+            $("#appNameCri").addClass("glyphicon glyphicon-chevron-down");
+    };
     $.ajax({
         url: self.serviceURL,
         type: 'get',
@@ -76,7 +126,7 @@ function appointmentsModel() {
             self.last = data.appointments.last;
             var mappedAppointments = $.map(appointmentsArray, function (item) {
                 return new Appointment(item.id, item.date, item.time, item.type, item.clientName,
-                item.email, item.message);
+                        item.email, item.message);
             });
             self.appointments(mappedAppointments);
         },
