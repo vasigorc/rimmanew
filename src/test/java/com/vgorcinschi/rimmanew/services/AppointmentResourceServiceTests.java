@@ -9,12 +9,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.vgorcinschi.rimmanew.ejbs.AppointmentRepository;
+import com.vgorcinschi.rimmanew.ejbs.OCFutureAppointmentsRepository;
 import com.vgorcinschi.rimmanew.ejbs.OutsideContainerJpaTests;
 import com.vgorcinschi.rimmanew.rest.services.AppointmentResourceService;
 import com.vgorcinschi.rimmanew.rest.services.helpers.SqlDateConverter;
 import com.vgorcinschi.rimmanew.rest.services.helpers.SqlTimeConverter;
 import com.vgorcinschi.rimmanew.util.Java8Toolkit;
+import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToSqlDate;
 import java.time.LocalDate;
+import static java.time.LocalDate.of;
 import java.util.Random;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
@@ -25,6 +28,7 @@ import org.junit.After;
 import org.junit.Assert;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -44,6 +48,7 @@ public class AppointmentResourceServiceTests {
         this.repository = tests.getRepository();
         this.service = new AppointmentResourceService();
         this.service.setRepository(repository);
+        this.service.setFutureRepository(new OCFutureAppointmentsRepository());
     }
 
     @Before
@@ -92,7 +97,7 @@ public class AppointmentResourceServiceTests {
         System.out.println(service.bookAppointment(
                 Java8Toolkit.localToSqlDate(LocalDate.now().plusDays((long) new Random().nextInt(90))),
                 "15:00", "massage", "Rimma",
-                "valid@email.ca", "any").getEntity().toString());;
+                "valid@email.ca", "any").getEntity().toString());
     }
 
     @Test
@@ -113,29 +118,53 @@ public class AppointmentResourceServiceTests {
         Assert.assertThat(timeConverter.fromString("15%3A00"), Matchers.instanceOf(java.sql.Time.class));
     }
 
-    @Test(expected=BadRequestException.class)
+    @Test(expected = BadRequestException.class)
     public void zeroSizeAppointmentsRequestTest() {
-       service.getAppointments("", "", "", "", 5, 0);
+        service.getAppointments("", "", "", "", 5, 0,
+                "true", "false");
     }
-    
+
     @Test
-    public void offsetTooBigRequestTest(){
+    public void offsetTooBigRequestTest() {
         try {
-            service.getAppointments("", "", "", "", 50, 5);
+            service.getAppointments("", "", "", "", 50, 5, "true", "false");
         } catch (BadRequestException e) {
             assertEquals(e.getMessage(), "There are less appointments in the "
-                    + "system than you have requested");            
+                    + "system than you have requested");
         }
     }
-    
+
     @Test
-    public void jsonAllAppointmentsRootNameTest() throws JsonProcessingException{
-        Response response = service.getAppointments("", "", "", "", 10, 5);
+    public void jsonAllAppointmentsRootNameTest() throws JsonProcessingException {
+        Response response = service.getAppointments("", "", "", "", 10, 5,
+                "true", "false");
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
         String output = mapper.writeValueAsString(response.getEntity());
-        
+
         MatcherAssert.assertThat(output, containsString("appointments"));
+        System.out.println(output);
+    }
+
+    @Test
+    public void updateAppointmentTest() {
+        Response response = service.updateAppointment(35, localToSqlDate(of(2016, 05, 19)),
+                "15:00", "waxing",
+                "Filotropia", "some@email.ca", "", "false", "false");
+        assertTrue(response.getEntity().toString().contains("link"));
+        System.out.println("\nupdateAppointmentTest:\n" + response.getEntity().toString()+"\n");
+    }
+    
+    @Test
+    public void getOnlyFutureAppointmentsTest() throws JsonProcessingException{
+        Response response = service.getAppointments("", "", "", "", 0, 5,
+                "false", "false");
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
+        String output = mapper.writeValueAsString(response.getEntity());
+
+        MatcherAssert.assertThat(output, containsString("appointments"));
+        System.out.println("\ngetOnlyFutureAppointmentsTest\n");
         System.out.println(output);
     }
 }

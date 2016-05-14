@@ -41,10 +41,10 @@ and open the template in the editor.
            </div>
         </div>
         <div class="row" data-bind="fadeVisible: selectedScope()==='#{bigcopy.appointmentsLabel}', stopBinding: true">
-            <ui:include src="includes/appointmentsManagement.xhtml"/>
+            <ui:include src="../includes/appointmentsManagement.xhtml"/>
         </div>
         <div class="row" data-bind="fadeVisible: selectedScope()==='#{bigcopy.specialDaysLabel}'">
-            <ui:include src="includes/specdaysManagement.xhtml"/>
+            <ui:include src="../includes/specdaysManagement.xhtml"/>
         </div>
         <script type="text/javascript" src="#{request.contextPath}/resources/js/knockout-3.3.0.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/js/knockout.mapping-latest.js"></script>

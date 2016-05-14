@@ -6,6 +6,7 @@
 package com.vgorcinschi.rimmanew.services;
 
 import com.vgorcinschi.rimmanew.ejbs.AppointmentRepository;
+import com.vgorcinschi.rimmanew.ejbs.OCFutureAppointmentsRepository;
 import com.vgorcinschi.rimmanew.ejbs.OutsideContainerJpaTests;
 import com.vgorcinschi.rimmanew.rest.services.AppointmentResourceService;
 import javax.ws.rs.core.Response;
@@ -28,6 +29,7 @@ public class GetAppsExperimentalIntegrationTests {
         this.repository = tests.getRepository();
         this.service = new AppointmentResourceService();
         this.service.setRepository(repository);
+        this.service.setFutureRepository(new OCFutureAppointmentsRepository());
     }
 
     @Before
@@ -40,42 +42,48 @@ public class GetAppsExperimentalIntegrationTests {
 
     @Test
     public void onlyTimeParamRequestTest() {
-        Response response = service.getAppointments("", "11:00:00", "", "", 2, 2);
+        Response response = service.getAppointments("", "11:00:00", "", "", 2, 2,
+                "true", "false");
         assertTrue(response.hasEntity());
         System.out.println("\nonlyTimeParamRequestTest JSON: " + response.getEntity().toString());
     }
 
     @Test
     public void emptyRequestTest() {
-        Response response = service.getAppointments("", "", "", "", 0, 10);
+        Response response = service.getAppointments("", "", "", "", 0, 10,
+                "true", "false");
         assertTrue(response.hasEntity());
         System.out.println("\nemptyRequestTest JSON: " + response.getEntity().toString());
     }
 
     @Test
     public void onlyDateParamRequestTest() {
-        Response response = service.getAppointments("2016-02-17", "", "", "", 0, 10);
+        Response response = service.getAppointments("2016-02-17", "", "", "", 0, 10,
+                "true", "false");
         assertTrue(response.hasEntity());
         System.out.println("\nonlyDateParamRequestTest JSON: " + response.getEntity().toString());
     }
 
     @Test
     public void onlyNameParameRequestTest() {
-        Response response = service.getAppointments("", "", "", "Varvara", 0, 10);
+        Response response = service.getAppointments("", "", "", "Varvara", 0, 10,
+                "true", "false");
         assertTrue(response.hasEntity());
         System.out.println("\nonlyNameParameRequestTest JSON: " + response.getEntity().toString());
     }
 
     @Test
     public void typeAndOffsetParamsRequestTest() {
-        Response response = service.getAppointments("", "", "massage", "", 5, 3);
+        Response response = service.getAppointments("", "", "massage", "", 5, 3,
+                "true", "false");
         assertTrue(response.hasEntity());
         System.out.println("\ntypeAndOffsetParamsRequestTest JSON: " + response.getEntity().toString());
     }
 
     @Test
     public void dateAndTimeParamsRequestTest() {
-        Response response = service.getAppointments("2016-02-03", "11:00", "", "", 0, 10);
+        Response response = service.getAppointments("2016-02-03", "11:00", "", "", 0, 10,
+                "true", "false");
         assertTrue("We are "
                 + " testing whether the URI contains the"
                 + " date parameter", response.getEntity().toString().contains("date"));
@@ -84,10 +92,12 @@ public class GetAppsExperimentalIntegrationTests {
 
     @Test
     public void dateAndTypeSizeRequestTest() {
-        Response response = service.getAppointments("2016-01-19", "", "massage", "", 0, 2);
+        Response response = service.getAppointments("2016-01-19", "", "massage", "", 0, 2,
+                "true", "false");
+        System.out.println("\ndateAndTypeSizeRequestTest JSON: " + response.getEntity().toString());
         assertTrue("We are "
                 + " testing whether the URI contains the"
-                + " date parameter", response.getEntity().toString().contains("start"));
-        System.out.println("\ndateAndTypeSizeRequestTest JSON: " + response.getEntity().toString());
+                + " date parameter", response.getEntity().toString().contains("current"));
+        
     }
 }

@@ -113,10 +113,10 @@ function appointmentsModel() {
         if(self.typeSortAscending())
             $("#appTypeCri").addClass("glyphicon glyphicon-chevron-up");
         else
-            $("#appNameCri").addClass("glyphicon glyphicon-chevron-down");
+            $("#appTypeCri").addClass("glyphicon glyphicon-chevron-down");
     };
     $.ajax({
-        url: self.serviceURL,
+        url: self.serviceURL+"?past=false",
         type: 'get',
         data: null,
         dataType: 'json',

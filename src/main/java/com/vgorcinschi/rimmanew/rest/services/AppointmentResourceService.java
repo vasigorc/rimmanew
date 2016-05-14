@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.vgorcinschi.rimmanew.annotations.JpaFutureRepository;
 import com.vgorcinschi.rimmanew.annotations.JpaRepository;
 import com.vgorcinschi.rimmanew.ejbs.AppointmentRepository;
 import com.vgorcinschi.rimmanew.entities.Appointment;
@@ -21,9 +22,12 @@ import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.Appointmen
 import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.AppointmentsQueryCandidatesTriage;
 import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.QueryCommandControl;
 import com.vgorcinschi.rimmanew.util.ExecutorFactoryProvider;
+import static com.vgorcinschi.rimmanew.util.InputValidators.allStringsAreGood;
+import static com.vgorcinschi.rimmanew.util.InputValidators.validStringsAreTrueOrFalse;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.appsUriBuilder;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToSqlDate;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.uriGenerator;
+import static java.lang.Boolean.valueOf;
 import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDate;
@@ -72,6 +76,14 @@ public class AppointmentResourceService {
     @JpaRepository
     private AppointmentRepository repository;
 
+    @Inject
+    @JpaFutureRepository
+    private AppointmentRepository futureRepository;
+
+    public void setFutureRepository(AppointmentRepository futureRepository) {
+        this.futureRepository = futureRepository;
+    }
+
     public void setRepository(AppointmentRepository repository) {
         this.repository = repository;
     }
@@ -101,7 +113,7 @@ public class AppointmentResourceService {
         validator(appDate, appType, clientName, clientEmail);
         Time converted = new SqlTimeConverter().fromString(appTime);
         Appointment appointment = build(new Appointment(), appDate, converted, appType, clientName,
-                clientEmail, clientMsg);
+                clientEmail, clientMsg, false, false);
         try {
             repository.add(appointment);
             //parameters for the return link
@@ -124,19 +136,24 @@ public class AppointmentResourceService {
             @FormParam("date") Date appDate, @FormParam("time") String appTime,
             @FormParam("type") String appType, @FormParam("clientName") String clientName,
             @FormParam("email") String clientEmail, @DefaultValue("")
-            @FormParam("message") String clientMsg) {
+            @FormParam("message") String clientMsg, @DefaultValue("false")
+            @FormParam("past") String past, @DefaultValue("false")
+            @FormParam("noShow") String noShow) {
         if (Integer.valueOf(id) == null) {
             throw new BadRequestException("The id of the "
                     + "appointment that you wish to modify hasn't been provided.");
         }
         //externalize the validation of all fields to concentrate on "positive"
         //scenario only
-        validator(appDate, appType, clientName, clientEmail);
+        statusValidator(appDate, appType, clientName, clientEmail, past, noShow);
         Time converted = new SqlTimeConverter().fromString(appTime);
+        //here it is safe to convert strings to boolean
+        boolean booleanPast = Boolean.parseBoolean(past);
+        boolean booleanNoShow = Boolean.parseBoolean(noShow);
         Appointment appointment = repository.get(id);
         if (ofNullable(appointment).isPresent()) {
             repository.update(build(appointment, appDate, converted, appType, clientName,
-                    clientEmail, clientMsg));
+                    clientEmail, clientMsg, booleanPast, booleanNoShow));
             //parameters for the return link
             Map<String, String> map = new HashMap<>();
             map.put("path", "appointments/" + Integer.toString(id));
@@ -153,7 +170,9 @@ public class AppointmentResourceService {
             @QueryParam("time") String appTime, @QueryParam("type") String appType,
             @QueryParam("name") String clientName,
             @DefaultValue("0") @QueryParam("offset") int offset,
-            @DefaultValue("10") @QueryParam("size") int size) {
+            @DefaultValue("10") @QueryParam("size") int size, @DefaultValue("false")
+            @QueryParam("past") String past, @DefaultValue("false")
+            @QueryParam("noShow") String noShow) {
         Time timeConverted = null;
         Date dateConverted = null;
         if (appTime != null && !appTime.equals("")) {
@@ -162,6 +181,15 @@ public class AppointmentResourceService {
         if (appDate != null && !appDate.equals("")) {
             dateConverted = new SqlDateConverter().fromString(appDate);
         }
+        //validate the boolean inputs
+        String[] array = {past, noShow};
+        if (!allStringsAreGood.apply(array) && !validStringsAreTrueOrFalse.apply(array)) {
+            throw new BadRequestException("You provided an erroneous value "
+                    + "for either 'Is in the past' or 'No show' attribute. You may "
+                    + "only use 'true' or 'false'.",
+                    Response.status(Response.Status.BAD_REQUEST).build());
+        }
+        boolean booleanPast = Boolean.parseBoolean(past);
         //now we should be ready to call the triage class that will designate
         //the main query that will be called from repository 
         AppointmentsQueryCandidatesTriage triage = new AppointmentsQueryCandidatesTriage(appDate,
@@ -178,9 +206,15 @@ public class AppointmentResourceService {
         //so let us extend our asynchronous call
         CompletableFuture<List<Appointment>> futureList = futureWinner.thenApplyAsync((winner) -> {
             if (!winner.isPresent()) {
-                return repository.getAll();
+                if (booleanPast) {
+                    return repository.getAll();
+                }  
+                return futureRepository.getAll();
             } else {
-                return new QueryCommandControl().executeQuery(winner.get(), repository);
+                if (booleanPast) {
+                    return new QueryCommandControl().executeQuery(winner.get(), repository);
+                }
+                return new QueryCommandControl().executeQuery(winner.get(), futureRepository);
             }
         });
         //unverified map with all params as strings - may contain empty values
@@ -337,6 +371,18 @@ public class AppointmentResourceService {
         return answerSize;
     }
 
+    public boolean statusValidator(Date appDate, String appType,
+            String clientName, String clientEmail, String past, String noShow) {
+        String[] array = {past, noShow};
+        if (!allStringsAreGood.apply(array) && !validStringsAreTrueOrFalse.apply(array)) {
+            throw new BadRequestException("You provided an erroneous value "
+                    + "for either 'Is in the past' or 'No show' attribute. You may "
+                    + "only use 'true' or 'false'.",
+                    Response.status(Response.Status.BAD_REQUEST).build());
+        }
+        return validator(appDate, appType, clientName, clientEmail);
+    }
+
     public boolean validator(Date appDate, String appType,
             String clientName, String clientEmail) {
         //validators->
@@ -367,12 +413,15 @@ public class AppointmentResourceService {
     }
 
     private Appointment build(Appointment appointment, Date appDate, Time appTime, String appType,
-            String clientName, String clientEmail, String clientMsg) {
+            String clientName, String clientEmail, String clientMsg, boolean past,
+             boolean noShow) {
         appointment.setDate(appDate);
         appointment.setTime(appTime);
         appointment.setClientName(clientName);
         appointment.setEmail(clientEmail);
         appointment.setType(appType);
+        appointment.setPast(past);
+        appointment.setNoShow(noShow);
         if (clientMsg != null && !clientMsg.trim().equals("")) {
             appointment.setMessage(clientMsg);
         }

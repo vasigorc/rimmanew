@@ -19,6 +19,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -33,8 +34,12 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
  * @author vgorcinschi
  */
 @Entity
-@NamedQuery(name = "findAllAppointments",
-        query="SELECT a FROM Appointment a order by a.date DESC")
+@NamedQueries({
+    @NamedQuery(name = "findAllAppointments",
+        query="SELECT a FROM Appointment a order by a.date DESC"),
+    @NamedQuery(name = "findFutureAppointments",
+        query="SELECT a FROM Appointment a WHERE a.past = false order by a.date DESC"),
+})
 @Access(AccessType.PROPERTY)
 @Table(name = "appointment")
 @XmlRootElement(name="appointment")
@@ -55,6 +60,10 @@ public class Appointment implements Serializable {
     private String email;
     @XmlElement
     private String message;
+    @XmlElement
+    private boolean past;
+    @XmlElement
+    private boolean noShow;
 
     public Appointment() {
     }
@@ -67,6 +76,26 @@ public class Appointment implements Serializable {
         this.clientName = clientName;
         this.email = email;
         this.message = message;
+        this.past = false;
+        this.noShow = false;
+    }
+
+    @Column(name = "in_the_past")
+    public boolean isPast() {
+        return past;
+    }
+
+    @Column(name = "no_show")
+    public boolean isNoShow() {
+        return noShow;
+    }
+
+    public void setPast(boolean past) {
+        this.past = past;
+    }
+
+    public void setNoShow(boolean noShow) {
+        this.noShow = noShow;
     }
 
     @Id

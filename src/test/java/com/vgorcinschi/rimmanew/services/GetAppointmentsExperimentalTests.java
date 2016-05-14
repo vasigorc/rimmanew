@@ -6,6 +6,7 @@
 package com.vgorcinschi.rimmanew.services;
 
 import com.vgorcinschi.rimmanew.ejbs.AppointmentRepository;
+import com.vgorcinschi.rimmanew.ejbs.OCFutureAppointmentsRepository;
 import com.vgorcinschi.rimmanew.ejbs.OutsideContainerJpaTests;
 import com.vgorcinschi.rimmanew.entities.Appointment;
 import com.vgorcinschi.rimmanew.rest.services.AppointmentResourceService;
@@ -55,6 +56,7 @@ public class GetAppointmentsExperimentalTests {
         this.repository = tests.getRepository();
         this.service = new AppointmentResourceService();
         this.service.setRepository(repository);
+        this.service.setFutureRepository(new OCFutureAppointmentsRepository());
     }
 
     @Before
@@ -801,7 +803,8 @@ public class GetAppointmentsExperimentalTests {
     
     @Test
     public void requestEndsInEmptyResponseTest(){
-        Response response = service.getAppointments("2019-02-12", "", "massage", "", 0, 10);
+        Response response = service.getAppointments("2019-02-12", "", "massage", "", 0, 10,
+                "true", "false");
         assertTrue(response.hasEntity());
         System.out.println("Empty wrapper HTTP response in JSON: "+response.getEntity().toString());
     }
@@ -815,7 +818,8 @@ public class GetAppointmentsExperimentalTests {
     
     @Test
     public void requestSkippedAndLimitedToZeroTest(){
-        Response response = service.getAppointments("2016-01-28", "13:00", "massage", "", 0, 10);
+        Response response = service.getAppointments("2016-01-28", "13:00", "massage", "", 0, 10,
+                "true", "false");
         assertTrue(response.hasEntity());
         System.out.println("requestSkippedAndLimitedToZeroTest JSON: "+response.getEntity().toString());
     }
