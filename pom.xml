@@ -41,6 +41,10 @@
                     <groupId>org.apache.maven.wagon</groupId>
                     <artifactId>wagon-webdav-jackrabbit</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>jcl-over-slf4j</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
