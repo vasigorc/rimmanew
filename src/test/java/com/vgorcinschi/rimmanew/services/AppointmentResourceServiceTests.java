@@ -21,6 +21,7 @@ import static java.time.LocalDate.of;
 import java.util.Random;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
+import org.apache.logging.log4j.LogManager;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import static org.hamcrest.Matchers.containsString;
@@ -42,6 +43,7 @@ public class AppointmentResourceServiceTests {
     private final AppointmentRepository repository;
     private final SqlDateConverter dateConverter = new SqlDateConverter();
     private final SqlTimeConverter timeConverter = new SqlTimeConverter();
+    private final org.apache.logging.log4j.Logger log = LogManager.getLogger();
 
     public AppointmentResourceServiceTests() {
         OutsideContainerJpaTests tests = new OutsideContainerJpaTests();
@@ -61,6 +63,7 @@ public class AppointmentResourceServiceTests {
 
     @Test(expected = BadRequestException.class)
     public void testAPastDateAttempt() {
+        log.info("Running the test testAPastDateAttempt");
         service.bookAppointment(Java8Toolkit.localToSqlDate(LocalDate.of(2014, 01, 12)),
                 "15:00", "massage", "Rimma",
                 "valid@email.ca", "any");
