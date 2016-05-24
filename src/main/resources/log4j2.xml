@@ -8,7 +8,7 @@
         <RollingFile name="RimmaFileAppender" fileName="../logs/application.log"
              filePattern="../logs/application-%d{MM-dd-yyyy}-%i.log">
             <PatternLayout>
-                <pattern>%d{HH:mm:ss.SSS} [%t] %-5level %c{36} %l: %msg%n</pattern>
+                <pattern>%d{HH:mm:ss.SSS} [%t] %-5level %c{36} %l: %msg %n</pattern>
             </PatternLayout>
             <Policies>
                 <SizeBasedTriggeringPolicy size="10 MB" />
@@ -25,7 +25,7 @@
             <appender-ref ref="Console">
             </appender-ref>
         </logger>
-        <logger name="org.apache" level="info">
+        <logger name="com.vgorcinschi.rimmanew" level="warn">
             <appender-ref ref="RimmaFileAppender" />
         </logger>
     </loggers>

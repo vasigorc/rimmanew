@@ -5,7 +5,8 @@
  */
 package com.vgorcinschi.rimmanew.util;
 
-import com.vgorcinschi.rimmanew.model.CompanyPropertiesBean;
+import com.vgorcinschi.rimmanew.ejbs.CompanyPropertiesImpl;
+import com.vgorcinschi.rimmanew.model.UriSetterBean;
 import java.util.Properties;
 import org.junit.After;
 import static org.junit.Assert.assertTrue;
@@ -18,14 +19,18 @@ import org.junit.Test;
  */
 public class UriPropertiesTests {
 
-    private final CompanyPropertiesBean propertiesBean;
+    private final UriSetterBean uriPropertiesBean;
+    private Properties props;
 
     public UriPropertiesTests() {
-        this.propertiesBean = new CompanyPropertiesBean();
+        this.uriPropertiesBean = new UriSetterBean();
+        this.uriPropertiesBean.setCompanyProperties(new CompanyPropertiesImpl());
     }
 
     @Before
     public void setUp() {
+        //need to put it here to escape the deadlock
+        props = PropertiesProvider.getUriProperties();
     }
 
     @After
@@ -34,17 +39,16 @@ public class UriPropertiesTests {
 
     @Test
     public void propertiesFileIsReadAndResetPropsTests() {
-        Properties props = PropertiesProvider.getUriProperties();
         assertTrue(props.getProperty("host").equals("localhost"));
         System.out.println("\nDefault properties:\n\nHost is: " + props.getProperty("host")
                 + "\nScheme is: " + props.getProperty("scheme")
                 + "\nListening on port: " + Integer.parseInt(props.getProperty("port")));
         
         //then try to reset the values with the application scoped bean
-        propertiesBean.setHostName("www.salon-rimma.ca");
-        propertiesBean.setSchemeName("http");
-        propertiesBean.setPort(0);
-        propertiesBean.updateUriProperties();
+        uriPropertiesBean.setHostName("www.salon-rimma.ca");
+        uriPropertiesBean.setSchemeName("http");
+        uriPropertiesBean.setPort(0);
+        uriPropertiesBean.updateUriProperties();
         assertTrue(props.getProperty("host").equals("www.salon-rimma.ca"));
         System.out.println("\nUpdated properties:\n\n"
                 + "Host is: " + props.getProperty("host")

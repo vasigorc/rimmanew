@@ -5,54 +5,41 @@
  */
 package com.vgorcinschi.rimmanew.model;
 
-import com.vgorcinschi.rimmanew.util.PropertiesProvider;
+import com.vgorcinschi.rimmanew.annotations.Production;
+import com.vgorcinschi.rimmanew.ejbs.CompanyProperties;
 import java.io.Serializable;
-import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
-import java.util.Properties;
-import java.util.ResourceBundle;
-import javax.annotation.PostConstruct;
 import javax.inject.Named;
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.SessionScoped;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 
 /**
  *
  * @author vgorcinschi
  */
 @Named(value = "companyPropertiesBean")
-@ApplicationScoped
-public class CompanyPropertiesBean implements Serializable {
+@SessionScoped
+public class UriSetterBean implements Serializable {
 
     private String hostName, schemeName;
     private int port;
-    private boolean urisUpdated;
-    private boolean updateTried;
+    private boolean urisUpdated, updateTried;
+    
+    @Inject
+    @Production
+    private CompanyProperties companyProperties;
 
-    @ManagedProperty("#{uriinfo}")
-    private ResourceBundle uriinfo;
-
-    @PostConstruct
-    public void initialize() {
-        FacesContext context = FacesContext.getCurrentInstance();
-        uriinfo = context.getApplication().evaluateExpressionGet(context, "#{uriinfo}", ResourceBundle.class);
-        this.hostName = uriinfo.getString("host");
-        this.port = parseInt(uriinfo.getString("port"));
-        this.schemeName = uriinfo.getString("scheme");
-    }
-
-    /**
-     * Creates a new instance of CompanyPropertiesBean
-     */
-    public CompanyPropertiesBean() {
+    public UriSetterBean() {
         this.urisUpdated = false;
         this.updateTried = false;
     }
-
+    
+    public void setCompanyProperties(CompanyProperties companyProperties) {
+        this.companyProperties = companyProperties;
+    }
+    
     public String getHostName() {
-        return hostName;
+        return companyProperties.getHostName();
     }
 
     public void setHostName(String hostName) {
@@ -60,7 +47,7 @@ public class CompanyPropertiesBean implements Serializable {
     }
 
     public String getSchemeName() {
-        return schemeName;
+        return companyProperties.getSchemeName();
     }
 
     public void setSchemeName(String schemeName) {
@@ -68,7 +55,7 @@ public class CompanyPropertiesBean implements Serializable {
     }
 
     public int getPort() {
-        return port;
+        return companyProperties.getPort();
     }
 
     public void setPort(int port) {
@@ -81,13 +68,13 @@ public class CompanyPropertiesBean implements Serializable {
             updateTried = true;
             urisUpdated = false;
         } else {
-            PropertiesProvider.getUriProperties().setProperty("host", hostName);
-            PropertiesProvider.getUriProperties().setProperty("scheme", schemeName);
+            companyProperties.setHostName(hostName);
+            companyProperties.setSchemeName(schemeName);
             if (valueOf(port) == null || port != 0) {
-                PropertiesProvider.getUriProperties().setProperty("port", valueOf(port));
+                companyProperties.setPort(port);
             } else //i.e. port is not part of the uri
             {
-                PropertiesProvider.getUriProperties().setProperty("port", "");
+                companyProperties.setPort(-1);
             }
             updateTried = true;
             urisUpdated = true;
@@ -109,5 +96,4 @@ public class CompanyPropertiesBean implements Serializable {
     public void setUpdateTried(boolean updateTried) {
         this.updateTried = updateTried;
     }
-
 }

@@ -11,6 +11,13 @@ package com.vgorcinschi.rimmanew.model.dailyforecast;
  */
 public class UnavailableForecast implements DailyForecast{
 
+    private String reason="";
+
+    public UnavailableForecast setReason(String reason) {
+        this.reason = reason;
+        return this;
+    }
+    
     @Override
     public String getMaxT() {
         return "";
@@ -37,8 +44,7 @@ public class UnavailableForecast implements DailyForecast{
             Do some work for text customization according to the 
         current locale
         */
-        return "Unfortunatelly we are unable to provide weather forecast for that"
-                + " far in the future.";
+        return this.reason;
     }
 
     @Override

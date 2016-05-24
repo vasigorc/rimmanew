@@ -8,12 +8,13 @@ package com.vgorcinschi.rimmanew.ejbs;
 import com.vgorcinschi.rimmanew.annotations.JpaFutureRepository;
 import com.vgorcinschi.rimmanew.entities.Appointment;
 import java.sql.Date;
-import java.sql.Time;
 import java.util.List;
 import javax.ejb.Singleton;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -23,6 +24,7 @@ import javax.persistence.TypedQuery;
 @JpaFutureRepository
 public class JPAFutureAppointmentRepository extends JpaAppointmentRepository
         implements FutureAppointmentsRepository {
+    private final Logger log = LogManager.getLogger();
 
     @Override
     public List<Appointment> getMarkedOngoingAndBeforeDate(Date date) {
@@ -48,7 +50,8 @@ public class JPAFutureAppointmentRepository extends JpaAppointmentRepository
             affectedRows = query.executeUpdate();
             return affectedRows;
         } catch (Exception e) {
-            //LOG THIS!
+            log.fatal("batchSetIsPassedStatus method failed - status of past "
+                    + "appointments has not been updated: "+e.getMessage());
             return -1;
         }
     }

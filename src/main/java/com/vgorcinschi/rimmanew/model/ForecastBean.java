@@ -16,8 +16,13 @@ import static com.vgorcinschi.rimmanew.util.Java8Toolkit.findGoodTime;
 import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
 import java.io.Serializable;
+import java.net.UnknownHostException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Optional;
+import static java.util.Optional.of;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.primefaces.event.SelectEvent;
 
 /**
@@ -33,42 +38,61 @@ public class ForecastBean implements Serializable {
     //this is the forecast object - shouldn't be final
     private DailyForecast forecast;
     private boolean beanActivated = false;
+    private final Logger log = LogManager.getLogger();
+
     /**
      * Creates a new instance of ForecastBeanTwo
      */
     public ForecastBean() {
         this.wfc = new WeatherForecastClient();
-        //TODO replace the "fr" with the call to Locale
-        this.dwr = wfc.getForecast(DailyWeatherReport.class, "fr");
+        Optional<DailyWeatherReport> temporary = Optional.empty();
+        try {
+            //TODO replace the "fr" with the call to Locale
+            temporary = of(wfc.getForecast(DailyWeatherReport.class, "fr"));
+        } catch (UnknownHostException|javax.ws.rs.ProcessingException ex) {
+            log.fatal("No access to the third party weather service: " + ex.getMessage());
+        }
+        if (temporary.isPresent()) {
+            dwr = temporary.get();
+        } else{
+            dwr = null;
+        }
     }
-    public void handleDateSelect(SelectEvent event){
+
+    public void handleDateSelect(SelectEvent event) {
         /*
-            get the 15 days from today date object
-            and check whether the client requested day is not 
-            after it.
-        */
-        Date selectedDate= (Date)event.getObject();
+         get the 15 days from today date object
+         and check whether the client requested day is not 
+         after it.
+         */
+        Date selectedDate = (Date) event.getObject();
         Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, +15); 
+        cal.add(Calendar.DATE, +15);
         if (selectedDate.after(cal.getTime())) {
             /*
-                So, if the selected date is after today+15 days
-                then we will tell the client that we cannot grab a weathe for him
-                i.e. DailyForecast = UnavailableForecast.class
-            */
-            setForecast(new UnavailableForecast());
-        }else{
+             So, if the selected date is after today+15 days
+             then we will tell the client that we cannot grab a weathe for him
+             i.e. DailyForecast = UnavailableForecast.class
+             */
+            setForecast(new UnavailableForecast().setReason("Unfortunatelly we "
+                    + "are unable to provide weather forecast for that"
+                    + " far in the future."));
+        } else if(dwr==null){
+            setForecast(new UnavailableForecast().setReason("We are sorry. "
+                    + "The connection with the "
+                    + "third party weather report vendor failed."));
+        } else {
             /*
-                Now that we know that the selected date is within the range
-                of available forecasts, we need to extract the requested day 
-                forecast (represented by a Time object) 
-                from the total of 16 available days
-            */
-            java.sql.Date sqlDate = utilToSql(selectedDate);   
-            Time requestedTime = findGoodTime(dwr.getDays(), 
-                    (Time t)->sqlDate.toString().equals(t.getDay()));
+             Now that we know that the selected date is within the range
+             of available forecasts, we need to extract the requested day 
+             forecast (represented by a Time object) 
+             from the total of 16 available days
+             */
+            java.sql.Date sqlDate = utilToSql(selectedDate);
+            Time requestedTime = findGoodTime(dwr.getDays(),
+                    (Time t) -> sqlDate.toString().equals(t.getDay()));
             setForecast(new TimeAdapter(requestedTime));
-        }  
+        }
         setBeanActivated(true);
     }
 

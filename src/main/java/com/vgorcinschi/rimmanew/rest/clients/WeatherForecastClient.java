@@ -26,7 +26,7 @@ public class WeatherForecastClient implements Closeable {
         this.webTarget = client.target(BASE_URI);
     }
 
-    public <T> T getForecast(Class<T> responseType, String language) {
+    public <T> T getForecast(Class<T> responseType, String language) throws java.net.UnknownHostException {
         WebTarget resource = webTarget.queryParam("APPID","edc67756a4c4adae15d281fe52adb26e")
                 .queryParam("q", "Montreal")
                 .queryParam("mode", "xml").queryParam("units", "metric")
