@@ -22,21 +22,30 @@ import org.apache.logging.log4j.Logger;
  */
 @Stateless
 public class PastAppointmentsTimerFacade implements PastAppointmentsTimerBeanLocal {
-
+    
     private final Logger log = LogManager.getLogger();
-
+    
     @Inject
     @JpaFutureRepository
     private FutureAppointmentsRepository futureRespository;
-
+    
     @Inject
     @Production
     private CompanyProperties companyProperties;
+    
+    public void setFutureRespository(FutureAppointmentsRepository futureRespository) {
+        this.futureRespository = futureRespository;
+    }
+    
+    public void setCompanyProperties(CompanyProperties companyProperties) {
+        this.companyProperties = companyProperties;
+    }
 
     @Override
     //get all apps that are not "past" but are before NOW()
     //do foreach() to update() them with past="true"
-    @Schedule(second = "0", minute = "0", hour = "18", dayOfMonth = "*", month = "*", dayOfWeek = "Sat", year = "*")
+    //good cron = second = "0", minute = "0", hour = "18", dayOfMonth = "*", month = "*", dayOfWeek = "Sat", year = "*"
+    @Schedule(second = "0", minute = "30", hour = "21", dayOfMonth = "*", month = "*", dayOfWeek = "Thu", year = "*")
     public void updatePastAppointments() {
         long setBefore = (long) companyProperties.getDaysBeforeMarkingAsPast();
         if (setBefore == -1) {
@@ -45,20 +54,29 @@ public class PastAppointmentsTimerFacade implements PastAppointmentsTimerBeanLoc
             Date markAsPassedFlag = Java8Toolkit.localToSqlDate(LocalDate.now()
                     .minusDays(setBefore));
             int result = futureRespository.batchSetIsPassedStatus(markAsPassedFlag);
-            if (result<0) {
+            if (result < 0) {
                 log.error("The status of past appointments has not been updated");
-            } else{
-                log.info(result+" apointments have been successfully updated and "
+            } else {
+                log.debug(result + " apointments have been successfully updated and "
                         + "marked as 'passed'. The most recent of them was scheduled"
-                        + " for: "+markAsPassedFlag);
+                        + " for: " + markAsPassedFlag);
             }
         }
     }
-
+    
     @Override
-    //do futureAppointmentRepository.deleteAllBefore(companyProperties.deleteAllBefore())    
-    @Schedule(second = "0", minute = "0", hour = "23", dayOfMonth = "31", month = "12", dayOfWeek = "*", year = "*")
+    //do futureAppointmentRepository.deleteAllBefore(companyProperties.deleteAllBefore())
+    //good cron = second = "0", minute = "0", hour = "23", dayOfMonth = "31", month = "12", dayOfWeek = "*", year = "*"
+    @Schedule(second = "0", minute = "35", hour = "21", dayOfMonth = "*", month = "*", dayOfWeek = "Thu", year = "*")
     public void deleteArchaicAppointments() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        long setBefore = (long) companyProperties.getDaysBeforeForceDeletingTheAppointmentRecord();
+        if (setBefore < 30) {
+            log.error("Attempted to delete appointments that are less then"
+                    + " 30 days in the past.");
+        } else {
+            Date deleteBeforeFlag = Java8Toolkit.localToSqlDate(LocalDate.now()
+                    .minusDays(setBefore));
+            futureRespository.deleteAllBefore(deleteBeforeFlag);
+        }
     }
 }

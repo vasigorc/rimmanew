@@ -20,12 +20,12 @@
         <root level="warn">
             <appender-ref ref="Console" />
         </root>
-        <logger name="root" level="info" additivity="false">
+        <logger name="root" level="warn" additivity="false">
             <appender-ref ref="RimmaFileAppender" />
             <appender-ref ref="Console">
             </appender-ref>
         </logger>
-        <logger name="com.vgorcinschi.rimmanew" level="warn">
+        <logger name="com.vgorcinschi" level="info">
             <appender-ref ref="RimmaFileAppender" />
         </logger>
     </loggers>

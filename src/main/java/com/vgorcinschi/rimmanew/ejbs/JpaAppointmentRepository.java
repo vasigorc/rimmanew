@@ -15,6 +15,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceContextType;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -24,6 +26,7 @@ import javax.persistence.PersistenceContextType;
 @JpaRepository
 public class JpaAppointmentRepository implements AppointmentRepository {
 
+    private final Logger log = LogManager.getLogger();
     @PersistenceContext(unitName = "appointmentsManagement",
             type = PersistenceContextType.TRANSACTION)
     EntityManager em;
@@ -122,8 +125,17 @@ public class JpaAppointmentRepository implements AppointmentRepository {
 
     @Override
     public void deleteAllBefore(Date date) {
-        em.createQuery("DELETE FROM Appointment a WHERE "
+        int result=em.createQuery("DELETE FROM Appointment a WHERE "
                         + "a.date <= :date").setParameter("date", date).executeUpdate();
+        if (result<0) {
+                log.debug("No appointments were permanently deleted from your system"
+                        + " as the outcome of a scheduled job. The attempt was"
+                        + " to delete all appointments on or before "+date.toString());
+            } else{
+                log.debug(result+" apointment(s) have been permanently deleted from "
+                        + "the system. The most recent of them was scheduled"
+                        + " for: "+date.toString());
+            }
     }
 
 }

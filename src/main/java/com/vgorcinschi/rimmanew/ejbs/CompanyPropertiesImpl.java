@@ -29,7 +29,7 @@ import org.apache.logging.log4j.Logger;
 public class CompanyPropertiesImpl implements CompanyProperties {
 
     private int daysBeforeForceDeletingTheAppointmentRecord;
-    private int daysBeforeMarkingAsPast;
+    private final int daysBeforeMarkingAsPast;
     private final Logger log = LogManager.getLogger();
     /*
      These properties file should be just a pointer to the real Properties
@@ -119,15 +119,25 @@ public class CompanyPropertiesImpl implements CompanyProperties {
 
     @Override
     public void setDaysBeforeForceDeletingTheAppointmentRecord(int days, HttpServletRequest request) {
-        if (days <= 0) {
-            if (request.getRemoteAddr() != null) {
+        if (request == null || request.getRemoteAddr() == null) {
+            log.warn("Attempt to set days to force delete appointments from "
+                    + days + " days in the past and before came not from a "
+                    + "http request.");
+            this.daysBeforeForceDeletingTheAppointmentRecord = days;
+            log.debug("The number of days to force delete appointment records"
+                    + " from the system has been set to " + days + " days in the past.");
+        } else {
+            if (days <= 0) {
                 log.error("Attempt to set days to force delete appointment records "
                         + "to 0 or a negative number. From the IP address: " + request.getRemoteAddr());
+            } else {
+                this.daysBeforeForceDeletingTheAppointmentRecord = days;
+                log.debug("The number of days to force delete appointment records"
+                        + " from the system has been set to " + days + " days in the past. "
+                        + "The request was submitted from the IP address: "
+                        + request.getRemoteAddr());
+
             }
-            log.error("Blocked attempt to set days to force delete appointment records "
-                    + "to 0 or a negative number.");
-        } else {
-            this.daysBeforeForceDeletingTheAppointmentRecord = days;
         }
     }
 
@@ -140,5 +150,4 @@ public class CompanyPropertiesImpl implements CompanyProperties {
     public int getDaysBeforeMarkingAsPast() {
         return daysBeforeMarkingAsPast;
     }
-
 }
