@@ -45,7 +45,8 @@ public class PastAppointmentsTimerFacade implements PastAppointmentsTimerBeanLoc
     //get all apps that are not "past" but are before NOW()
     //do foreach() to update() them with past="true"
     //good cron = second = "0", minute = "0", hour = "18", dayOfMonth = "*", month = "*", dayOfWeek = "Sat", year = "*"
-    @Schedule(second = "0", minute = "30", hour = "21", dayOfMonth = "*", month = "*", dayOfWeek = "Thu", year = "*")
+    @Schedule(second = "0", minute = "15", hour = "00", dayOfMonth = "*", 
+            month = "*", dayOfWeek = "Sat", year = "*", persistent=false)
     public void updatePastAppointments() {
         long setBefore = (long) companyProperties.getDaysBeforeMarkingAsPast();
         if (setBefore == -1) {
@@ -67,7 +68,8 @@ public class PastAppointmentsTimerFacade implements PastAppointmentsTimerBeanLoc
     @Override
     //do futureAppointmentRepository.deleteAllBefore(companyProperties.deleteAllBefore())
     //good cron = second = "0", minute = "0", hour = "23", dayOfMonth = "31", month = "12", dayOfWeek = "*", year = "*"
-    @Schedule(second = "0", minute = "35", hour = "21", dayOfMonth = "*", month = "*", dayOfWeek = "Thu", year = "*")
+    @Schedule(second = "0", minute = "18", hour = "00", dayOfMonth = "*", month = "*", dayOfWeek = "Sat", year = "*",
+            persistent=false)
     public void deleteArchaicAppointments() {
         long setBefore = (long) companyProperties.getDaysBeforeForceDeletingTheAppointmentRecord();
         if (setBefore < 30) {

@@ -7,18 +7,14 @@ package com.vgorcinschi.rimmanew.ejbs;
 
 import com.vgorcinschi.rimmanew.annotations.Production;
 import com.vgorcinschi.rimmanew.util.PropertiesProvider;
-import java.io.IOException;
-import java.io.InputStream;
 import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
 import java.util.Properties;
-import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 /**
  *
  * @author vgorcinschi
@@ -40,26 +36,7 @@ public class CompanyPropertiesImpl implements CompanyProperties {
     public CompanyPropertiesImpl() {
         uriProperties = PropertiesProvider.getUriProperties();
         daysBeforeMarkingAsPast = 7;
-        daysBeforeForceDeletingTheAppointmentRecord = 730;//two years by default
-    }
-
-    @PostConstruct
-    public void init() {
-        InputStream inputStream = this.getClass().getClassLoader()
-                .getResourceAsStream("uriinfo.properties");
-        if (inputStream == null) {
-            log.fatal("uriinfo.properties file could not be found. Rest services "
-                    + "may stop functioning.");
-        } else {
-            try {
-                uriProperties.load(inputStream);
-                log.info("The information from uriinfo.properties has been successfully "
-                        + "uploaded: " + inputStream);
-            } catch (IOException ex) {
-                log.fatal("uriinfo.properties file could not be loaded. Rest services "
-                        + "may stop functioning.");
-            }
-        }
+        daysBeforeForceDeletingTheAppointmentRecord = 130;//two years by default
     }
 
     @Override
@@ -136,7 +113,6 @@ public class CompanyPropertiesImpl implements CompanyProperties {
                         + " from the system has been set to " + days + " days in the past. "
                         + "The request was submitted from the IP address: "
                         + request.getRemoteAddr());
-
             }
         }
     }
