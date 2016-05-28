@@ -22,31 +22,28 @@ import org.apache.logging.log4j.Logger;
  */
 @Stateless
 public class PastAppointmentsTimerFacade implements PastAppointmentsTimerBeanLocal {
-    
+
     private final Logger log = LogManager.getLogger();
-    
+
     @Inject
     @JpaFutureRepository
     private FutureAppointmentsRepository futureRespository;
-    
+
     @Inject
     @Production
     private CompanyProperties companyProperties;
-    
+
     public void setFutureRespository(FutureAppointmentsRepository futureRespository) {
         this.futureRespository = futureRespository;
     }
-    
+
     public void setCompanyProperties(CompanyProperties companyProperties) {
         this.companyProperties = companyProperties;
     }
 
     @Override
-    //get all apps that are not "past" but are before NOW()
-    //do foreach() to update() them with past="true"
-    //good cron = second = "0", minute = "0", hour = "18", dayOfMonth = "*", month = "*", dayOfWeek = "Sat", year = "*"
-    @Schedule(second = "0", minute = "15", hour = "00", dayOfMonth = "*", 
-            month = "*", dayOfWeek = "Sat", year = "*", persistent=false)
+    @Schedule(second = "0", minute = "15", hour = "00", dayOfMonth = "*",
+            month = "*", dayOfWeek = "Sat", year = "*", persistent = false)
     public void updatePastAppointments() {
         long setBefore = (long) companyProperties.getDaysBeforeMarkingAsPast();
         if (setBefore == -1) {
@@ -64,12 +61,10 @@ public class PastAppointmentsTimerFacade implements PastAppointmentsTimerBeanLoc
             }
         }
     }
-    
+
     @Override
-    //do futureAppointmentRepository.deleteAllBefore(companyProperties.deleteAllBefore())
-    //good cron = second = "0", minute = "0", hour = "23", dayOfMonth = "31", month = "12", dayOfWeek = "*", year = "*"
-    @Schedule(second = "0", minute = "18", hour = "00", dayOfMonth = "*", month = "*", dayOfWeek = "Sat", year = "*",
-            persistent=false)
+    @Schedule(second = "0", minute = "18", hour = "1", dayOfMonth = "*", month = "*", dayOfWeek = "Sat", year = "*",
+            persistent = false)
     public void deleteArchaicAppointments() {
         long setBefore = (long) companyProperties.getDaysBeforeForceDeletingTheAppointmentRecord();
         if (setBefore < 30) {

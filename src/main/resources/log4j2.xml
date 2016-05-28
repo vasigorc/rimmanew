@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration status="WARN">
+<configuration status="DEBUG">
     <appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout
@@ -22,8 +22,7 @@
         </root>
         <logger name="root" level="warn" additivity="false">
             <appender-ref ref="RimmaFileAppender" />
-            <appender-ref ref="Console">
-            </appender-ref>
+            <appender-ref ref="Console"/>
         </logger>
         <logger name="com.vgorcinschi" level="info">
             <appender-ref ref="RimmaFileAppender" />
