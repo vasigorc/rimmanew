@@ -1,3 +1,5 @@
+/* global ko */
+(function(sch, $, ko){
 jQuery(function () {
     $("#radioControls input").on("click", function (e) {
         $("#radioControls input").each(function () {
@@ -47,18 +49,9 @@ ko.bindingHandlers.fadeVisible = {
     }
 };
 
-function Appointment(id, date, time, type, clientName, email, message) {
-    this.id = ko.observable(id);
-    this.date = ko.observable(date);
-    this.time = ko.observable(time.substring(0, time.length - 3));
-    this.type = ko.observable(type);
-    this.clientName = ko.observable(clientName);
-    this.email = ko.observable(email);
-    this.message = ko.observable(message);
-}
 //appointments part
 //Initial load
-function appointmentsModel() {
+sch.appointmentsModel = function(dataService){
     var self = this;
     self.viewName = "Appointments' management";
     self.serviceURL = restServiceRoot + "/appointments";
@@ -115,27 +108,10 @@ function appointmentsModel() {
         else
             $("#appTypeCri").addClass("glyphicon glyphicon-chevron-down");
     };
-    $.ajax({
-        url: self.serviceURL+"?past=false",
-        type: 'get',
-        data: null,
-        dataType: 'json',
-        success: function (data) {
-            var appointmentsArray = data.appointments.current;
-            self.next = data.appointments.next;
-            self.last = data.appointments.last;
-            var mappedAppointments = $.map(appointmentsArray, function (item) {
-                return new Appointment(item.id, item.date, item.time, item.type, item.clientName,
-                        item.email, item.message);
-            });
-            self.appointments(mappedAppointments);
-        },
-        error: function (xhr, ajaxOptions, thrownError) {
-            var err = xhr.responseText;
-            alert(err);
-        }
+    dataService.getAppointments(function(appointments){
+       self.appointments(appointments) ;
     });
-}
-
+};
 ko.applyBindings(scopeModel);
-ko.applyBindings(new appointmentsModel(), document.getElementById("appointmentsModel"));
+ko.applyBindings(new sch.appointmentsModel(sch.AppointmentsService), document.getElementById("appointmentsModel"));
+})(window.sch = window.sch || {}, jQuery, ko);

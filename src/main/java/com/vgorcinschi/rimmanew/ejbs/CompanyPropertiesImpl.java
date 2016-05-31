@@ -36,7 +36,7 @@ public class CompanyPropertiesImpl implements CompanyProperties {
     public CompanyPropertiesImpl() {
         uriProperties = PropertiesProvider.getUriProperties();
         daysBeforeMarkingAsPast = 7;
-        daysBeforeForceDeletingTheAppointmentRecord = 130;//two years by default
+        daysBeforeForceDeletingTheAppointmentRecord = 730;//two years by default
     }
 
     @Override
