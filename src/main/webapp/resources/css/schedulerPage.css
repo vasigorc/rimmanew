@@ -16,3 +16,72 @@ and open the template in the editor.
     background-color: #FF9210;
     color:white;
 }
+
+.move-button{
+    color: #fff;
+    background-color: #5cb85c;
+    border-color: #4cae4c;
+    border-radius: 65%;
+    text-align:center;
+    margin-left: 0.7em;
+    margin-right: 0.7em;
+}
+
+.move-button:focus,
+.move-button.focus{
+    color: #fff;
+    background-color: #449d44;
+    border-color: #255625;
+}
+
+.move-button:hover {
+    color: #fff;
+    background-color: #449d44;
+    border-color: #398439;
+}
+
+.move-button.disabled,
+.move-button[disabled],
+fieldset[disabled] .move-button,
+.move-button.disabled:hover,
+.move-button[disabled]:hover,
+fieldset[disabled] .move-button:hover,
+.move-button.disabled:focus,
+.move-button[disabled]:focus,
+fieldset[disabled] .move-button:focus,
+.move-button.disabled.focus,
+.move-button[disabled].focus,
+fieldset[disabled] .move-button.focus,
+.move-button.disabled:active,
+.move-button[disabled]:active,
+fieldset[disabled] .move-button:active,
+.move-button.disabled.active,
+.move-button[disabled].active,
+fieldset[disabled] .move-button.active {
+    background-color: #5cb85c;
+    border-color: #4cae4c;
+}
+.move-button .badge {
+    color: #5cb85c;
+    background-color: #fff;
+}
+
+.keep-buttons-left{
+    margin-left: 6em; 
+    float: left;
+    //margin-bottom: 0.7em;
+}
+
+.keep-buttons-right{
+    margin-right: 9em; 
+    float: right;
+    //margin-bottom: 0.7em;
+}
+
+.buttons-wrapper{
+    margin-bottom: 4em;
+}
+
+.move-button-invisible{
+    visibility: hidden;
+}

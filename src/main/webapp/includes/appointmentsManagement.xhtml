@@ -10,6 +10,24 @@ and open the template in the editor.
       xmlns:ui="http://java.sun.com/jsf/facelets">
     <ui:composition>
         <div id="appointmentsModel" class="col-xs-12 col-md-8 col-md-offset-2">
+            <div class="buttons-wrapper">
+                <div class="keep-buttons-left" role="toolbar" aria-label="Basic example">
+                    <button id="fast-backward" type="button" class="btn move-button">
+                        <i class="glyphicon glyphicon-fast-backward"></i>
+                    </button>
+                    <button data-bind="click: getPrevious" id="step-backward" type="button" class="btn move-button">
+                        <i class="glyphicon glyphicon-step-backward"></i>
+                    </button>
+                </div>
+                <div class="keep-buttons-right" role="toolbar" aria-label="Another example">
+                    <button data-bind="click: getNext" id="step-forward" type="button" class="btn move-button">
+                        <i class="glyphicon glyphicon-step-forward"></i>
+                    </button>
+                    <button id="fast-forward" type="button" class="btn move-button">
+                        <i class="glyphicon glyphicon-fast-forward"></i>
+                    </button>
+                </div>
+            </div>
             <table id="appointmentsTable" class="table table-bordered table-hover">
                 <thead>
                     <tr>
