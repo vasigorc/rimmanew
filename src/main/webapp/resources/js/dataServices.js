@@ -92,6 +92,60 @@
                     alert(err);
                 }
             });
+        },
+        getLast: function (copy, callback) {
+            $.ajax({
+                url: copy.last,
+                type: 'get',
+                data: null,
+                dataType: 'json',
+                success: function (data) {
+
+                    var typedApps = data.appointments.current;
+
+                    copy.next = data.appointments.next;
+                    copy.first = data.appointments.first;
+                    copy.last = data.appointments.last;
+                    copy.previous = data.appointments.previous;
+
+                    copy.appointments = $.map(typedApps, function (item) {
+                        return new sch.Appointment(item.id, item.date, item.time, item.type, item.clientName,
+                                item.email, item.message);
+                    });
+                    callback(copy);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    var err = xhr.responseText;
+                    alert(err);
+                }
+            });
+        },
+        getFirst: function (copy, callback) {
+            $.ajax({
+                url: copy.first,
+                type: 'get',
+                data: null,
+                dataType: 'json',
+                success: function (data) {
+
+                    var typedApps = data.appointments.current;
+
+                    copy.next = data.appointments.next;
+                    copy.first = data.appointments.first;
+                    copy.last = data.appointments.last;
+                    copy.previous = data.appointments.previous;
+
+                    copy.appointments = $.map(typedApps, function (item) {
+                        return new sch.Appointment(item.id, item.date, item.time, item.type, item.clientName,
+                                item.email, item.message);
+                    });
+                    callback(copy);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    var err = xhr.responseText;
+                    alert(err);
+                }
+            });
         }
     };
 })(window.sch = window.sch || {}, jQuery, ko);

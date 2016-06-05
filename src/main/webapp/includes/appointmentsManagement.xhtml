@@ -12,7 +12,7 @@ and open the template in the editor.
         <div id="appointmentsModel" class="col-xs-12 col-md-8 col-md-offset-2">
             <div class="buttons-wrapper">
                 <div class="keep-buttons-left" role="toolbar" aria-label="Basic example">
-                    <button id="fast-backward" type="button" class="btn move-button">
+                    <button data-bind="click: getFirst" id="fast-backward" type="button" class="btn move-button">
                         <i class="glyphicon glyphicon-fast-backward"></i>
                     </button>
                     <button data-bind="click: getPrevious" id="step-backward" type="button" class="btn move-button">
@@ -23,7 +23,7 @@ and open the template in the editor.
                     <button data-bind="click: getNext" id="step-forward" type="button" class="btn move-button">
                         <i class="glyphicon glyphicon-step-forward"></i>
                     </button>
-                    <button id="fast-forward" type="button" class="btn move-button">
+                    <button data-bind="click: getLast" id="fast-forward" type="button" class="btn move-button">
                         <i class="glyphicon glyphicon-fast-forward"></i>
                     </button>
                 </div>

@@ -48,7 +48,6 @@
     };
 
 //appointments part
-//Initial load
     sch.appointmentsModel = function (dataService) {
         var self = this;
         self.viewName = "Appointments' management";
@@ -154,6 +153,18 @@
         };
         self.getPrevious = function () {
             dataService.getPrevious(self.toJSON, function (data) {
+                self.appointments(data.appointments);
+                self.showButtons(data);
+            });
+        };
+        self.getLast = function () {
+            dataService.getLast(self.toJSON, function (data) {
+                self.appointments(data.appointments);
+                self.showButtons(data);
+            });
+        };
+        self.getFirst = function () {
+            dataService.getFirst(self.toJSON, function (data) {
                 self.appointments(data.appointments);
                 self.showButtons(data);
             });

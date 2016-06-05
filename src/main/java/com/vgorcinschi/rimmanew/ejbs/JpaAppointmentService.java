@@ -36,6 +36,7 @@ private AppointmentRepository repository;
 
     @Override
     public void save(Appointment appointment) {
+        System.out.println("service: "+appointment.getMessage());
         if (findById(appointment.getId()) != null) 
             repository.update(appointment);
         else 
