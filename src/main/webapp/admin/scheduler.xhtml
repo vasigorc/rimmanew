@@ -1,9 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
--->
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
@@ -21,6 +16,7 @@ and open the template in the editor.
 
     </head>
     <body>
+        <h:inputHidden id="pageLocale" value="#{scheduleManagementBean.displayLanguage}"></h:inputHidden>
         <div class="row" style="margin-top: 4em; margin-right: 1em;">
             <div class="col-xs-12 col-md-8"></div>
             <div id="selectingScopes" class="col-xs-6 col-md-4">
@@ -34,11 +30,10 @@ and open the template in the editor.
                         <input jsf:id="specialdaysRadio" name="specialdaysRadio" type="radio"
                                data-bind="checked: selectedScope" value="#{bigcopy.specialDaysLabel}"/>
                         <label for="specialdaysRadio" onclick="">#{bigcopy.specialDaysLabel}</label>
-
                         <a class="btn btn-primary"></a>
                     </div>
                 </fieldset>
-           </div>
+            </div>
         </div>
         <div class="row" data-bind="fadeVisible: selectedScope()==='#{bigcopy.appointmentsLabel}', stopBinding: true">
             <ui:include src="../includes/appointmentsManagement.xhtml"/>
@@ -47,7 +42,10 @@ and open the template in the editor.
             <ui:include src="../includes/specdaysManagement.xhtml"/>
         </div>
         <script type="text/javascript" src="#{request.contextPath}/resources/js/knockout-3.3.0.js"></script>
-        <script type="text/javascript" src="#{request.contextPath}/resources/js/knockout.mapping-latest.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/js/knockout.validation.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/js/ko-validation-locales/en-US.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/js/ko-validation-locales/fr-FR.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/js/ko-validation-locales/ru-RU.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/js/classes.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/js/dataServices.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/js/scheduler.js"></script>        

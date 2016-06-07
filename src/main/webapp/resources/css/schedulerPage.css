@@ -18,9 +18,9 @@ and open the template in the editor.
 }
 
 .move-button{
-    color: #fff;
-    background-color: #5cb85c;
-    border-color: #4cae4c;
+    color: #333;
+    background-color: #fff;
+    border-color: #ccc;
     border-radius: 65%;
     text-align:center;
     margin-left: 0.7em;
@@ -29,15 +29,15 @@ and open the template in the editor.
 
 .move-button:focus,
 .move-button.focus{
-    color: #fff;
-    background-color: #449d44;
-    border-color: #255625;
+    color: #333;
+    background-color: #e6e6e6;
+    border-color: #8c8c8c;
 }
 
 .move-button:hover {
-    color: #fff;
-    background-color: #449d44;
-    border-color: #398439;
+    color: #333;
+    background-color: #e6e6e6;
+    border-color: #8c8c8c;
 }
 
 .move-button.disabled,
@@ -62,8 +62,8 @@ fieldset[disabled] .move-button.active {
     border-color: #4cae4c;
 }
 .move-button .badge {
-    color: #5cb85c;
-    background-color: #fff;
+    color: #fff;
+    background-color: #333;
 }
 
 .keep-buttons-left{

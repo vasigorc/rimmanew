@@ -19,6 +19,25 @@
 
 
 //knockout part
+//initialize the validation module
+    ko.validation.init({
+        registerExtenders: true,
+        messagesOnModified: true,
+        decorateInputElement: true,
+        insertMessages: true,
+        parseInputAttributes: true,
+        messageTemplate: null,
+        errorClass: "has-error"
+    }, true);
+
+    sch.currentLocale = $('#pageLocale').val();
+    if (sch.currentLocale.includes("fr")) {
+        ko.validation.locale('fr-FR');
+    } else if (sch.currentLocale.includes("ru")) {
+        ko.validation.locale('ru-RU');
+    } else {
+        ko.validation.locale('en-US');
+    }
 
     ko.bindingHandlers.stopBinding = {
         init: function () {
@@ -38,7 +57,8 @@
         init: function (element, valueAccessor) {
             // Initially set the element to be instantly visible/hidden depending on the value
             var value = valueAccessor();
-            $(element).toggle(ko.unwrap(value)); // Use "unwrapObservable" so we can handle values that may or may not be observable
+            $(element).toggle(ko.unwrap(value)); // Use "unwrapObservable" so we 
+            //can handle values that may or may not be observable
         },
         update: function (element, valueAccessor) {
             // Whenever the value subsequently changes, slowly fade the element in or out
@@ -59,6 +79,18 @@
         self.dateSortAscending = ko.observable(false);
         self.nameSortAscending = ko.observable(false);
         self.typeSortAscending = ko.observable(false);
+        //this is the container for all model inputs
+        self.filters = ko.observable({
+            clientName: ko.observable('').extend({
+                required: false,
+                minLength: 4,
+                maxLength: 20
+            }),
+            typeOptions:['massage', 'waxing', 'pedicure', 'manicure'],
+            type: ko.observable('').extend({
+                required: false
+            })
+        });
         self.toJSON = function () {
             var copy = ko.toJS(self);
             delete copy.dateSortAscending;

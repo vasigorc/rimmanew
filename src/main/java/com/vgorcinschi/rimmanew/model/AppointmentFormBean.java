@@ -158,8 +158,7 @@ public class AppointmentFormBean implements Serializable {
         candidate.setClientName(name);
         candidate.setDate(DateConverters.utilToSql(selectedDate));
         candidate.setEmail(email);
-        System.out.println("bean: "+message);
-        candidate.setMessage(message);
+       candidate.setMessage(message);
         candidate.setTime(Java8Toolkit.localToSqlTime(selectedTime));
         candidate.setType(type);
         /*

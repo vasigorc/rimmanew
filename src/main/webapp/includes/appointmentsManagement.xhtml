@@ -9,55 +9,78 @@ and open the template in the editor.
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:ui="http://java.sun.com/jsf/facelets">
     <ui:composition>
-        <div id="appointmentsModel" class="col-xs-12 col-md-8 col-md-offset-2">
-            <div class="buttons-wrapper">
-                <div class="keep-buttons-left" role="toolbar" aria-label="Basic example">
-                    <button data-bind="click: getFirst" id="fast-backward" type="button" class="btn move-button">
-                        <i class="glyphicon glyphicon-fast-backward"></i>
-                    </button>
-                    <button data-bind="click: getPrevious" id="step-backward" type="button" class="btn move-button">
-                        <i class="glyphicon glyphicon-step-backward"></i>
+        <div id="appointmentsModel">
+            <div class="row">
+                <div class="col-xs-6 col-md-1 col-md-offset-2">
+                    <button type="button" style="border-radius: 50%" class="btn btn-success btn-lg">
+                        <i class="glyphicon glyphicon-refresh"></i>
                     </button>
                 </div>
-                <div class="keep-buttons-right" role="toolbar" aria-label="Another example">
-                    <button data-bind="click: getNext" id="step-forward" type="button" class="btn move-button">
-                        <i class="glyphicon glyphicon-step-forward"></i>
-                    </button>
-                    <button data-bind="click: getLast" id="fast-forward" type="button" class="btn move-button">
-                        <i class="glyphicon glyphicon-fast-forward"></i>
-                    </button>
+                <div class="col-xs-6">
+                    <h:panelGrid columns="4">
+                        <div data-bind="validationElement: filters().clientName" class="form-group">
+                            <label for="clientName">#{copy.name}</label>
+                            <input class="form-control" id="clientName" data-bind="value: filters().clientName"></input>                            
+                        </div>
+                        <div data-bind="validationElement: filters().type" class="form-group">
+                            <label for="clientName">#{bigcopy.tableType}</label>
+                            <select class="form-control" id="clientName" 
+                                    data-bind="options: filters().typeOptions, 
+                                    value: filters().type"></select>                            
+                        </div>
+                    </h:panelGrid>
                 </div>
             </div>
-            <table id="appointmentsTable" class="table table-bordered table-hover">
-                <thead>
-                    <tr>
-                        <th style="display: none;">id</th>
-                        <th class="hand-on-hover" data-bind="click: sortByDate">
-                            #{bigcopy.tableDate} <i id="appDateCri"></i>
-                        </th>
-                        <th>#{bigcopy.tableTime}</th>
-                        <th class="hand-on-hover" data-bind="click: sortByName">
-                            #{bigcopy.tableClient} <i id="appNameCri"></i>
-                        </th>
-                        <th class="hand-on-hover" data-bind="click: sortByType">
-                            #{bigcopy.tableType} <i id="appTypeCri"></i>
-                        </th>
-                        <th>#{bigcopy.tableMessage}</th>
-                        <th>#{bigcopy.tableEmail}</th>
-                    </tr>
-                </thead>
-                <tbody data-bind="foreach: appointments">
-                    <tr>
-                        <td style="display: none;" data-bind="text:id"></td>
-                        <td data-bind="text:date"></td>
-                        <td data-bind="text:time"></td>
-                        <td data-bind="text:clientName"></td>
-                        <td data-bind="text:type"></td>
-                        <td data-bind="text:message"></td>
-                        <td data-bind="text:email"></td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="col-xs-12 col-md-8 col-md-offset-2">
+                <div class="buttons-wrapper">
+                    <div class="keep-buttons-left" role="toolbar" aria-label="Basic example">
+                        <button data-bind="click: getFirst" id="fast-backward" type="button" class="btn move-button">
+                            <i class="glyphicon glyphicon-fast-backward"></i>
+                        </button>
+                        <button data-bind="click: getPrevious" id="step-backward" type="button" class="btn move-button">
+                            <i class="glyphicon glyphicon-step-backward"></i>
+                        </button>
+                    </div>
+                    <div class="keep-buttons-right" role="toolbar" aria-label="Another example">
+                        <button data-bind="click: getNext" id="step-forward" type="button" class="btn move-button">
+                            <i class="glyphicon glyphicon-step-forward"></i>
+                        </button>
+                        <button data-bind="click: getLast" id="fast-forward" type="button" class="btn move-button">
+                            <i class="glyphicon glyphicon-fast-forward"></i>
+                        </button>
+                    </div>
+                </div>
+                <table id="appointmentsTable" class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th style="display: none;">id</th>
+                            <th class="hand-on-hover" data-bind="click: sortByDate">
+                                #{bigcopy.tableDate} <i id="appDateCri"></i>
+                            </th>
+                            <th>#{bigcopy.tableTime}</th>
+                            <th class="hand-on-hover" data-bind="click: sortByName">
+                                #{bigcopy.tableClient} <i id="appNameCri"></i>
+                            </th>
+                            <th class="hand-on-hover" data-bind="click: sortByType">
+                                #{bigcopy.tableType} <i id="appTypeCri"></i>
+                            </th>
+                            <th>#{bigcopy.tableMessage}</th>
+                            <th>#{bigcopy.tableEmail}</th>
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach: appointments">
+                        <tr>
+                            <td style="display: none;" data-bind="text:id"></td>
+                            <td data-bind="text:date"></td>
+                            <td data-bind="text:time"></td>
+                            <td data-bind="text:clientName"></td>
+                            <td data-bind="text:type"></td>
+                            <td data-bind="text:message"></td>
+                            <td data-bind="text:email"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </ui:composition>
 </html>
