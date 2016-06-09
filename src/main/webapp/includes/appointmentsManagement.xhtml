@@ -11,24 +11,60 @@ and open the template in the editor.
     <ui:composition>
         <div id="appointmentsModel">
             <div class="row">
-                <div class="col-xs-6 col-md-1 col-md-offset-2">
+                <div class="col-xs-4 col-md-1 col-md-offset-2">
                     <button type="button" style="border-radius: 50%" class="btn btn-success btn-lg">
                         <i class="glyphicon glyphicon-refresh"></i>
                     </button>
                 </div>
-                <div class="col-xs-6">
-                    <h:panelGrid columns="4">
-                        <div data-bind="validationElement: filters().clientName" class="form-group">
+                <div class="col-xs-8">
+                    <form class="form-inline" >                        
+                        <div data-bind="validationElement: filters().clientName" class="form-group input-group-sm">
                             <label for="clientName">#{copy.name}</label>
-                            <input class="form-control" id="clientName" data-bind="value: filters().clientName"></input>                            
+                            <input class="form-control" id="clientName" data-bind="value: filters().clientName"></input>
+                            <span class="error-text" data-bind="validationMessage: filters().clientName"></span>
                         </div>
-                        <div data-bind="validationElement: filters().type" class="form-group">
-                            <label for="clientName">#{bigcopy.tableType}</label>
-                            <select class="form-control" id="clientName" 
+                        <div style="margin-left: 0.4em;" data-bind="validationElement: filters().type" class="form-group input-group-sm">
+                            <label for="typeOptions">#{bigcopy.tableType}</label>
+                            <select class="form-control" id="typeOptions" 
                                     data-bind="options: filters().typeOptions, 
-                                    value: filters().type"></select>                            
+                                    value: filters().type, optionsCaption: '...'"></select>
+                            <span class="error-text" data-bind="validationMessage: filters().type"></span>
                         </div>
-                    </h:panelGrid>
+                    </form>
+                    <br/>
+                    <form class="form-inline">
+                        <div data-bind="validationElement: filters().date" class="form-group input-group-sm">
+                            <label for="dateFilter">#{bigcopy.tableDate}</label>
+                            <input placeholder="yyyy-mm-dd" class="form-control" id="dateFilter" data-bind="value: filters().date"></input>
+                            <span class="error-text" data-bind="validationMessage: filters().date"></span>
+                        </div>
+                        <div data-bind="validationElement: filters().time" class="form-group input-group-sm">
+                            <label for="timeFilter">#{bigcopy.tableTime}</label>
+                            <input placeholder="hh:mm" class="form-control" id="timeFilter" data-bind="value: filters().time"></input>
+                            <span class="error-text" data-bind="validationMessage: filters().time"></span>
+                        </div>
+                    </form>
+                    <br/>
+                    <form class="form-inline">
+                        <div data-bind="validationElement: filters().limit" class="form-group input-group-sm">
+                            <label for="limitFilter">#{bigcopy.schedulerLimit}</label>
+                            <input style="max-width: 5em;" type="number" class="form-control" id="limitFilter" data-bind="value: filters().limit"></input>
+                            <span class="error-text" data-bind="validationMessage: filters().limit"></span>
+                        </div>
+                        <div data-bind="validationElement: filters().offset" class="form-group input-group-sm">
+                            <label for="offsetFilter">#{bigcopy.schedulerOffset}</label>
+                            <input style="max-width: 5em;" type="number" class="form-control" id="offsetFilter" data-bind="value: filters().offset"></input>
+                            <span class="error-text" data-bind="validationMessage: filters().offset"></span>
+                        </div>
+                        <div class="checkbox" data-bind="validationElement: filters().past">
+                            <label class="checkbox-inline">
+                                <input value="option1" type="checkbox" id="ispastFilter" 
+                                       data-bind="checked: filters().past"/> #{bigcopy.schedulerPast}
+                            </label>
+                            <span class="error-text" data-bind="validationMessage: filters().past"></span>
+                        </div>
+                    </form>
+                    <br/>
                 </div>
             </div>
             <div class="col-xs-12 col-md-8 col-md-offset-2">
@@ -50,7 +86,7 @@ and open the template in the editor.
                         </button>
                     </div>
                 </div>
-                <table id="appointmentsTable" class="table table-bordered table-hover">
+                <table style="font-size: small;" id="appointmentsTable" class="table table-bordered table-hover">
                     <thead>
                         <tr>
                             <th style="display: none;">id</th>
@@ -75,7 +111,7 @@ and open the template in the editor.
                             <td data-bind="text:time"></td>
                             <td data-bind="text:clientName"></td>
                             <td data-bind="text:type"></td>
-                            <td data-bind="text:message"></td>
+                            <td style="max-width: 15em;" data-bind="text:message"></td>
                             <td data-bind="text:email"></td>
                         </tr>
                     </tbody>

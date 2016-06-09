@@ -24,7 +24,7 @@
         registerExtenders: true,
         messagesOnModified: true,
         decorateInputElement: true,
-        insertMessages: true,
+        insertMessages: false,
         parseInputAttributes: true,
         messageTemplate: null,
         errorClass: "has-error"
@@ -89,7 +89,26 @@
             typeOptions:['massage', 'waxing', 'pedicure', 'manicure'],
             type: ko.observable('').extend({
                 required: false
-            })
+            }),
+            date: ko.observable().extend({
+                required: false,
+                date: true
+            }),
+            time: ko.observable().extend({
+                required: false,
+                pattern: '([01]?[0-9]|2[0-3]):[0-5][0-9]'
+            }),
+            limit: ko.observable().extend({
+                digit:true,
+                max:100,
+                min:1
+            }),
+            offset: ko.observable().extend({
+                digit:true,
+                max:100,
+                min:1
+            }),
+            past:ko.observable(false)
         });
         self.toJSON = function () {
             var copy = ko.toJS(self);
@@ -127,7 +146,6 @@
                 $("#step-backward").addClass("move-button-invisible");
             }
             if (data.first != null) {
-                console.log(data.first);
                 self.first(data.first);
                 $("#fast-backward").removeClass("move-button-invisible");
             } else {
@@ -150,8 +168,8 @@
             }
         };
         self.sortByName = function () {
-            self.appointments.sort(function (a, b) {
-                return a > b ? -1 : 1;
+            self.appointments.sort(function (a, b) {                
+                return a.clientName() > b.clientName() ? -1 : 1;
             });
             self.nameSortAscending(!self.nameSortAscending());
             self.cleanUp();
@@ -163,7 +181,7 @@
         };
         self.sortByType = function () {
             self.appointments.sort(function (a, b) {
-                return a > b ? -1 : 1;
+                return a.type() > b.type() ? -1 : 1;
             });
             self.typeSortAscending(!self.typeSortAscending());
             self.cleanUp();

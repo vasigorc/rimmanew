@@ -85,3 +85,8 @@ fieldset[disabled] .move-button.active {
 .move-button-invisible{
     visibility: hidden;
 }
+
+.error-text{
+    color: #a94442; 
+    font-size: small;
+}
