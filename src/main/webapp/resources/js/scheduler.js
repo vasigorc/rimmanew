@@ -86,7 +86,7 @@
                 minLength: 4,
                 maxLength: 20
             }),
-            typeOptions:['massage', 'waxing', 'pedicure', 'manicure'],
+            typeOptions: ['massage', 'waxing', 'pedicure', 'manicure'],
             type: ko.observable('').extend({
                 required: false
             }),
@@ -99,16 +99,16 @@
                 pattern: '([01]?[0-9]|2[0-3]):[0-5][0-9]'
             }),
             limit: ko.observable().extend({
-                digit:true,
-                max:100,
-                min:1
+                digit: true,
+                max: 100,
+                min: 1
             }),
             offset: ko.observable().extend({
-                digit:true,
-                max:100,
-                min:1
+                digit: true,
+                max: 100,
+                min: 1
             }),
-            past:ko.observable(false)
+            past: ko.observable(false)
         });
         self.toJSON = function () {
             var copy = ko.toJS(self);
@@ -153,11 +153,13 @@
             }
         };
         self.sortByDate = function () {
-            self.appointments.sort(function (a, b) {
+            self.appointments(self.appointments.sort(function (a, b) {
                 first = new Date(a);
                 second = new Date(b);
+                if (first == second)
+                    return 0;
                 return first > second ? -1 : 1;
-            });
+            }));
             self.dateSortAscending(!self.dateSortAscending());
             self.cleanUp();
             $("#appDateCri").parent().addClass("selected-tab");
@@ -168,9 +170,16 @@
             }
         };
         self.sortByName = function () {
-            self.appointments.sort(function (a, b) {                
-                return a.clientName() > b.clientName() ? -1 : 1;
-            });
+            self.appointments(self.appointments.sort(function (a, b) {
+                if (a.clientName() == b.clientName())
+                    return 0;
+                if (self.nameSortAscending()) {
+                    return a.clientName() > b.clientName() ? -1 : 1;
+                } else {
+                    return a.clientName() < b.clientName() ? -1 : 1;
+                }
+
+            }));
             self.nameSortAscending(!self.nameSortAscending());
             self.cleanUp();
             $("#appNameCri").parent().addClass("selected-tab");
@@ -180,9 +189,16 @@
                 $("#appNameCri").addClass("glyphicon glyphicon-chevron-down");
         };
         self.sortByType = function () {
-            self.appointments.sort(function (a, b) {
-                return a.type() > b.type() ? -1 : 1;
-            });
+            self.appointments(self.appointments.sort(function (a, b) {
+                if (a.type() == b.type())
+                    return 0;
+                if (self.typeSortAscending()) {
+                    return a.type() > b.type() ? -1 : 1;
+                } else {
+                    return a.type() < b.type() ? -1 : 1;
+                }
+
+            }));
             self.typeSortAscending(!self.typeSortAscending());
             self.cleanUp();
             $("#appTypeCri").parent().addClass("selected-tab");
@@ -219,6 +235,19 @@
                 self.showButtons(data);
             });
         };
+        self.save = function () {
+            var result = ko.validation.group(self.filters, {deep: true});
+            if (result().length > 0)
+            {
+                result.showAllMessages(true);
+
+                return false;
+            }
+        };
+        ko.computed(function () {
+            self.filters();
+            self.save();
+        });
     };
     ko.applyBindings(scopeModel);
     ko.applyBindings(new sch.appointmentsModel(sch.AppointmentsService), document.getElementById("appointmentsModel"));

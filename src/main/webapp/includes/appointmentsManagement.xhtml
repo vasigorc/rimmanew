@@ -20,14 +20,14 @@ and open the template in the editor.
                     <form class="form-inline" >                        
                         <div data-bind="validationElement: filters().clientName" class="form-group input-group-sm">
                             <label for="clientName">#{copy.name}</label>
-                            <input class="form-control" id="clientName" data-bind="value: filters().clientName"></input>
+                            <input class="form-control" id="clientName" data-bind="value: filters().clientName, valueUpdate:'keyup'"></input>
                             <span class="error-text" data-bind="validationMessage: filters().clientName"></span>
                         </div>
                         <div style="margin-left: 0.4em;" data-bind="validationElement: filters().type" class="form-group input-group-sm">
                             <label for="typeOptions">#{bigcopy.tableType}</label>
                             <select class="form-control" id="typeOptions" 
                                     data-bind="options: filters().typeOptions, 
-                                    value: filters().type, optionsCaption: '...'"></select>
+                                    value: filters().type, optionsCaption: '...', valueUpdate:'keyup'"></select>
                             <span class="error-text" data-bind="validationMessage: filters().type"></span>
                         </div>
                     </form>
@@ -35,12 +35,14 @@ and open the template in the editor.
                     <form class="form-inline">
                         <div data-bind="validationElement: filters().date" class="form-group input-group-sm">
                             <label for="dateFilter">#{bigcopy.tableDate}</label>
-                            <input placeholder="yyyy-mm-dd" class="form-control" id="dateFilter" data-bind="value: filters().date"></input>
+                            <input placeholder="yyyy-mm-dd" class="form-control" id="dateFilter" 
+                                   data-bind="value: filters().date, valueUpdate:'keyup'"></input>
                             <span class="error-text" data-bind="validationMessage: filters().date"></span>
                         </div>
                         <div data-bind="validationElement: filters().time" class="form-group input-group-sm">
                             <label for="timeFilter">#{bigcopy.tableTime}</label>
-                            <input placeholder="hh:mm" class="form-control" id="timeFilter" data-bind="value: filters().time"></input>
+                            <input placeholder="hh:mm" class="form-control" id="timeFilter" 
+                                   data-bind="value: filters().time, valueUpdate:'keyup'"></input>
                             <span class="error-text" data-bind="validationMessage: filters().time"></span>
                         </div>
                     </form>
@@ -48,12 +50,16 @@ and open the template in the editor.
                     <form class="form-inline">
                         <div data-bind="validationElement: filters().limit" class="form-group input-group-sm">
                             <label for="limitFilter">#{bigcopy.schedulerLimit}</label>
-                            <input style="max-width: 5em;" type="number" class="form-control" id="limitFilter" data-bind="value: filters().limit"></input>
+                            <input style="max-width: 5em;" type="number" 
+                                   class="form-control" id="limitFilter" 
+                                   data-bind="value: filters().limit, valueUpdate:'keyup'"></input>
                             <span class="error-text" data-bind="validationMessage: filters().limit"></span>
                         </div>
                         <div data-bind="validationElement: filters().offset" class="form-group input-group-sm">
                             <label for="offsetFilter">#{bigcopy.schedulerOffset}</label>
-                            <input style="max-width: 5em;" type="number" class="form-control" id="offsetFilter" data-bind="value: filters().offset"></input>
+                            <input style="max-width: 5em;" type="number" class="form-control" 
+                                   id="offsetFilter" 
+                                   data-bind="value: filters().offset, valueUpdate:'keyup'"></input>
                             <span class="error-text" data-bind="validationMessage: filters().offset"></span>
                         </div>
                         <div class="checkbox" data-bind="validationElement: filters().past">
