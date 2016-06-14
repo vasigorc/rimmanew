@@ -85,31 +85,32 @@
                 required: false,
                 minLength: 4,
                 maxLength: 20
-            }),
+            }).extend({rateLimit: 500}),
             typeOptions: ['massage', 'waxing', 'pedicure', 'manicure'],
             type: ko.observable('').extend({
                 required: false
-            }),
+            }).extend({rateLimit: 500}),
             date: ko.observable().extend({
                 required: false,
-                date: true
-            }),
+                date: true,
+                minLength: 10
+            }).extend({rateLimit: 530}),
             time: ko.observable().extend({
                 required: false,
                 pattern: '([01]?[0-9]|2[0-3]):[0-5][0-9]'
-            }),
+            }).extend({rateLimit: 500}),
             limit: ko.observable().extend({
                 digit: true,
                 max: 100,
                 min: 1
-            }),
+            }).extend({rateLimit: 600}),
             offset: ko.observable().extend({
                 digit: true,
                 max: 100,
                 min: 1
-            }),
+            }).extend({rateLimit: 600}),
             past: ko.observable(false)
-        });
+        }).extend({rateLimit: 600});
         self.toJSON = function () {
             var copy = ko.toJS(self);
             delete copy.dateSortAscending;
@@ -156,9 +157,13 @@
             self.appointments(self.appointments.sort(function (a, b) {
                 first = new Date(a);
                 second = new Date(b);
-                if (first == second)
+                if (first === second)
                     return 0;
-                return first > second ? -1 : 1;
+                if (self.dateSortAscending()) {
+                    return first < second ? -1 : 1;
+                } else {
+                    return first > second ? -1 : 1;
+                }
             }));
             self.dateSortAscending(!self.dateSortAscending());
             self.cleanUp();
@@ -207,10 +212,16 @@
             else
                 $("#appTypeCri").addClass("glyphicon glyphicon-chevron-down");
         };
-        dataService.getAppointments(self.toJSON, function (data) {
+        dataService.getAppointments(self.toJSON(), function (data) {
             self.appointments(data.appointments);
             self.showButtons(data);
         });
+        self.updateView = function () {
+            dataService.getAppointments(self.toJSON(), function (data) {
+                self.appointments(data.appointments);
+                self.showButtons(data);
+            });
+        };
         self.getNext = function () {
             dataService.getNext(self.toJSON, function (data) {
                 self.appointments(data.appointments);
@@ -235,18 +246,12 @@
                 self.showButtons(data);
             });
         };
-        self.save = function () {
-            var result = ko.validation.group(self.filters, {deep: true});
-            if (result().length > 0)
-            {
-                result.showAllMessages(true);
-
-                return false;
-            }
-        };
         ko.computed(function () {
             self.filters();
-            self.save();
+            var filtersErrors = ko.validation.group(self.filters, {deep: true});
+            if (filtersErrors().length > 0) {
+                filtersErrors.showAllMessages(true);
+            }
         });
     };
     ko.applyBindings(scopeModel);

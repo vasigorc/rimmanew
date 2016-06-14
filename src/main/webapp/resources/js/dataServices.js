@@ -12,9 +12,13 @@
     sch.AppointmentsService = {
         getAppointments: function (copy, callback) {
             serviceURL = sch.restServiceRoot + "/appointments";
+            serviceURL=serviceURL.concat("?past="+copy.filters.past);
+            if(copy.filters.clientName.length > 3){
+                serviceURL=serviceURL.concat("&name="+copy.filters.clientName);
+            }
             var typedApps = [];
             $.ajax({
-                url: serviceURL + "?past=false",
+                url: serviceURL,
                 type: 'get',
                 data: null,
                 dataType: 'json',
