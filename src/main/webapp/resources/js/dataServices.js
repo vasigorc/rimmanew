@@ -16,6 +16,10 @@
             if(copy.filters.clientName.length > 3){
                 serviceURL=serviceURL.concat("&name="+copy.filters.clientName);
             }
+            if(copy.filters.type !== undefined && copy.filters.type.length > 0){
+                serviceURL=serviceURL.concat("&type="+copy.filters.type);
+            }
+            console.log(serviceURL);
             var typedApps = [];
             $.ajax({
                 url: serviceURL,
@@ -30,7 +34,7 @@
                     copy.first = data.appointments.first;
                     copy.last = data.appointments.last;
                     copy.previous = data.appointments.previous;
-
+                    
                     copy.appointments = $.map(typedApps, function (item) {
                         return new sch.Appointment(item.id, item.date, item.time, item.type, item.clientName,
                                 item.email, item.message);
@@ -44,8 +48,9 @@
             });
         },
         getNext: function (copy, callback) {
+            var serviceURL=copy.next.concat("&past="+copy.filters.past);
             $.ajax({
-                url: copy.next,
+                url: serviceURL,
                 type: 'get',
                 data: null,
                 dataType: 'json',
@@ -98,8 +103,9 @@
             });
         },
         getLast: function (copy, callback) {
+            var serviceURL=copy.next.concat("&past="+copy.filters.past);
             $.ajax({
-                url: copy.last,
+                url: serviceURL,
                 type: 'get',
                 data: null,
                 dataType: 'json',

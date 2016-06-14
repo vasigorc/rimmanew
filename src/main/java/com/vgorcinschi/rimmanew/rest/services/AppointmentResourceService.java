@@ -64,6 +64,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
+import org.apache.logging.log4j.LogManager;
 
 /**
  *
@@ -79,6 +80,8 @@ public class AppointmentResourceService {
     @Inject
     @JpaFutureRepository
     private AppointmentRepository futureRepository;
+
+    private final org.apache.logging.log4j.Logger log = LogManager.getLogger();
 
     public void setFutureRepository(AppointmentRepository futureRepository) {
         this.futureRepository = futureRepository;
@@ -184,6 +187,7 @@ public class AppointmentResourceService {
         //validate the boolean inputs
         String[] array = {past, noShow};
         if (!allStringsAreGood.apply(array) && !validStringsAreTrueOrFalse.apply(array)) {
+            log.error("One of the following values: " + array + "was not a 'true' or 'false' string");
             throw new BadRequestException("You provided an erroneous value "
                     + "for either 'Is in the past' or 'No show' attribute. You may "
                     + "only use 'true' or 'false'.",
@@ -208,7 +212,7 @@ public class AppointmentResourceService {
             if (!winner.isPresent()) {
                 if (booleanPast) {
                     return repository.getAll();
-                }  
+                }
                 return futureRepository.getAll();
             } else {
                 if (booleanPast) {
@@ -414,7 +418,7 @@ public class AppointmentResourceService {
 
     private Appointment build(Appointment appointment, Date appDate, Time appTime, String appType,
             String clientName, String clientEmail, String clientMsg, boolean past,
-             boolean noShow) {
+            boolean noShow) {
         appointment.setDate(appDate);
         appointment.setTime(appTime);
         appointment.setClientName(clientName);

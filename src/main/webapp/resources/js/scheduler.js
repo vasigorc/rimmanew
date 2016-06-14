@@ -128,25 +128,25 @@
             });
         };
         self.showButtons = function (data) {
-            if (data.next != null) {
+            if (data.next !== undefined) {
                 self.next(data.next);
                 $("#step-forward").removeClass("move-button-invisible");
             } else {
                 $("#step-forward").addClass("move-button-invisible");
             }
-            if (data.last != null) {
+            if (data.last !== undefined) {
                 self.last(data.last);
                 $("#fast-forward").removeClass("move-button-invisible");
             } else {
                 $("#fast-forward").addClass("move-button-invisible");
             }
-            if (data.previous != null) {
+            if (data.previous !== undefined) {
                 self.previous(data.previous);
                 $("#step-backward").removeClass("move-button-invisible");
             } else {
                 $("#step-backward").addClass("move-button-invisible");
             }
-            if (data.first != null) {
+            if (data.first !== undefined) {
                 self.first(data.first);
                 $("#fast-backward").removeClass("move-button-invisible");
             } else {
@@ -223,25 +223,25 @@
             });
         };
         self.getNext = function () {
-            dataService.getNext(self.toJSON, function (data) {
+            dataService.getNext(self.toJSON(), function (data) {
                 self.appointments(data.appointments);
                 self.showButtons(data);
             });
         };
         self.getPrevious = function () {
-            dataService.getPrevious(self.toJSON, function (data) {
+            dataService.getPrevious(self.toJSON(), function (data) {
                 self.appointments(data.appointments);
                 self.showButtons(data);
             });
         };
         self.getLast = function () {
-            dataService.getLast(self.toJSON, function (data) {
+            dataService.getLast(self.toJSON(), function (data) {
                 self.appointments(data.appointments);
                 self.showButtons(data);
             });
         };
         self.getFirst = function () {
-            dataService.getFirst(self.toJSON, function (data) {
+            dataService.getFirst(self.toJSON(), function (data) {
                 self.appointments(data.appointments);
                 self.showButtons(data);
             });
