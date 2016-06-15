@@ -107,7 +107,7 @@
             offset: ko.observable().extend({
                 digit: true,
                 max: 100,
-                min: 1
+                min: 0
             }).extend({rateLimit: 600}),
             past: ko.observable(false)
         }).extend({rateLimit: 600});
