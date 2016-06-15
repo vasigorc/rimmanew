@@ -12,127 +12,46 @@
     sch.AppointmentsService = {
         getAppointments: function (copy, callback) {
             serviceURL = sch.restServiceRoot + "/appointments";
-            serviceURL=serviceURL.concat("?past="+copy.filters.past);
-            if(copy.filters.clientName.length > 3){
-                serviceURL=serviceURL.concat("&name="+copy.filters.clientName);
+            serviceURL = serviceURL.concat("?past=" + copy.filters.past);
+            if (copy.filters.clientName.length > 3) {
+                serviceURL = serviceURL.concat("&name=" + copy.filters.clientName);
             }
-            if(copy.filters.type !== undefined && copy.filters.type.length > 0){
-                serviceURL=serviceURL.concat("&type="+copy.filters.type);
+            if (copy.filters.type !== undefined && copy.filters.type.length > 0) {
+                serviceURL = serviceURL.concat("&type=" + copy.filters.type);
             }
-            console.log(serviceURL);
-            var typedApps = [];
-            $.ajax({
-                url: serviceURL,
-                type: 'get',
-                data: null,
-                dataType: 'json',
-                success: function (data) {
-
-                    var typedApps = data.appointments.current;
-
-                    copy.next = data.appointments.next;
-                    copy.first = data.appointments.first;
-                    copy.last = data.appointments.last;
-                    copy.previous = data.appointments.previous;
-                    
-                    copy.appointments = $.map(typedApps, function (item) {
-                        return new sch.Appointment(item.id, item.date, item.time, item.type, item.clientName,
-                                item.email, item.message);
-                    });
-                    callback(copy);
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    var err = xhr.responseText;
-                    alert(err);
-                }
-            });
+            if(copy.filters.date !== undefined && copy.filters.date.length > 0){
+                serviceURL = serviceURL.concat("&date=" + copy.filters.date);
+            }
+            if(copy.filters.time !== undefined && copy.filters.time.length > 0){
+                serviceURL = serviceURL.concat("&time=" + copy.filters.time);
+            }
+            if(copy.filters.limit !== undefined && copy.filters.limit.length > 0){
+                serviceURL = serviceURL.concat("&size=" + copy.filters.limit);
+            }
+            if(copy.filters.offset !== undefined && copy.filters.offset.length > 0){
+                serviceURL = serviceURL.concat("&offset=" + copy.filters.offset);
+            }
+            this.basicQuery(copy, serviceURL, callback);
         },
         getNext: function (copy, callback) {
-            var serviceURL=copy.next.concat("&past="+copy.filters.past);
-            $.ajax({
-                url: serviceURL,
-                type: 'get',
-                data: null,
-                dataType: 'json',
-                success: function (data) {
-
-                    var typedApps = data.appointments.current;
-
-                    copy.next = data.appointments.next;
-                    copy.first = data.appointments.first;
-                    copy.last = data.appointments.last;
-                    copy.previous = data.appointments.previous;
-
-                    copy.appointments = $.map(typedApps, function (item) {
-                        return new sch.Appointment(item.id, item.date, item.time, item.type, item.clientName,
-                                item.email, item.message);
-                    });
-                    callback(copy);
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    var err = xhr.responseText;
-                    alert(err);
-                }
-            });
+            var serviceURL = copy.next.concat("&past=" + copy.filters.past);
+            this.basicQuery(copy, serviceURL, callback);
         },
         getPrevious: function (copy, callback) {
-            $.ajax({
-                url: copy.previous,
-                type: 'get',
-                data: null,
-                dataType: 'json',
-                success: function (data) {
-
-                    var typedApps = data.appointments.current;
-
-                    copy.next = data.appointments.next;
-                    copy.first = data.appointments.first;
-                    copy.last = data.appointments.last;
-                    copy.previous = data.appointments.previous;
-
-                    copy.appointments = $.map(typedApps, function (item) {
-                        return new sch.Appointment(item.id, item.date, item.time, item.type, item.clientName,
-                                item.email, item.message);
-                    });
-                    callback(copy);
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    var err = xhr.responseText;
-                    alert(err);
-                }
-            });
+            var serviceURL = copy.previous.concat("&past=" + copy.filters.past);
+            this.basicQuery(copy, serviceURL, callback);
         },
         getLast: function (copy, callback) {
-            var serviceURL=copy.next.concat("&past="+copy.filters.past);
-            $.ajax({
-                url: serviceURL,
-                type: 'get',
-                data: null,
-                dataType: 'json',
-                success: function (data) {
-
-                    var typedApps = data.appointments.current;
-
-                    copy.next = data.appointments.next;
-                    copy.first = data.appointments.first;
-                    copy.last = data.appointments.last;
-                    copy.previous = data.appointments.previous;
-
-                    copy.appointments = $.map(typedApps, function (item) {
-                        return new sch.Appointment(item.id, item.date, item.time, item.type, item.clientName,
-                                item.email, item.message);
-                    });
-                    callback(copy);
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    var err = xhr.responseText;
-                    alert(err);
-                }
-            });
+            var serviceURL = copy.last.concat("&past=" + copy.filters.past);
+            this.basicQuery(copy, serviceURL, callback);
         },
         getFirst: function (copy, callback) {
+            var serviceURL = copy.first.concat("&past=" + copy.filters.past);
+            this.basicQuery(copy, serviceURL, callback);
+        },
+        basicQuery: function (copy, url, callback) {
             $.ajax({
-                url: copy.first,
+                url: url,
                 type: 'get',
                 data: null,
                 dataType: 'json',
@@ -159,4 +78,3 @@
         }
     };
 })(window.sch = window.sch || {}, jQuery, ko);
-

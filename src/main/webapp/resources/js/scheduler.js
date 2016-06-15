@@ -246,13 +246,6 @@
                 self.showButtons(data);
             });
         };
-        ko.computed(function () {
-            self.filters();
-            var filtersErrors = ko.validation.group(self.filters, {deep: true});
-            if (filtersErrors().length > 0) {
-                filtersErrors.showAllMessages(true);
-            }
-        });
     };
     ko.applyBindings(scopeModel);
     ko.applyBindings(new sch.appointmentsModel(sch.AppointmentsService), document.getElementById("appointmentsModel"));
