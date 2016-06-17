@@ -67,11 +67,30 @@
         }
     };
 
+    ko.bindingHandlers.slideVisible = {
+        update: function (element, valueAccessor, allBindings) {
+            // First get the latest data that we're bound to
+            var value = valueAccessor();
+
+            // Next, whether or not the supplied model property is observable, get its current value
+            var valueUnwrapped = ko.unwrap(value);
+
+            // Grab some more data from another binding property
+            var duration = allBindings.get('slideDuration') || 400; // 400ms is default duration unless otherwise specified
+
+            // Now manipulate the DOM element
+            if (valueUnwrapped == true)
+                $(element).slideDown(duration); // Make the element visible
+            else
+                $(element).slideUp(duration);   // Make the element invisible
+        }
+    };
+
 //appointments part
     sch.appointmentsModel = function (dataService) {
         var self = this;
-        self.viewName = "Appointments' management";
         self.appointments = ko.observableArray([]);
+        self.entryAppointment = ko.observable(null);
         self.first = ko.observable();
         self.next = ko.observable();
         self.last = ko.observable();
@@ -79,7 +98,8 @@
         self.dateSortAscending = ko.observable(false);
         self.nameSortAscending = ko.observable(false);
         self.typeSortAscending = ko.observable(false);
-        //this is the container for all model inputs
+        //this is the container for all model inputs        
+        self.showFilters=ko.observable(false);
         self.filters = ko.observable({
             clientName: ko.observable('').extend({
                 required: false,
@@ -111,12 +131,20 @@
             }).extend({rateLimit: 600}),
             past: ko.observable(false)
         }).extend({rateLimit: 600});
+        self.newAppointment = function (){
+            self.entryAppointment(new sch.Appointment("","","","","","",""));
+        };
+        self.saveAppointment = function (){
+            //TODO
+        };
+        self.cancelAppointment = function(){
+            self.entryAppointment(null);
+        };
         self.toJSON = function () {
             var copy = ko.toJS(self);
             delete copy.dateSortAscending;
             delete copy.nameSortAscending;
             delete copy.typeSortAscending;
-            delete copy.viewName;
             return copy;
         };
         self.cleanUp = function () {
@@ -245,6 +273,9 @@
                 self.appointments(data.appointments);
                 self.showButtons(data);
             });
+        };
+        self.revertShowFilters = function (){
+            self.showFilters(!self.showFilters());
         };
     };
     ko.applyBindings(scopeModel);

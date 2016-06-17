@@ -9,121 +9,145 @@ and open the template in the editor.
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:ui="http://java.sun.com/jsf/facelets">
     <ui:composition>
-        <div id="appointmentsModel">
+        <div style="margin-left: 2em;" id="appointmentsModel">            
             <div class="row">
-                <div class="col-xs-4 col-md-1 col-md-offset-2">
-                    <button data-bind="click: updateView" type="button" style="margin-left: 1em; border-radius: 50%" 
-                            class="btn btn-success btn-lg">
-                        <i style="padding-top: 3px;" class="glyphicon glyphicon-refresh"></i>
-                    </button>
+                <div class="col-md-8 col-md-offset-2">
+                    <div data-bind="ifnot: entryAppointment" style="margin-top: 1em; margin-bottom: 1em;">
+                        <button data-bind="click: revertShowFilters" class="btn btn-default">#{bigcopy.schedulerFilterBtn}</button>
+                        <button data-bind="click: newAppointment" class="btn btn-info">#{bigcopy.schedulerCreateBtn}</button>
+                    </div>
                 </div>
-                <div class="col-xs-8">
-                    <form class="form-inline" >                        
-                        <div data-bind="validationElement: filters().clientName" class="form-group input-group-sm">
-                            <label for="clientName">#{copy.name}</label>
-                            <input class="form-control" id="clientName" data-bind="value: filters().clientName, valueUpdate:'keyup'"></input>
-                            <span class="error-text" data-bind="validationMessage: filters().clientName"></span>
-                        </div>
-                        <div style="margin-left: 0.4em;" data-bind="validationElement: filters().type" class="form-group input-group-sm">
-                            <label for="typeOptions">#{bigcopy.tableType}</label>
-                            <select class="form-control" id="typeOptions" 
-                                    data-bind="options: filters().typeOptions, 
+            </div>
+            <div class="row">
+                <div class="col-md-6 col-sm-8 col-md-offset-2">
+                    <!--the form for a new appointment-->
+                    <form class="form" role="form" 
+                          data-bind="with: entryAppointment, submit: saveAppointment">
+                        <button data-bind="click: $parent.cancelAppointment" 
+                                class="btn btn-danger">#{bigcopy.schedulerCancelNew}</button>
+                    </form>
+                </div>
+            </div>
+            <div data-bind="ifnot: entryAppointment">
+                <div class="row">               
+                    <div class="col-md-8 col-md-offset-2">
+                        <div data-bind="slideVisible: showFilters, slideDuration:600">
+                            <form class="form-inline" >                        
+                                <div data-bind="validationElement: filters().clientName" class="form-group input-group-sm">
+                                    <label for="clientName">#{copy.name}</label>
+                                    <input class="form-control" id="clientName" data-bind="value: filters().clientName, valueUpdate:'keyup'"></input>
+                                    <span class="error-text" data-bind="validationMessage: filters().clientName"></span>
+                                </div>
+                                <div data-bind="validationElement: filters().type" class="form-group input-group-sm">
+                                    <label for="typeOptions">#{bigcopy.tableType}</label>
+                                    <select class="form-control" id="typeOptions" 
+                                            data-bind="options: filters().typeOptions, 
                                     value: filters().type, optionsCaption: '...', valueUpdate:'keyup'"></select>
-                            <span class="error-text" data-bind="validationMessage: filters().type"></span>
+                                    <span class="error-text" data-bind="validationMessage: filters().type"></span>
+                                </div>
+                            </form>
+                            <br/>
+                            <form class="form-inline">
+                                <div data-bind="validationElement: filters().date" class="form-group input-group-sm">
+                                    <label for="dateFilter">#{bigcopy.tableDate}</label>
+                                    <input placeholder="yyyy-mm-dd" class="form-control" id="dateFilter" 
+                                           data-bind="value: filters().date, valueUpdate:'keyup'"></input>
+                                    <span class="error-text" data-bind="validationMessage: filters().date"></span>
+                                </div>
+                                <div data-bind="validationElement: filters().time" class="form-group input-group-sm">
+                                    <label for="timeFilter">#{bigcopy.tableTime}</label>
+                                    <input placeholder="hh:mm" class="form-control" id="timeFilter" 
+                                           data-bind="value: filters().time, valueUpdate:'keyup'"></input>
+                                    <span class="error-text" data-bind="validationMessage: filters().time"></span>
+                                </div>
+                            </form>
+                            <br/>
+                            <form class="form-inline">
+                                <div data-bind="validationElement: filters().limit" class="form-group input-group-sm">
+                                    <label for="limitFilter">#{bigcopy.schedulerLimit}</label>
+                                    <input style="max-width: 5em;" type="number" 
+                                           class="form-control" id="limitFilter" 
+                                           data-bind="value: filters().limit, valueUpdate:'keyup'"></input>
+                                    <span class="error-text" data-bind="validationMessage: filters().limit"></span>
+                                </div>
+                                <div data-bind="validationElement: filters().offset" class="form-group input-group-sm">
+                                    <label for="offsetFilter">#{bigcopy.schedulerOffset}</label>
+                                    <input style="max-width: 5em;" type="number" class="form-control" 
+                                           id="offsetFilter" 
+                                           data-bind="value: filters().offset, valueUpdate:'keyup'"></input>
+                                    <span class="error-text" data-bind="validationMessage: filters().offset"></span>
+                                </div>
+                                <div class="checkbox" data-bind="validationElement: filters().past">
+                                    <label class="checkbox-inline">
+                                        <input value="option1" type="checkbox" id="ispastFilter" 
+                                               data-bind="checked: filters().past"/> #{bigcopy.schedulerPast}
+                                    </label>
+                                    <span class="error-text" data-bind="validationMessage: filters().past"></span>
+                                </div>
+                            </form>
                         </div>
-                    </form>
-                    <br/>
-                    <form class="form-inline">
-                        <div data-bind="validationElement: filters().date" class="form-group input-group-sm">
-                            <label for="dateFilter">#{bigcopy.tableDate}</label>
-                            <input placeholder="yyyy-mm-dd" class="form-control" id="dateFilter" 
-                                   data-bind="value: filters().date, valueUpdate:'keyup'"></input>
-                            <span class="error-text" data-bind="validationMessage: filters().date"></span>
-                        </div>
-                        <div data-bind="validationElement: filters().time" class="form-group input-group-sm">
-                            <label for="timeFilter">#{bigcopy.tableTime}</label>
-                            <input placeholder="hh:mm" class="form-control" id="timeFilter" 
-                                   data-bind="value: filters().time, valueUpdate:'keyup'"></input>
-                            <span class="error-text" data-bind="validationMessage: filters().time"></span>
-                        </div>
-                    </form>
-                    <br/>
-                    <form class="form-inline">
-                        <div data-bind="validationElement: filters().limit" class="form-group input-group-sm">
-                            <label for="limitFilter">#{bigcopy.schedulerLimit}</label>
-                            <input style="max-width: 5em;" type="number" 
-                                   class="form-control" id="limitFilter" 
-                                   data-bind="value: filters().limit, valueUpdate:'keyup'"></input>
-                            <span class="error-text" data-bind="validationMessage: filters().limit"></span>
-                        </div>
-                        <div data-bind="validationElement: filters().offset" class="form-group input-group-sm">
-                            <label for="offsetFilter">#{bigcopy.schedulerOffset}</label>
-                            <input style="max-width: 5em;" type="number" class="form-control" 
-                                   id="offsetFilter" 
-                                   data-bind="value: filters().offset, valueUpdate:'keyup'"></input>
-                            <span class="error-text" data-bind="validationMessage: filters().offset"></span>
-                        </div>
-                        <div class="checkbox" data-bind="validationElement: filters().past">
-                            <label class="checkbox-inline">
-                                <input value="option1" type="checkbox" id="ispastFilter" 
-                                       data-bind="checked: filters().past"/> #{bigcopy.schedulerPast}
-                            </label>
-                            <span class="error-text" data-bind="validationMessage: filters().past"></span>
-                        </div>
-                    </form>
-                    <br/>
-                </div>
-            </div>
-            <div class="col-xs-12 col-md-8 col-md-offset-2">
-                <div class="buttons-wrapper">
-                    <div class="keep-buttons-left" role="toolbar" aria-label="Basic example">
-                        <button data-bind="click: getFirst" id="fast-backward" type="button" class="btn move-button">
-                            <i class="glyphicon glyphicon-fast-backward"></i>
-                        </button>
-                        <button data-bind="click: getPrevious" id="step-backward" type="button" class="btn move-button">
-                            <i class="glyphicon glyphicon-step-backward"></i>
-                        </button>
                     </div>
-                    <div class="keep-buttons-right" role="toolbar" aria-label="Another example">
-                        <button data-bind="click: getNext" id="step-forward" type="button" class="btn move-button">
-                            <i class="glyphicon glyphicon-step-forward"></i>
-                        </button>
-                        <button data-bind="click: getLast" id="fast-forward" type="button" class="btn move-button">
-                            <i class="glyphicon glyphicon-fast-forward"></i>
-                        </button>
+                </div>            
+                <div class="row">
+                    <div class="col-xs-4 col-md-1 col-md-offset-2">
+                        <div style="margin-bottom: 1em; margin-top: 1em;">
+                            <button data-bind="click: updateView" type="button" class="btn btn-success">
+                                #{bigcopy.schedulerUpdateBtn}
+                            </button>
+                        </div>                    
                     </div>
                 </div>
-                <table style="font-size: small;" id="appointmentsTable" class="table table-bordered table-hover">
-                    <thead>
-                        <tr>
-                            <th style="display: none;">id</th>
-                            <th class="hand-on-hover" data-bind="click: sortByDate">
-                                #{bigcopy.tableDate} <i id="appDateCri"></i>
-                            </th>
-                            <th>#{bigcopy.tableTime}</th>
-                            <th class="hand-on-hover" data-bind="click: sortByName">
-                                #{bigcopy.tableClient} <i id="appNameCri"></i>
-                            </th>
-                            <th class="hand-on-hover" data-bind="click: sortByType">
-                                #{bigcopy.tableType} <i id="appTypeCri"></i>
-                            </th>
-                            <th>#{bigcopy.tableMessage}</th>
-                            <th>#{bigcopy.tableEmail}</th>
-                        </tr>
-                    </thead>
-                    <tbody data-bind="foreach: appointments">
-                        <tr>
-                            <td style="display: none;" data-bind="text:id"></td>
-                            <td data-bind="text:date"></td>
-                            <td data-bind="text:time"></td>
-                            <td data-bind="text:clientName"></td>
-                            <td data-bind="text:type"></td>
-                            <td style="max-width: 15em;" data-bind="text:message"></td>
-                            <td data-bind="text:email"></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                <div class="col-xs-12 col-md-8 col-md-offset-2">
+                    <div class="buttons-wrapper">
+                        <div class="keep-buttons-left" role="toolbar" aria-label="Basic example">
+                            <button data-bind="click: getFirst" id="fast-backward" type="button" class="btn move-button">
+                                <i class="glyphicon glyphicon-fast-backward"></i>
+                            </button>
+                            <button data-bind="click: getPrevious" id="step-backward" type="button" class="btn move-button">
+                                <i class="glyphicon glyphicon-step-backward"></i>
+                            </button>
+                        </div>
+                        <div class="keep-buttons-right" role="toolbar" aria-label="Another example">
+                            <button data-bind="click: getNext" id="step-forward" type="button" class="btn move-button">
+                                <i class="glyphicon glyphicon-step-forward"></i>
+                            </button>
+                            <button data-bind="click: getLast" id="fast-forward" type="button" class="btn move-button">
+                                <i class="glyphicon glyphicon-fast-forward"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <table style="font-size: small; margin-left: -1em;" id="appointmentsTable" class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th style="display: none;">id</th>
+                                <th class="hand-on-hover" data-bind="click: sortByDate">
+                                    #{bigcopy.tableDate} <i id="appDateCri"></i>
+                                </th>
+                                <th>#{bigcopy.tableTime}</th>
+                                <th class="hand-on-hover" data-bind="click: sortByName">
+                                    #{bigcopy.tableClient} <i id="appNameCri"></i>
+                                </th>
+                                <th class="hand-on-hover" data-bind="click: sortByType">
+                                    #{bigcopy.tableType} <i id="appTypeCri"></i>
+                                </th>
+                                <th>#{bigcopy.tableMessage}</th>
+                                <th>#{bigcopy.tableEmail}</th>
+                            </tr>
+                        </thead>
+                        <tbody data-bind="foreach: appointments">
+                            <tr>
+                                <td style="display: none;" data-bind="text:id"></td>
+                                <td data-bind="text:date"></td>
+                                <td data-bind="text:time"></td>
+                                <td data-bind="text:clientName"></td>
+                                <td data-bind="text:type"></td>
+                                <td style="max-width: 15em;" data-bind="text:message"></td>
+                                <td data-bind="text:email"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>            
         </div>
     </ui:composition>
 </html>
