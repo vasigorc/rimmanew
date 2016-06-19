@@ -86,6 +86,13 @@
         }
     };
 
+    ko.bindingHandlers.placeholder = {
+        init: function (element, valueAccessor, allBindingsAccessor) {
+            var underlyingObservable = valueAccessor();
+            ko.applyBindingsToNode(element, {attr: {placeholder: underlyingObservable}});
+        }
+    };
+
 //appointments part
     sch.appointmentsModel = function (dataService) {
         var self = this;
@@ -99,7 +106,7 @@
         self.nameSortAscending = ko.observable(false);
         self.typeSortAscending = ko.observable(false);
         //this is the container for all model inputs        
-        self.showFilters=ko.observable(false);
+        self.showFilters = ko.observable(false);
         self.filters = ko.observable({
             clientName: ko.observable('').extend({
                 required: false,
@@ -117,7 +124,7 @@
             }).extend({rateLimit: 530}),
             time: ko.observable().extend({
                 required: false,
-                pattern: '([01]?[0-9]|2[0-3]):[0-5][0-9]'
+                pattern: '^([01]?[0-9]|2[0-3]):[0-5][0-9]'
             }).extend({rateLimit: 500}),
             limit: ko.observable().extend({
                 digit: true,
@@ -131,13 +138,13 @@
             }).extend({rateLimit: 600}),
             past: ko.observable(false)
         }).extend({rateLimit: 600});
-        self.newAppointment = function (){
-            self.entryAppointment(new sch.Appointment("","","","","","",""));
+        self.newAppointment = function () {
+            self.entryAppointment(new sch.EntryAppointment());
         };
-        self.saveAppointment = function (){
+        self.saveAppointment = function () {
             //TODO
         };
-        self.cancelAppointment = function(){
+        self.cancelAppointment = function () {
             self.entryAppointment(null);
         };
         self.toJSON = function () {
@@ -274,7 +281,7 @@
                 self.showButtons(data);
             });
         };
-        self.revertShowFilters = function (){
+        self.revertShowFilters = function () {
             self.showFilters(!self.showFilters());
         };
     };
