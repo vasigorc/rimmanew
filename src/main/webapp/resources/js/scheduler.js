@@ -17,7 +17,6 @@
         });
     });
 
-
 //knockout part
 //initialize the validation module
     ko.validation.init({
@@ -142,7 +141,7 @@
             self.entryAppointment(new sch.EntryAppointment());
         };
         self.saveAppointment = function () {
-            //TODO
+            dataService.createAppointment(ko.toJSON(self.entryAppointment()));
         };
         self.cancelAppointment = function () {
             self.entryAppointment(null);

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.vgorcinschi.rimmanew.rest.services;
+package com.vgorcinschi.rimmanew.rest.services.helpers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -41,7 +41,9 @@ public class JsonBodyWriter implements MessageBodyWriter<ObjectNode>{
     }
 
     @Override
-    public void writeTo(ObjectNode t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
+    public void writeTo(ObjectNode t, Class<?> type, Type genericType, 
+            Annotation[] annotations, MediaType mediaType, 
+            MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
         mapper.writer().writeValue(entityStream, t);
         entityStream.flush();
     }

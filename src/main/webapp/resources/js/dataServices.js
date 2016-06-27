@@ -19,16 +19,16 @@
             if (copy.filters.type !== undefined && copy.filters.type.length > 0) {
                 serviceURL = serviceURL.concat("&type=" + copy.filters.type);
             }
-            if(copy.filters.date !== undefined && copy.filters.date.length > 0){
+            if (copy.filters.date !== undefined && copy.filters.date.length > 0) {
                 serviceURL = serviceURL.concat("&date=" + copy.filters.date);
             }
-            if(copy.filters.time !== undefined && copy.filters.time.length > 0){
+            if (copy.filters.time !== undefined && copy.filters.time.length > 0) {
                 serviceURL = serviceURL.concat("&time=" + copy.filters.time);
             }
-            if(copy.filters.limit !== undefined && copy.filters.limit.length > 0){
+            if (copy.filters.limit !== undefined && copy.filters.limit.length > 0) {
                 serviceURL = serviceURL.concat("&size=" + copy.filters.limit);
             }
-            if(copy.filters.offset !== undefined && copy.filters.offset.length > 0){
+            if (copy.filters.offset !== undefined && copy.filters.offset.length > 0) {
                 serviceURL = serviceURL.concat("&offset=" + copy.filters.offset);
             }
             this.basicQuery(copy, serviceURL, callback);
@@ -48,6 +48,10 @@
         getFirst: function (copy, callback) {
             var serviceURL = copy.first.concat("&past=" + copy.filters.past);
             this.basicQuery(copy, serviceURL, callback);
+        },
+        createAppointment: function (data) {
+            serviceURL = sch.restServiceRoot + "/appointments";
+            this.basicPost(data, serviceURL);
         },
         basicQuery: function (copy, url, callback) {
             $.ajax({
@@ -71,6 +75,29 @@
                     callback(copy);
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
+                    var err = xhr.responseText;
+                    alert(err);
+                }
+            });
+        },
+        basicPost: function (data, url) {
+            $.ajax({
+                url: url,
+                type: 'post',
+                dataType: 'json',
+                data: data,
+                contentType: 'application/json',
+                beforeSend: function () {
+//                    $('#ajaxResponse').html("<img src='245.gif' />");
+                },
+                success: function (data) {
+//                    $('#ajaxResponse').html("<span style='color:white; background-color: green;' class='glyphicon glyphicon-ok'></span><p>" + JSON.stringify(data) + "</p>")
+//                            .fadeIn("slow");
+                    alert("Success");
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+//                    $('#ajaxResponse').html("<span style='color:white; background-color: red;' class='glyphicon glyphicon-exclamation-sign'></span><p>Status: ").append(xhr.status)
+//                            .append("</p>").fadeIn("slow");
                     var err = xhr.responseText;
                     alert(err);
                 }

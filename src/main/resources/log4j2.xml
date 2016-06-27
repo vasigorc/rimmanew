@@ -20,12 +20,13 @@
         <root level="warn">
             <appender-ref ref="Console" />
         </root>
+        <logger name="com.vgorcinschi.rimmanew.rest.services.AppointmentResourceService" 
+              level="debug" additivity="false">
+            <appender-ref ref="Console" />
+        </logger>
         <logger name="root" level="warn" additivity="false">
             <appender-ref ref="RimmaFileAppender" />
             <appender-ref ref="Console"/>
-        </logger>
-        <logger name="com.vgorcinschi" level="info">
-            <appender-ref ref="RimmaFileAppender" />
-        </logger>
+        </logger>        
     </loggers>
 </configuration>

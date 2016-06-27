@@ -16,9 +16,18 @@ import com.vgorcinschi.rimmanew.rest.services.helpers.SqlDateConverter;
 import com.vgorcinschi.rimmanew.rest.services.helpers.SqlTimeConverter;
 import com.vgorcinschi.rimmanew.util.Java8Toolkit;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToSqlDate;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import static java.time.LocalDate.of;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+import javax.json.stream.JsonGenerator;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import org.apache.logging.log4j.LogManager;
@@ -44,6 +53,8 @@ public class AppointmentResourceServiceTests {
     private final SqlDateConverter dateConverter = new SqlDateConverter();
     private final SqlTimeConverter timeConverter = new SqlTimeConverter();
     private final org.apache.logging.log4j.Logger log = LogManager.getLogger();
+    private final Map<String, Object> configs = new HashMap<>(1);
+    private final JsonBuilderFactory factory;
 
     public AppointmentResourceServiceTests() {
         OutsideContainerJpaTests tests = new OutsideContainerJpaTests();
@@ -51,6 +62,8 @@ public class AppointmentResourceServiceTests {
         this.service = new AppointmentResourceService();
         this.service.setRepository(repository);
         this.service.setFutureRepository(new OCFutureAppointmentsRepository());
+        this.configs.put(JsonGenerator.PRETTY_PRINTING, true);
+        this.factory = Json.createBuilderFactory(configs);
     }
 
     @Before
@@ -63,18 +76,34 @@ public class AppointmentResourceServiceTests {
 
     @Test(expected = BadRequestException.class)
     public void testAPastDateAttempt() {
+        JsonObject value = factory.createObjectBuilder()
+                .add("id", "")
+                .add("date",
+                        Java8Toolkit.localToSqlDate(LocalDate.of(2014, 01, 12)).toString())
+                .add("time", "15:00")
+                .add("type", "massage")
+                .add("clientName", "Rimma")
+                .add("email", "valid@email.ca")
+                .add("message", "any").build();
         log.info("Running the test testAPastDateAttempt");
-        service.bookAppointment(Java8Toolkit.localToSqlDate(LocalDate.of(2014, 01, 12)),
-                "15:00", "massage", "Rimma",
-                "valid@email.ca", "any");
+        InputStream is = new ByteArrayInputStream(value.toString().getBytes());
+        service.bookAppointment(is);
     }
 
     @Test
     public void testADateMoreThen3MonthsInTheFuture() {
         try {
-            service.bookAppointment(Java8Toolkit.localToSqlDate(LocalDate.of(2019, 01, 12)),
-                    "15:00", "massage", "Rimma",
-                    "valid@email.ca", "any");
+            JsonObject value = factory.createObjectBuilder()
+                    .add("id", "")
+                    .add("date",
+                            Java8Toolkit.localToSqlDate(LocalDate.of(2019, 01, 12)).toString())
+                    .add("time", "15:00")
+                    .add("type", "massage")
+                    .add("clientName", "Rimma")
+                    .add("email", "valid@email.ca")
+                    .add("message", "any").build();
+            InputStream is = new ByteArrayInputStream(value.toString().getBytes());
+            service.bookAppointment(is);
         } catch (BadRequestException e) {
             assertEquals(e.getMessage(), "You cannot take appointment on a "
                     + "past date or on a day which is 3+ months in the future.");
@@ -84,10 +113,17 @@ public class AppointmentResourceServiceTests {
     @Test
     public void testAnEmptyClientName() {
         try {
-            service.bookAppointment(
-                    Java8Toolkit.localToSqlDate(LocalDate.now().plusMonths(2)),
-                    "15:00", "massage", "",
-                    "valid@email.ca", "any");
+            JsonObject value = factory.createObjectBuilder()
+                    .add("id", "")
+                    .add("date",
+                            Java8Toolkit.localToSqlDate(LocalDate.now().plusMonths(2)).toString())
+                    .add("time", "15:00")
+                    .add("type", "massage")
+                    .add("clientName", "Rimma")
+                    .add("email", "valid@email.ca")
+                    .add("message", "any").build();
+            InputStream is = new ByteArrayInputStream(value.toString().getBytes());
+            service.bookAppointment(is);
         } catch (BadRequestException e) {
             assertEquals(e.getMessage(), "The request has been rejected because "
                     + "you have not provided either type of appointment, client "
@@ -97,10 +133,18 @@ public class AppointmentResourceServiceTests {
 
     @Test//(expected = InternalServerErrorException.class)
     public void integrationTestException() {
-        System.out.println(service.bookAppointment(
-                Java8Toolkit.localToSqlDate(LocalDate.now().plusDays((long) new Random().nextInt(90))),
-                "15:00", "massage", "Rimma",
-                "valid@email.ca", "any").getEntity().toString());
+        JsonObject value = factory.createObjectBuilder()
+                .add("id", "")
+                .add("date",
+                        Java8Toolkit.localToSqlDate(LocalDate.now()
+                                .plusDays((long) new Random().nextInt(90))).toString())
+                .add("time", "15:00")
+                .add("type", "massage")
+                .add("clientName", "Rimma")
+                .add("email", "valid@email.ca")
+                .add("message", "any").build();
+        InputStream is = new ByteArrayInputStream(value.toString().getBytes());
+        System.out.println(service.bookAppointment(is).getEntity().toString());
     }
 
     @Test
@@ -151,15 +195,16 @@ public class AppointmentResourceServiceTests {
 
     @Test
     public void updateAppointmentTest() {
-        Response response = service.updateAppointment(35, localToSqlDate(of(2016, 05, 19)),
+        java.sql.Date date = localToSqlDate(of(2016, 9, 19));
+        Response response = service.updateAppointment(35, date,
                 "15:00", "waxing",
                 "Filotropia", "some@email.ca", "", "false", "false");
         assertTrue(response.getEntity().toString().contains("link"));
-        System.out.println("\nupdateAppointmentTest:\n" + response.getEntity().toString()+"\n");
+        System.out.println("\nupdateAppointmentTest:\n" + response.getEntity().toString() + "\n");
     }
-    
+
     @Test
-    public void getOnlyFutureAppointmentsTest() throws JsonProcessingException{
+    public void getOnlyFutureAppointmentsTest() throws JsonProcessingException {
         Response response = service.getAppointments("", "", "", "", 0, 5,
                 "false", "false");
         ObjectMapper mapper = new ObjectMapper();

@@ -14,14 +14,6 @@
         if (init === undefined) {
             sch.Appointment.call(this, "", "", "", "", "", "", "");
         }
-        this.clientName.extend({
-            required: true,
-            minLength: 4,
-            maxLength: 20
-        }).extend({rateLimit: 500});
-        this.type.extend({
-            required: true
-        }).extend({rateLimit: 500});
         this.date.extend({
             required: true,
             date: true,
@@ -30,6 +22,14 @@
         this.time.extend({
             required: true,
             pattern: '^([01]?[0-9]|2[0-3]):[0-5][0-9]'
+        }).extend({rateLimit: 500});
+        this.type.extend({
+            required: true
+        }).extend({rateLimit: 500});
+        this.clientName.extend({
+            required: true,
+            minLength: 4,
+            maxLength: 20
         }).extend({rateLimit: 500});
         this.email.extend({
             required: true,

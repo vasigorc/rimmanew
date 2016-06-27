@@ -14,6 +14,7 @@ import com.vgorcinschi.rimmanew.annotations.JpaFutureRepository;
 import com.vgorcinschi.rimmanew.annotations.JpaRepository;
 import com.vgorcinschi.rimmanew.ejbs.AppointmentRepository;
 import com.vgorcinschi.rimmanew.entities.Appointment;
+import com.vgorcinschi.rimmanew.rest.services.helpers.AppointmentCandidate;
 import com.vgorcinschi.rimmanew.rest.services.helpers.GenericBaseJaxbListWrapper;
 import com.vgorcinschi.rimmanew.rest.services.helpers.JaxbAppointmentListWrapperBuilder;
 import com.vgorcinschi.rimmanew.rest.services.helpers.SqlDateConverter;
@@ -27,7 +28,8 @@ import static com.vgorcinschi.rimmanew.util.InputValidators.validStringsAreTrueO
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.appsUriBuilder;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToSqlDate;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.uriGenerator;
-import static java.lang.Boolean.valueOf;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Date;
 import java.sql.Time;
 import java.time.LocalDate;
@@ -106,17 +108,24 @@ public class AppointmentResourceService {
 
     @POST
     @Produces("application/json")
-    @Consumes("application/x-www-form-urlencoded")
-    public Response bookAppointment(@FormParam("date") Date appDate,
-            @FormParam("time") String appTime, @FormParam("type") String appType,
-            @FormParam("clientName") String clientName, @FormParam("email") String clientEmail,
-            @DefaultValue("") @FormParam("message") String clientMsg) {
-        //externalize the validation of all fields to concentrate on "positive"
-        //scenario only
-        validator(appDate, appType, clientName, clientEmail);
-        Time converted = new SqlTimeConverter().fromString(appTime);
-        Appointment appointment = build(new Appointment(), appDate, converted, appType, clientName,
-                clientEmail, clientMsg, false, false);
+    @Consumes("application/json")
+    public Response bookAppointment(InputStream stream) {
+        ObjectMapper mapper = new ObjectMapper();
+        AppointmentCandidate candidate = new AppointmentCandidate();
+        try {
+            candidate = mapper.readValue(stream, AppointmentCandidate.class);
+        } catch (IOException e) {
+            log.error("Could not 'objectify' an incoming Appointment Candidate: "
+                    + "" + stream.toString() + ": " + e.getMessage());
+        }
+        log.info("New appointment candidate sent to the system: " + candidate.toString());
+        //check all fields first
+        validator(candidate.appDate, candidate.appType, candidate.clientName,
+                candidate.clientEmail);
+        Time converted = new SqlTimeConverter().fromString(candidate.time);
+        Appointment appointment = build(new Appointment(), candidate.appDate,
+                converted, candidate.appType, candidate.clientName,
+                candidate.clientEmail, candidate.clientMsg, false, false);
         try {
             repository.add(appointment);
             //parameters for the return link
