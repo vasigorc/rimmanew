@@ -49,9 +49,9 @@
             var serviceURL = copy.first.concat("&past=" + copy.filters.past);
             this.basicQuery(copy, serviceURL, callback);
         },
-        createAppointment: function (data) {
+        createAppointment: function (data, callback) {
             serviceURL = sch.restServiceRoot + "/appointments";
-            this.basicPost(data, serviceURL);
+            this.basicPost(data, serviceURL, callback);
         },
         basicQuery: function (copy, url, callback) {
             $.ajax({
@@ -80,7 +80,7 @@
                 }
             });
         },
-        basicPost: function (data, url) {
+        basicPost: function (data, url, callback) {
             $.ajax({
                 url: url,
                 type: 'post',
@@ -91,15 +91,11 @@
 //                    $('#ajaxResponse').html("<img src='245.gif' />");
                 },
                 success: function (data) {
-//                    $('#ajaxResponse').html("<span style='color:white; background-color: green;' class='glyphicon glyphicon-ok'></span><p>" + JSON.stringify(data) + "</p>")
-//                            .fadeIn("slow");
-                    alert("Success");
+                    callback("saved", null);
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
-//                    $('#ajaxResponse').html("<span style='color:white; background-color: red;' class='glyphicon glyphicon-exclamation-sign'></span><p>Status: ").append(xhr.status)
-//                            .append("</p>").fadeIn("slow");
                     var err = xhr.responseText;
-                    alert(err);
+                    callback("failed", err);
                 }
             });
         }
