@@ -104,8 +104,8 @@
         self.dateSortAscending = ko.observable(false);
         self.nameSortAscending = ko.observable(false);
         self.typeSortAscending = ko.observable(false);
-        //this is the container for all model inputs        
         self.showFilters = ko.observable(false);
+        //this is the container for all model inputs        
         self.filters = ko.observable({
             clientName: ko.observable('').extend({
                 required: false,
@@ -147,7 +147,6 @@
                     , function (action, errorMsg) {
                         //1. remove the entry form 2. show the modal 3. update
                         //the table
-                        console.log(errorMsg);
                         if (action === "saved" || action === "updated") {
                             if (sch.currentLocale.includes("fr")) {
                                 $('#persistOpsTitle').text("Success!");

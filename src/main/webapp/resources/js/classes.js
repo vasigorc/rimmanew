@@ -9,6 +9,11 @@
         this.clientName = ko.observable(clientName);
         this.email = ko.observable(email);
         this.message = ko.observable(message);
+        var self = this;
+        self.displayEdits = ko.observable(false);
+        self.toggleEdits = function () {
+            self.displayEdits(!self.displayEdits());
+        };
     };
     sch.EntryAppointment = function (init) {
         if (init === undefined) {
