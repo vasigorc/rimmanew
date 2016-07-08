@@ -18,6 +18,9 @@
     sch.EntryAppointment = function (init) {
         if (init === undefined) {
             sch.Appointment.call(this, "", "", "", "", "", "", "");
+        } else {
+            sch.Appointment.call(this, init.id, init.date, init.time, init.type,
+                    init.clientName, init.email, init.message);
         }
         this.date.extend({
             required: true,

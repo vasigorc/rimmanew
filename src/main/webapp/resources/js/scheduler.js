@@ -140,6 +140,10 @@
         self.newAppointment = function () {
             self.entryAppointment(new sch.EntryAppointment());
         };
+        self.editAppointment = function(appointment){
+            appointment.toggleEdits();
+            self.entryAppointment(ko.toJS(appointment));
+        },
         self.saveAppointment = function () {
             //remove failure alert if activated
             $('#failureAlert').css("display", "none");
