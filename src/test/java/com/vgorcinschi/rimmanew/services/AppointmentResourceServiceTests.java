@@ -18,7 +18,6 @@ import com.vgorcinschi.rimmanew.util.Java8Toolkit;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToSqlDate;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import static java.time.LocalDate.of;
 import java.util.HashMap;
@@ -195,10 +194,21 @@ public class AppointmentResourceServiceTests {
 
     @Test
     public void updateAppointmentTest() {
+        JsonObject value = factory.createObjectBuilder()
+                .add("id", "35")
+                .add("date",
+                        Java8Toolkit.localToSqlDate(LocalDate.now()
+                                .plusDays((long) new Random().nextInt(90))).toString())
+                .add("time", "15:00")
+                .add("type", "massage")
+                .add("clientName", "Rimma")
+                .add("email", "valid@email.ca")
+                .add("message", "any")
+                .add("past", "false")
+                .add("noShow", "false").build();
+        InputStream is = new ByteArrayInputStream(value.toString().getBytes());
         java.sql.Date date = localToSqlDate(of(2016, 9, 19));
-        Response response = service.updateAppointment(35, date,
-                "15:00", "waxing",
-                "Filotropia", "some@email.ca", "", "false", "false");
+        Response response = service.updateAppointment(35, is);
         assertTrue(response.getEntity().toString().contains("link"));
         System.out.println("\nupdateAppointmentTest:\n" + response.getEntity().toString() + "\n");
     }

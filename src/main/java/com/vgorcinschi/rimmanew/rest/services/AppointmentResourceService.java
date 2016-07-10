@@ -54,7 +54,6 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
@@ -143,29 +142,36 @@ public class AppointmentResourceService {
     @PUT
     @Path("{id}")
     @Produces("application/json")
-    @Consumes("application/x-www-form-urlencoded")
+    @Consumes("application/json")
     public Response updateAppointment(@PathParam("id") int id,
-            @FormParam("date") Date appDate, @FormParam("time") String appTime,
-            @FormParam("type") String appType, @FormParam("clientName") String clientName,
-            @FormParam("email") String clientEmail, @DefaultValue("")
-            @FormParam("message") String clientMsg, @DefaultValue("false")
-            @FormParam("past") String past, @DefaultValue("false")
-            @FormParam("noShow") String noShow) {
+            InputStream stream) {
+        ObjectMapper mapper = new ObjectMapper();
+        AppointmentCandidate candidate = new AppointmentCandidate();
+        try {
+            candidate = mapper.readValue(stream, AppointmentCandidate.class);
+        } catch (IOException e) {
+            log.error("Could not 'objectify' an incoming Appointment Candidate: "
+                    + "" + stream.toString() + ": " + e.getMessage());
+        }
         if (Integer.valueOf(id) == null) {
             throw new BadRequestException("The id of the "
                     + "appointment that you wish to modify hasn't been provided.");
         }
-        //externalize the validation of all fields to concentrate on "positive"
-        //scenario only
-        statusValidator(appDate, appType, clientName, clientEmail, past, noShow);
-        Time converted = new SqlTimeConverter().fromString(appTime);
+        log.info("New appointment update request received for: "
+                + "" + candidate.toString() + " .\n"
+                + "Appointment id: " + id);
+        //check all fields first
+        statusValidator(candidate.appDate, candidate.appType, candidate.clientName, 
+                candidate.clientEmail, candidate.past, candidate.noShow);
+        Time converted = new SqlTimeConverter().fromString(candidate.time);
         //here it is safe to convert strings to boolean
-        boolean booleanPast = Boolean.parseBoolean(past);
-        boolean booleanNoShow = Boolean.parseBoolean(noShow);
+        boolean booleanPast = Boolean.parseBoolean(candidate.past);
+        boolean booleanNoShow = Boolean.parseBoolean(candidate.noShow);
         Appointment appointment = repository.get(id);
         if (ofNullable(appointment).isPresent()) {
-            repository.update(build(appointment, appDate, converted, appType, clientName,
-                    clientEmail, clientMsg, booleanPast, booleanNoShow));
+            repository.update(build(appointment, candidate.appDate, converted, 
+                    candidate.appType, candidate.clientName,
+                    candidate.clientEmail, candidate.clientMsg, booleanPast, booleanNoShow));
             //parameters for the return link
             Map<String, String> map = new HashMap<>();
             map.put("path", "appointments/" + Integer.toString(id));
@@ -204,7 +210,7 @@ public class AppointmentResourceService {
         }
         boolean booleanPast = Boolean.parseBoolean(past);
         //now we should be ready to call the triage class that will designate
-        //the main query that will be called from repository 
+        //the main query that will be called from repository
         AppointmentsQueryCandidatesTriage triage = new AppointmentsQueryCandidatesTriage(appDate,
                 appTime, appType, clientName);
         //as it is possible that none of the Appointment params are specified the return type is Optional
@@ -240,7 +246,7 @@ public class AppointmentResourceService {
                 checkedParameters.put(k, v);
             }
         });
-        //we will replace the strings with Date and Time objects for further calcs        
+        //we will replace the strings with Date and Time objects for further calcs
         if (ofNullable(timeConverted).isPresent()) {
             checkedParameters.put("time", timeConverted);
         }
@@ -259,7 +265,7 @@ public class AppointmentResourceService {
                     + "too long to grab the results. Please contact the support team;");
         }
         /*
-         we need to remove from checkedParameters 
+         we need to remove from checkedParameters
          the parameters from the winning QueryCandidate
          since later have already been used for filtering by JPARepository
          */
@@ -281,7 +287,7 @@ public class AppointmentResourceService {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
         String output;
-        //if the list.size() ==0 return a corresponding Response        
+        //if the list.size() ==0 return a corresponding Response
         if (initialSelection.isEmpty()) {
             /*
              first params is the "answer" size, which in this case is 0
@@ -300,8 +306,8 @@ public class AppointmentResourceService {
             return Response.ok(output).build();
         } else {
             /*
-             we'll do the forEach on unusedKeys to get the value from 
-             checkedParameters to filter initialSelection.stream() 
+             we'll do the forEach on unusedKeys to get the value from
+             checkedParameters to filter initialSelection.stream()
              with the remaining keys of checkedParameters
              collect toList() and proceed with th rest of the code
              */

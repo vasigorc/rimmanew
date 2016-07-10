@@ -1,7 +1,8 @@
 /* global ko */
 
 (function (sch, $, ko) {
-    sch.Appointment = function (id, date, time, type, clientName, email, message) {
+    sch.Appointment = function (id, date, time, type, clientName, email, message
+            , past, noShow) {
         this.id = ko.observable(id);
         this.date = ko.observable(date);
         this.time = ko.observable(time.substring(0, time.length - 3));
@@ -9,6 +10,8 @@
         this.clientName = ko.observable(clientName);
         this.email = ko.observable(email);
         this.message = ko.observable(message);
+        this.past = ko.observable(past);
+        this.noShow = ko.observable(noShow);
         var self = this;
         self.displayEdits = ko.observable(false);
         self.toggleEdits = function () {
@@ -17,10 +20,10 @@
     };
     sch.EntryAppointment = function (init) {
         if (init === undefined) {
-            sch.Appointment.call(this, "", "", "", "", "", "", "");
+            sch.Appointment.call(this, "", "", "", "", "", "", "", false, false);
         } else {
             sch.Appointment.call(this, init.id, init.date, init.time, init.type,
-                    init.clientName, init.email, init.message);
+                    init.clientName, init.email, init.message || "", init.past, init.noShow);
         }
         this.date.extend({
             required: true,

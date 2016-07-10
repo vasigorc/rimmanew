@@ -22,7 +22,7 @@ public class AppointmentCandidate {
 
     public int id;
     public Date appDate;
-    public String time, appType, clientName, clientEmail, clientMsg;
+    public String time, appType, clientName, clientEmail, clientMsg, past, noShow;
 
     public AppointmentCandidate() {
     }
@@ -95,12 +95,34 @@ public class AppointmentCandidate {
         this.clientMsg = clientMsg;
     }
 
+    @JsonProperty
+    public String isPast() {
+        return past;
+    }
+
+    public void setPast(String past) {
+        this.past = past;
+    }
+
+    @JsonProperty
+    public String isNoShow() {
+        return noShow;
+    }
+
+    public void setNoShow(String noShow) {
+        this.noShow = noShow;
+    }
+
     @Override
     public String toString() {
         return (this.appDate == null) ? this.clientName + ": " + ", at " + this.time
-                + "\nComing for a " + this.appType + ". Email: " + this.clientEmail + ((stringNotNullNorEmpty.apply(this.clientMsg) ? "\nThis is"
-                        + " their message: " + this.clientMsg : "")) : this.clientName + ": " + this.appDate.toLocalDate() + ", at " + this.time
-                + "\nComing for a " + this.appType + ". Email: " + this.clientEmail + ((stringNotNullNorEmpty.apply(this.clientMsg) ? "\nThis is"
+                + "\nComing for a " + this.appType + ". Email: "
+                + this.clientEmail + ((stringNotNullNorEmpty.apply(this.clientMsg)
+                        ? "\nThis is"
+                        + " their message: " + this.clientMsg : "")) : this.clientName
+                + ": " + this.appDate.toLocalDate() + ", at " + this.time
+                + "\nComing for a " + this.appType + ". Email: " + this.clientEmail
+                + ((stringNotNullNorEmpty.apply(this.clientMsg) ? "\nThis is"
                         + " their message: " + this.clientMsg : ""));
     }
 

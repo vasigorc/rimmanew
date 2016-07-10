@@ -140,46 +140,74 @@
         self.newAppointment = function () {
             self.entryAppointment(new sch.EntryAppointment());
         };
-        self.editAppointment = function(appointment){
+        self.editAppointment = function (appointment) {
             appointment.toggleEdits();
             self.entryAppointment(ko.toJS(appointment));
         },
-        self.saveAppointment = function () {
-            //remove failure alert if activated
-            $('#failureAlert').css("display", "none");
-            dataService.createAppointment(ko.toJSON(self.entryAppointment())
-                    , function (action, errorMsg) {
-                        //1. remove the entry form 2. show the modal 3. update
-                        //the table
-                        if (action === "saved" || action === "updated") {
-                            if (sch.currentLocale.includes("fr")) {
-                                $('#persistOpsTitle').text("Success!");
-                                action === "saved" ? $('#persistOpsOutcome').text(" Le nouveau rendez-vous \n\
-                            a été enregistré pour " + self.entryAppointment().clientName()) :
-                                        $('#persistOpsOutcome').text(" Le rendez-vous \n\
+                self.saveAppointment = function () {
+                    //remove failure alert if activated
+                    $('#failureAlert').css("display", "none");
+                    var appCandidate = ko.toJS(self.entryAppointment());
+                    delete appCandidate.displayEdits;
+                    delete appCandidate.toggleEdits;
+                    delete appCandidate.self;
+                    if (appCandidate.id === "" || null) {
+                        dataService.createAppointment(ko.toJSON(appCandidate)
+                                , function (action, errorMsg) {
+                                    //1. remove the entry form 2. show the modal 3. update
+                                    //the table
+                                    if (action === "saved") {
+                                        if (sch.currentLocale.includes("fr")) {
+                                            $('#persistOpsTitle').text("Success!");
+                                            $('#persistOpsOutcome').text(" Le rendez-vous \n\
                             a été mis à jour pour " + self.entryAppointment().clientName());
-                            } else if (sch.currentLocale.includes("ru")) {
-                                $('#persistOpsTitle').text("Сохранено!");
-                                action === "saved" ? $('#persistOpsOutcome').text(" Новая запись \n\
-                            сохранена для " + self.entryAppointment().clientName()) :
-                                        $('#persistOpsOutcome').text(" Запись \n\
+                                        } else if (sch.currentLocale.includes("ru")) {
+                                            $('#persistOpsTitle').text("Сохранено!");
+                                            $('#persistOpsOutcome').text(" Запись \n\
                             обнавлена для " + self.entryAppointment().clientName());
-                            } else {
-                                $('#persistOpsTitle').text("Success");
-                                action === "saved" ? $('#persistOpsOutcome').text(" The new appointment \n\
-                            was saved for " + self.entryAppointment().clientName()) :
-                                        $('#persistOpsOutcome').text(" The appointment \n\
+                                        } else {
+                                            $('#persistOpsTitle').text("Success");
+                                            $('#persistOpsOutcome').text(" The appointment \n\
                             was updated for " + self.entryAppointment().clientName());
-                            }
-                            self.entryAppointment(null);
-                            $('#successAlert').css("display", "block").delay(3000).fadeOut();
-                            self.updateView();
-                        } else if (action === "failed") {
-                            $('#requestErrorMsg').text(" " + errorMsg);
-                            $('#failureAlert').css("display", "block");
-                        }
-                    });
-        };
+                                        }
+                                        self.entryAppointment(null);
+                                        $('#successAlert').css("display", "block").delay(3000).fadeOut();
+                                        self.updateView();
+                                    } else if (action === "failed") {
+                                        $('#requestErrorMsg').text(" " + errorMsg);
+                                        $('#failureAlert').css("display", "block");
+                                    }
+                                });
+                    } else {
+                        dataService.updateAppointment(ko.toJSON(appCandidate),
+                                appCandidate.id, function (action, errorMsg) {
+                                    //1. remove the entry form 2. show the modal 3. update
+                                    //the table
+                                    if (action === "updated") {
+                                        if (sch.currentLocale.includes("fr")) {
+                                            $('#persistOpsTitle').text("Success!");
+                                            $('#persistOpsOutcome').text(" Le rendez-vous \n\
+                            a été mis à jour pour " + self.entryAppointment().clientName);
+                                        } else if (sch.currentLocale.includes("ru")) {
+                                            $('#persistOpsTitle').text("Сохранено!");
+                                            $('#persistOpsOutcome').text(" Запись \n\
+                            обнавлена для " + self.entryAppointment().clientName);
+                                        } else {
+                                            $('#persistOpsTitle').text("Success");
+                                            $('#persistOpsOutcome').text(" The appointment \n\
+                            was updated for " + self.entryAppointment().clientName);
+                                        }
+                                        self.entryAppointment(null);
+                                        $('#successAlert').css("display", "block").delay(3000).fadeOut();
+                                        self.updateView();
+                                    } else if (action === "failed") {
+                                        $('#requestErrorMsg').text(" " + errorMsg);
+                                        $('#failureAlert').css("display", "block");
+                                    }
+                                });
+                    }
+
+                };
         self.cancelAppointment = function () {
             self.entryAppointment(null);
         };
