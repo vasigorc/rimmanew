@@ -12,8 +12,9 @@
         <h:outputStylesheet library="css/bootstrap" name="bootstrap.css"/>
         <h:outputStylesheet library="css" name="toggle-switch.css"/>
         <h:outputStylesheet library="css" name="schedulerPage.css"/>
-        <script type="text/javascript" src="#{request.contextPath}/resources/js/jquery-1.11.3.min.js"></script>
-
+        <h:outputStylesheet library="css/jquery" name="jquery-ui.min.css"/>
+        <script type="text/javascript" src="#{request.contextPath}/resources/js/jquery/jquery-1.11.3.min.js"></script>
+        <h:outputScript library="js/jquery" name="jquery-ui.min.js"/>
     </head>
     <body>
         <h:inputHidden id="pageLocale" value="#{scheduleManagementBean.displayLanguage}"></h:inputHidden>
@@ -41,6 +42,7 @@
         <div class="row" data-bind="fadeVisible: selectedScope()==='#{bigcopy.specialDaysLabel}'">
             <ui:include src="../includes/specdaysManagement.xhtml"/>
         </div>
+        
         <script type="text/javascript" src="#{request.contextPath}/resources/js/knockout-3.3.0.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/js/knockout.validation.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/js/ko-validation-locales/en-US.js"></script>

@@ -15,6 +15,20 @@
                 }
             });
         });
+        $("#deleteDialog").dialog({
+            autoOpen: false,
+            closeOnEscape: true,
+            modal: true,
+            position: {my: "center", at: "center", of: window},
+            buttons: {
+                "Ok": function () {
+                    appmodel.deleteAppointment();
+                },
+                "Annuler": function () {
+                    $(this).dialog("close");
+                }
+            }
+        });
     });
 
 //knockout part
@@ -105,6 +119,7 @@
         self.nameSortAscending = ko.observable(false);
         self.typeSortAscending = ko.observable(false);
         self.showFilters = ko.observable(false);
+        self.deleteCandidateId = '';
         //this is the container for all model inputs        
         self.filters = ko.observable({
             clientName: ko.observable('').extend({
@@ -160,15 +175,15 @@
                                         if (sch.currentLocale.includes("fr")) {
                                             $('#persistOpsTitle').text("Success!");
                                             $('#persistOpsOutcome').text(" Le rendez-vous \n\
-                            a été mis à jour pour " + self.entryAppointment().clientName());
+            a été mis à jour pour " + self.entryAppointment().clientName());
                                         } else if (sch.currentLocale.includes("ru")) {
                                             $('#persistOpsTitle').text("Сохранено!");
                                             $('#persistOpsOutcome').text(" Запись \n\
-                            обнавлена для " + self.entryAppointment().clientName());
+            обнавлена для " + self.entryAppointment().clientName());
                                         } else {
                                             $('#persistOpsTitle').text("Success");
                                             $('#persistOpsOutcome').text(" The appointment \n\
-                            was updated for " + self.entryAppointment().clientName());
+            was updated for " + self.entryAppointment().clientName());
                                         }
                                         self.entryAppointment(null);
                                         $('#successAlert').css("display", "block").delay(3000).fadeOut();
@@ -187,15 +202,15 @@
                                         if (sch.currentLocale.includes("fr")) {
                                             $('#persistOpsTitle').text("Success!");
                                             $('#persistOpsOutcome').text(" Le rendez-vous \n\
-                            a été mis à jour pour " + self.entryAppointment().clientName);
+            a été mis à jour pour " + self.entryAppointment().clientName);
                                         } else if (sch.currentLocale.includes("ru")) {
                                             $('#persistOpsTitle').text("Сохранено!");
                                             $('#persistOpsOutcome').text(" Запись \n\
-                            обнавлена для " + self.entryAppointment().clientName);
+            обнавлена для " + self.entryAppointment().clientName);
                                         } else {
                                             $('#persistOpsTitle').text("Success");
                                             $('#persistOpsOutcome').text(" The appointment \n\
-                            was updated for " + self.entryAppointment().clientName);
+            was updated for " + self.entryAppointment().clientName);
                                         }
                                         self.entryAppointment(null);
                                         $('#successAlert').css("display", "block").delay(3000).fadeOut();
@@ -208,6 +223,14 @@
                     }
 
                 };
+        self.deleteAppointment = function () {
+            //todo
+            console.log("Preparing to delete the appointment with the id: " + self.deleteCandidateId)
+        };
+        self.popDelete = function (appointment) {
+            $("#deleteDialog").dialog("open");
+            self.deleteCandidateId = ko.toJS(appointment).id;
+        };
         self.cancelAppointment = function () {
             self.entryAppointment(null);
         };
@@ -350,5 +373,6 @@
         };
     };
     ko.applyBindings(scopeModel);
-    ko.applyBindings(new sch.appointmentsModel(sch.AppointmentsService), document.getElementById("appointmentsModel"));
+    var appmodel = new sch.appointmentsModel(sch.AppointmentsService);
+    ko.applyBindings(appmodel, document.getElementById("appointmentsModel"));
 })(window.sch = window.sch || {}, jQuery, ko);
