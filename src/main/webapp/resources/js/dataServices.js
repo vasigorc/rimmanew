@@ -53,9 +53,13 @@
             serviceURL = sch.restServiceRoot + "/appointments";
             this.basicPost(data, serviceURL, callback);
         },
-        updateAppointment: function(data, appointmentId, callback){
-            serviceURL = sch.restServiceRoot + "/appointments/"+appointmentId;
+        updateAppointment: function (data, appointmentId, callback) {
+            serviceURL = sch.restServiceRoot + "/appointments/" + appointmentId;
             this.basicPut(data, serviceURL, callback);
+        },
+        deleteAppointment: function (appointmentId, callback) {
+            serviceURL = sch.restServiceRoot + "/appointments/" + appointmentId;
+            this.basicDelete(serviceURL, appointmentId, callback);
         },
         basicQuery: function (copy, url, callback) {
             $.ajax({
@@ -91,9 +95,6 @@
                 dataType: 'json',
                 data: data,
                 contentType: 'application/json',
-                beforeSend: function () {
-//                    $('#ajaxResponse').html("<img src='245.gif' />");
-                },
                 success: function (data) {
                     callback("saved", null);
                 },
@@ -109,15 +110,26 @@
                 dataType: 'json',
                 data: data,
                 contentType: 'application/json',
-                beforeSend: function () {
-//                    $('#ajaxResponse').html("<img src='245.gif' />");
-                },
                 success: function (data) {
                     callback("updated", null);
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     var err = xhr.responseText;
                     callback("failed", err);
+                }
+            });
+        }, basicDelete: function (url, appId, callback) {
+            $.ajax({
+                url: url,
+                type: 'delete',
+                dataType: 'json',
+                contentType: 'application/json',
+                success: function (data) {
+                    callback("deleted", null, appId);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    var err = xhr.responseText;
+                    callback("failed", err, appId);
                 }
             });
         }

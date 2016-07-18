@@ -15,6 +15,7 @@
                 }
             });
         });
+        //the warning modal before deleting an appointment
         $("#deleteDialog").dialog({
             autoOpen: false,
             closeOnEscape: true,
@@ -23,10 +24,23 @@
             buttons: {
                 "Ok": function () {
                     appmodel.deleteAppointment();
+                    $(this).dialog("close");
                 },
                 "Annuler": function () {
                     $(this).dialog("close");
                 }
+            },
+            hide: {effect: "fadeOut", duration: 750},
+            fluid: true,
+            resizable: true,
+            height: 'auto',
+            width: 'auto', // overcomes width:'auto' and maxWidth bug
+            maxWidth: 600,
+            open: function () {
+                $('.ui-widget-overlay').addClass('custom-overlay');
+            },
+            close: function () {
+                $('.ui-widget-overlay').removeClass('custom-overlay');
             }
         });
     });
@@ -42,15 +56,6 @@
         messageTemplate: null,
         errorClass: "has-error"
     }, true);
-
-    sch.currentLocale = $('#pageLocale').val();
-    if (sch.currentLocale.includes("fr")) {
-        ko.validation.locale('fr-FR');
-    } else if (sch.currentLocale.includes("ru")) {
-        ko.validation.locale('ru-RU');
-    } else {
-        ko.validation.locale('en-US');
-    }
 
     ko.bindingHandlers.stopBinding = {
         init: function () {
@@ -172,19 +177,9 @@
                                     //1. remove the entry form 2. show the modal 3. update
                                     //the table
                                     if (action === "saved") {
-                                        if (sch.currentLocale.includes("fr")) {
-                                            $('#persistOpsTitle').text("Success!");
-                                            $('#persistOpsOutcome').text(" Le rendez-vous \n\
-            a été mis à jour pour " + self.entryAppointment().clientName());
-                                        } else if (sch.currentLocale.includes("ru")) {
-                                            $('#persistOpsTitle').text("Сохранено!");
-                                            $('#persistOpsOutcome').text(" Запись \n\
-            обнавлена для " + self.entryAppointment().clientName());
-                                        } else {
-                                            $('#persistOpsTitle').text("Success");
-                                            $('#persistOpsOutcome').text(" The appointment \n\
-            was updated for " + self.entryAppointment().clientName());
-                                        }
+                                        $('#persistOpsTitle').text(sch.appointmentLabels.get("success"));
+                                        $('#persistOpsOutcome')
+                                                .text(sch.appointmentLabels.get("saved") + self.entryAppointment().clientName());
                                         self.entryAppointment(null);
                                         $('#successAlert').css("display", "block").delay(3000).fadeOut();
                                         self.updateView();
@@ -199,19 +194,9 @@
                                     //1. remove the entry form 2. show the modal 3. update
                                     //the table
                                     if (action === "updated") {
-                                        if (sch.currentLocale.includes("fr")) {
-                                            $('#persistOpsTitle').text("Success!");
-                                            $('#persistOpsOutcome').text(" Le rendez-vous \n\
-            a été mis à jour pour " + self.entryAppointment().clientName);
-                                        } else if (sch.currentLocale.includes("ru")) {
-                                            $('#persistOpsTitle').text("Сохранено!");
-                                            $('#persistOpsOutcome').text(" Запись \n\
-            обнавлена для " + self.entryAppointment().clientName);
-                                        } else {
-                                            $('#persistOpsTitle').text("Success");
-                                            $('#persistOpsOutcome').text(" The appointment \n\
-            was updated for " + self.entryAppointment().clientName);
-                                        }
+                                        $('#persistOpsTitle').text(sch.appointmentLabels.get("success"));
+                                        $('#persistOpsOutcome')
+                                                .text(sch.appointmentLabels.get("updated") + self.entryAppointment().clientName);
                                         self.entryAppointment(null);
                                         $('#successAlert').css("display", "block").delay(3000).fadeOut();
                                         self.updateView();
@@ -224,8 +209,21 @@
 
                 };
         self.deleteAppointment = function () {
-            //todo
+            $('#failureAlert').css("display", "none");
             console.log("Preparing to delete the appointment with the id: " + self.deleteCandidateId)
+            dataService.deleteAppointment(self.deleteCandidateId, function (action,
+                    errorMsg, appId) {
+                //TODO
+                if (action === "deleted") {
+                    $('#persistOpsOutcome').text(sch.appointmentLabels.get("deleted1")
+                            + appId + sch.appointmentLabels.get("deleted2"));
+                    $('#successAlert').css("display", "block").delay(3000).fadeOut();
+                    self.updateView();
+                } else if (action === "failed") {
+                    $('#requestErrorMsg').text(" " + errorMsg);
+                    $('#failureAlert').css("display", "block");
+                }
+            });
         };
         self.popDelete = function (appointment) {
             $("#deleteDialog").dialog("open");
