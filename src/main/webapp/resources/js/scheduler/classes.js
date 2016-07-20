@@ -52,4 +52,17 @@
     };
     sch.EntryAppointment.prototype = Object.create(sch.Appointment.prototype);
     sch.EntryAppointment.prototype.constructor = sch.EntryAppointment;
+    
+    sch.SpecialDay = function(id, date, startAt, endAt, breakStart, breakEnd
+            ,duration, blocked, message){
+        this.id = ko.observable(id);
+        this.date = ko.observable(date);
+        this.startAt = ko.observable(startAt);
+        this.endAt = ko.observable(endAt);
+        this.breakStart = ko.observable(breakStart);
+        this.breakEnd = ko.observable(breakEnd);
+        this.duration = ko.observable(duration);
+        this.blocked = ko.observable(blocked);
+        this.message = ko.observable(message);
+    };
 })(window.sch = window.sch || {}, jQuery, ko);

@@ -13,7 +13,7 @@ import java.util.List;
  *
  * @author vgorcinschi
  */
-@JsonRootName(value="days with special schedule")
+@JsonRootName(value="specialDays")
 public class JaxbSpecialDayListWrapper extends GenericBaseJaxbListWrapper<SpecialDay>{
 
     public JaxbSpecialDayListWrapper(List<SpecialDay> current) {

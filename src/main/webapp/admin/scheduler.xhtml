@@ -39,18 +39,20 @@
         <div class="row" data-bind="fadeVisible: selectedScope()==='#{bigcopy.appointmentsLabel}', stopBinding: true">
             <ui:include src="../includes/appointmentsManagement.xhtml"/>
         </div>
-        <div class="row" data-bind="fadeVisible: selectedScope()==='#{bigcopy.specialDaysLabel}'">
+        <div class="row" data-bind="fadeVisible: selectedScope()==='#{bigcopy.specialDaysLabel}', stopBinding: true">
             <ui:include src="../includes/specdaysManagement.xhtml"/>
         </div>
-        
+
         <script type="text/javascript" src="#{request.contextPath}/resources/js/knockout-3.3.0.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/js/knockout.validation.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/js/ko-validation-locales/en-US.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/js/ko-validation-locales/fr-FR.js"></script>
-        <script type="text/javascript" src="#{request.contextPath}/resources/js/ko-validation-locales/ru-RU.js"></script>
-        <script type="text/javascript" src="#{request.contextPath}/resources/js/scheduler-locale-support.js"></script>
-        <script type="text/javascript" src="#{request.contextPath}/resources/js/classes.js"></script>
-        <script type="text/javascript" src="#{request.contextPath}/resources/js/dataServices.js"></script>
-        <script type="text/javascript" src="#{request.contextPath}/resources/js/scheduler.js"></script>        
+        <script type="text/javascript" src="#{request.contextPath}/resources/js/ko-validation-locales/ru-RU.js"></script>        
+        <script type="text/javascript" src="#{request.contextPath}/resources/js/scheduler/scheduler-locale-support.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/js/scheduler/classes.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/js/scheduler/dataServices.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/js/scheduler/appointmentsModel.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/js/scheduler/specdaysModel.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/js/scheduler/scheduler.js"></script>
     </body>
 </html>

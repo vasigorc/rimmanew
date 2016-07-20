@@ -68,7 +68,6 @@
                 data: null,
                 dataType: 'json',
                 success: function (data) {
-
                     var typedApps = data.appointments.current;
 
                     copy.next = data.appointments.next;
@@ -130,6 +129,59 @@
                 error: function (xhr, ajaxOptions, thrownError) {
                     var err = xhr.responseText;
                     callback("failed", err, appId);
+                }
+            });
+        }
+    };
+    sch.SpecdaysService = {
+        getSpecDays: function (copy, callback) {
+            serviceURL = sch.restServiceRoot + "/specialdays";
+            console.log("copy:" + copy.entrySpecDay + "\n\
+                            url:" + serviceURL);
+//            serviceURL = serviceURL.concat("?past=" + copy.filters.past);
+//            if (copy.filters.clientName.length > 3) {
+//                serviceURL = serviceURL.concat("&name=" + copy.filters.clientName);
+//            }
+//            if (copy.filters.type !== undefined && copy.filters.type.length > 0) {
+//                serviceURL = serviceURL.concat("&type=" + copy.filters.type);
+//            }
+//            if (copy.filters.date !== undefined && copy.filters.date.length > 0) {
+//                serviceURL = serviceURL.concat("&date=" + copy.filters.date);
+//            }
+//            if (copy.filters.time !== undefined && copy.filters.time.length > 0) {
+//                serviceURL = serviceURL.concat("&time=" + copy.filters.time);
+//            }
+//            if (copy.filters.limit !== undefined && copy.filters.limit.length > 0) {
+//                serviceURL = serviceURL.concat("&size=" + copy.filters.limit);
+//            }
+//            if (copy.filters.offset !== undefined && copy.filters.offset.length > 0) {
+//                serviceURL = serviceURL.concat("&offset=" + copy.filters.offset);
+//            }
+            this.basicQuery(copy, serviceURL, callback);
+        }, basicQuery: function (copy, url, callback) {
+            $.ajax({
+                url: url,
+                type: 'get',
+                data: null,
+                dataType: 'json',
+                success: function (data) {
+                    var specdays = data.specialDays.current;
+
+                    copy.next = data.specialDays.next;
+                    copy.first = data.specialDays.first;
+                    copy.last = data.specialDays.last;
+                    copy.previous = data.specialDays.previous;
+
+                    copy.specdays = $.map(specdays, function (item) {
+                        return new sch.SpecialDay(item.id, item.date, item.startAt,
+                                item.endAt, item.breakStart || "", item.breakEnd || "",
+                                item.duration, item.blocked, item.message || "");
+                    });
+                    callback(copy);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    var err = xhr.responseText;
+                    alert(err);
                 }
             });
         }

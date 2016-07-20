@@ -9,6 +9,40 @@ and open the template in the editor.
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:ui="http://java.sun.com/jsf/facelets">
     <ui:composition>
-        <div id="section-specdays" class="col-xs-12 col-md-8 col-md-offset-3">Special days' management</div>
+        <div style="margin-left: 2em;" id="specdaysModel">
+            <div class="col-xs-12 col-md-8 col-md-offset-2">
+                <table id="specdaysTable" class="table table-bordered table-hover flexi-table">
+                    <thead>
+                        <tr>
+                            <!--9 columns of which 8 are shown-->
+                            <th style="display: none;">id</th>
+                            <th class="hand-on-hover" data-bind="click: sortByDate">
+                                #{bigcopy.tableDate} <i id="sdDateCri"></i>
+                            </th>
+                            <th>#{bigcopy.schedulerStartAt}</th>
+                            <th>#{bigcopy.schedulerEndAt}</th>
+                            <th>#{bigcopy.schedulerBreakStart}</th>
+                            <th>#{bigcopy.schedulerBreakEnd}</th>
+                            <th>#{bigcopy.schedulerDuration}</th>
+                            <th>#{bigcopy.schedulerBlocked}</th>
+                            <th>#{bigcopy.tableMessage}</th>
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach: specdays">
+                        <tr>
+                            <td style="display: none;" data-bind="text:id"></td>
+                            <td data-bind="text:date"></td>
+                            <td data-bind="text:startAt"></td>
+                            <td data-bind="text:endAt"></td>
+                            <td data-bind="text:breakStart"></td>
+                            <td data-bind="text:breakEnd"></td>
+                            <td data-bind="text:duration"></td>
+                            <td data-bind="text: blocked"></td>
+                            <td data-bind="text: message"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </ui:composition>
 </html>

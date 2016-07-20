@@ -1,117 +1,6 @@
 /* global ko */
 (function (sch, $, ko) {
-    jQuery(function () {
-        $("#radioControls input").on("click", function (e) {
-            $("#radioControls input").each(function () {
-                //here self will be the input field and label - label field
-                var self = this;
-                var label = $("label[for='" + $(self).attr('id') + "']");
-                if (self.id === e.target.id) {
-                    $(self).attr("checked", "");
-                    label.css("color", "white");
-                } else {
-                    $(self).removeAttr("checked");
-                    label.css("color", "#4C4545");
-                }
-            });
-        });
-        //the warning modal before deleting an appointment
-        $("#deleteDialog").dialog({
-            autoOpen: false,
-            closeOnEscape: true,
-            modal: true,
-            position: {my: "center", at: "center", of: window},
-            buttons: {
-                "Ok": function () {
-                    appmodel.deleteAppointment();
-                    $(this).dialog("close");
-                },
-                "Annuler": function () {
-                    $(this).dialog("close");
-                }
-            },
-            hide: {effect: "fadeOut", duration: 750},
-            fluid: true,
-            resizable: true,
-            height: 'auto',
-            width: 'auto', // overcomes width:'auto' and maxWidth bug
-            maxWidth: 600,
-            open: function () {
-                $('.ui-widget-overlay').addClass('custom-overlay');
-            },
-            close: function () {
-                $('.ui-widget-overlay').removeClass('custom-overlay');
-            }
-        });
-    });
-
-//knockout part
-//initialize the validation module
-    ko.validation.init({
-        registerExtenders: true,
-        messagesOnModified: true,
-        decorateInputElement: true,
-        insertMessages: false,
-        parseInputAttributes: true,
-        messageTemplate: null,
-        errorClass: "has-error"
-    }, true);
-
-    ko.bindingHandlers.stopBinding = {
-        init: function () {
-            return {controlsDescendantBindings: true};
-        }
-    };
-
-//KO 2.1, now allows you to add containerless support for custom bindings
-    ko.virtualElements.allowedBindings.stopBinding = true;
-
-    var scopeModel = {
-        selectedScope: ko.observable()
-    };
-// Here's a custom Knockout binding that makes elements shown/hidden via jQuery's fadeIn()/fadeOut() methods
-// Could be stored in a separate utility library
-    ko.bindingHandlers.fadeVisible = {
-        init: function (element, valueAccessor) {
-            // Initially set the element to be instantly visible/hidden depending on the value
-            var value = valueAccessor();
-            $(element).toggle(ko.unwrap(value)); // Use "unwrapObservable" so we 
-            //can handle values that may or may not be observable
-        },
-        update: function (element, valueAccessor) {
-            // Whenever the value subsequently changes, slowly fade the element in or out
-            var value = valueAccessor();
-            ko.unwrap(value) ? $(element).fadeIn() : $(element).fadeOut();
-        }
-    };
-
-    ko.bindingHandlers.slideVisible = {
-        update: function (element, valueAccessor, allBindings) {
-            // First get the latest data that we're bound to
-            var value = valueAccessor();
-
-            // Next, whether or not the supplied model property is observable, get its current value
-            var valueUnwrapped = ko.unwrap(value);
-
-            // Grab some more data from another binding property
-            var duration = allBindings.get('slideDuration') || 400; // 400ms is default duration unless otherwise specified
-
-            // Now manipulate the DOM element
-            if (valueUnwrapped == true)
-                $(element).slideDown(duration); // Make the element visible
-            else
-                $(element).slideUp(duration);   // Make the element invisible
-        }
-    };
-
-    ko.bindingHandlers.placeholder = {
-        init: function (element, valueAccessor, allBindingsAccessor) {
-            var underlyingObservable = valueAccessor();
-            ko.applyBindingsToNode(element, {attr: {placeholder: underlyingObservable}});
-        }
-    };
-
-//appointments part
+    //appointments part
     sch.appointmentsModel = function (dataService) {
         var self = this;
         self.appointments = ko.observableArray([]);
@@ -164,56 +53,54 @@
             appointment.toggleEdits();
             self.entryAppointment(ko.toJS(appointment));
         },
-                self.saveAppointment = function () {
-                    //remove failure alert if activated
-                    $('#failureAlert').css("display", "none");
-                    var appCandidate = ko.toJS(self.entryAppointment());
-                    delete appCandidate.displayEdits;
-                    delete appCandidate.toggleEdits;
-                    delete appCandidate.self;
-                    if (appCandidate.id === "" || null) {
-                        dataService.createAppointment(ko.toJSON(appCandidate)
-                                , function (action, errorMsg) {
-                                    //1. remove the entry form 2. show the modal 3. update
-                                    //the table
-                                    if (action === "saved") {
-                                        $('#persistOpsTitle').text(sch.appointmentLabels.get("success"));
-                                        $('#persistOpsOutcome')
-                                                .text(sch.appointmentLabels.get("saved") + self.entryAppointment().clientName());
-                                        self.entryAppointment(null);
-                                        $('#successAlert').css("display", "block").delay(3000).fadeOut();
-                                        self.updateView();
-                                    } else if (action === "failed") {
-                                        $('#requestErrorMsg').text(" " + errorMsg);
-                                        $('#failureAlert').css("display", "block");
-                                    }
-                                });
-                    } else {
-                        dataService.updateAppointment(ko.toJSON(appCandidate),
-                                appCandidate.id, function (action, errorMsg) {
-                                    //1. remove the entry form 2. show the modal 3. update
-                                    //the table
-                                    if (action === "updated") {
-                                        $('#persistOpsTitle').text(sch.appointmentLabels.get("success"));
-                                        $('#persistOpsOutcome')
-                                                .text(sch.appointmentLabels.get("updated") + self.entryAppointment().clientName);
-                                        self.entryAppointment(null);
-                                        $('#successAlert').css("display", "block").delay(3000).fadeOut();
-                                        self.updateView();
-                                    } else if (action === "failed") {
-                                        $('#requestErrorMsg').text(" " + errorMsg);
-                                        $('#failureAlert').css("display", "block");
-                                    }
-                                });
-                    }
-
-                };
+        self.saveAppointment = function () {
+            //remove failure alert if activated
+            $('#failureAlert').css("display", "none");
+            var appCandidate = ko.toJS(self.entryAppointment());
+            delete appCandidate.displayEdits;
+            delete appCandidate.toggleEdits;
+            delete appCandidate.self;
+            if (appCandidate.id === "" || null) {
+                dataService.createAppointment(ko.toJSON(appCandidate)
+                        , function (action, errorMsg) {
+                            //1. remove the entry form 2. show the modal 3. update
+                            //the table
+                            if (action === "saved") {
+                                $('#persistOpsTitle').text(sch.appointmentLabels.get("success"));
+                                $('#persistOpsOutcome')
+                                        .text(sch.appointmentLabels.get("saved") + self.entryAppointment().clientName());
+                                self.entryAppointment(null);
+                                $('#successAlert').css("display", "block").delay(3000).fadeOut();
+                                self.updateView();
+                            } else if (action === "failed") {
+                                $('#requestErrorMsg').text(" " + errorMsg);
+                                $('#failureAlert').css("display", "block");
+                            }
+                        });
+            } else {
+                dataService.updateAppointment(ko.toJSON(appCandidate),
+                        appCandidate.id, function (action, errorMsg) {
+                            //1. remove the entry form 2. show the modal 3. update
+                            //the table
+                            if (action === "updated") {
+                                $('#persistOpsTitle').text(sch.appointmentLabels.get("success"));
+                                $('#persistOpsOutcome')
+                                        .text(sch.appointmentLabels.get("updated") + self.entryAppointment().clientName);
+                                self.entryAppointment(null);
+                                $('#successAlert').css("display", "block").delay(3000).fadeOut();
+                                self.updateView();
+                            } else if (action === "failed") {
+                                $('#requestErrorMsg').text(" " + errorMsg);
+                                $('#failureAlert').css("display", "block");
+                            }
+                        });
+            }
+        };
         self.deleteAppointment = function () {
             $('#failureAlert').css("display", "none");
             console.log("Preparing to delete the appointment with the id: " + self.deleteCandidateId)
             dataService.deleteAppointment(self.deleteCandidateId, function (action,
                     errorMsg, appId) {
-                //TODO
                 if (action === "deleted") {
                     $('#persistOpsOutcome').text(sch.appointmentLabels.get("deleted1")
                             + appId + sch.appointmentLabels.get("deleted2"));
@@ -303,7 +190,6 @@
                 } else {
                     return a.clientName() < b.clientName() ? -1 : 1;
                 }
-
             }));
             self.nameSortAscending(!self.nameSortAscending());
             self.cleanUp();
@@ -322,7 +208,6 @@
                 } else {
                     return a.type() < b.type() ? -1 : 1;
                 }
-
             }));
             self.typeSortAscending(!self.typeSortAscending());
             self.cleanUp();
@@ -331,7 +216,8 @@
                 $("#appTypeCri").addClass("glyphicon glyphicon-chevron-up");
             else
                 $("#appTypeCri").addClass("glyphicon glyphicon-chevron-down");
-        };
+        };        
+        //initial load
         dataService.getAppointments(self.toJSON(), function (data) {
             self.appointments(data.appointments);
             self.showButtons(data);
@@ -369,8 +255,5 @@
         self.revertShowFilters = function () {
             self.showFilters(!self.showFilters());
         };
-    };
-    ko.applyBindings(scopeModel);
-    var appmodel = new sch.appointmentsModel(sch.AppointmentsService);
-    ko.applyBindings(appmodel, document.getElementById("appointmentsModel"));
+    };    
 })(window.sch = window.sch || {}, jQuery, ko);

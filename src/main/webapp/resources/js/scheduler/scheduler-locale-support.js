@@ -9,6 +9,7 @@
         sch.appointmentLabels.set("saved"," Le rendez-vous a été sauveagrdé à jour pour ");
         sch.appointmentLabels.set("deleted1"," Le rendez-vous avec id: ");
         sch.appointmentLabels.set("deleted2", " a été effacé.");
+        sch.appointmentLabels.set("confirm-delete", "Oui");
     } else if (sch.currentLocale.includes("ru")) {
         ko.validation.locale('ru-RU');
         sch.appointmentLabels.set("success", "Сохранено!");
@@ -16,6 +17,7 @@
         sch.appointmentLabels.set("saved"," Запись сохранена для ");
         sch.appointmentLabels.set("deleted1"," Запись № ");
         sch.appointmentLabels.set("deleted2", " успешно удалена.");
+        sch.appointmentLabels.set("confirm-delete", "Да");
     } else {
         ko.validation.locale('en-US');
         sch.appointmentLabels.set("success", "Success!");
@@ -23,5 +25,6 @@
         sch.appointmentLabels.set("updated"," The appointment was saved for ");
         sch.appointmentLabels.set("deleted1"," The appointment with id ");
         sch.appointmentLabels.set("deleted2", " was deleted.");
+        sch.appointmentLabels.set("confirm-delete", "Yes");
     }
 })(window.sch = window.sch || {}, jQuery, ko);
