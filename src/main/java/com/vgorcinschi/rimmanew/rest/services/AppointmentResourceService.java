@@ -369,6 +369,9 @@ public class AppointmentResourceService {
             throw new InternalServerErrorException("An error ocurred in the application "
                     + "and the requested appointment couldn't be deleted.");
         }
+        log.warn("Appointment with id #"+id+" was deleted for "
+                +toDelete.getClientName()+", scheduled to come on "+toDelete.getDate()+
+                " at "+toDelete.getLocalTimeRepr());
         return Response.ok(getJsonRepr("response", "The appointment with "
                 + "id# " + id + " was deleted")).build();
     }

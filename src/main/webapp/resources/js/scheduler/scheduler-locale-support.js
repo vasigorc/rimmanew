@@ -4,6 +4,7 @@
     sch.currentLocale = $('#pageLocale').val();
     if (sch.currentLocale.includes("fr")) {
         ko.validation.locale('fr-FR');
+        $.datepicker.setDefaults( $.datepicker.regional[ "fr-CA" ] );
         sch.appointmentLabels.set("success", "Success!");
         sch.appointmentLabels.set("updated"," Le rendez-vous a été mis à jour pour ");
         sch.appointmentLabels.set("saved"," Le rendez-vous a été sauveagrdé à jour pour ");
@@ -12,6 +13,7 @@
         sch.appointmentLabels.set("confirm-delete", "Oui");
     } else if (sch.currentLocale.includes("ru")) {
         ko.validation.locale('ru-RU');
+        $.datepicker.setDefaults( $.datepicker.regional[ "ru" ] );
         sch.appointmentLabels.set("success", "Сохранено!");
         sch.appointmentLabels.set("updated"," Запись обнавлена для ");
         sch.appointmentLabels.set("saved"," Запись сохранена для ");
@@ -20,6 +22,7 @@
         sch.appointmentLabels.set("confirm-delete", "Да");
     } else {
         ko.validation.locale('en-US');
+        $.datepicker.setDefaults( $.datepicker.regional[ "en-GB" ] );
         sch.appointmentLabels.set("success", "Success!");
         sch.appointmentLabels.set("updated"," The appointment was updated for ");
         sch.appointmentLabels.set("updated"," The appointment was saved for ");

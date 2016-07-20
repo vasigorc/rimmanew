@@ -9,7 +9,55 @@ and open the template in the editor.
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:ui="http://java.sun.com/jsf/facelets">
     <ui:composition>
+        <!--specDaysModel wrapping div-->
         <div style="margin-left: 2em;" id="specdaysModel">
+            <!--hide/show buttons for filters and new Special Day creation-->
+            <div class="row">
+                <div class="col-md-8 col-md-offset-2">
+                    <div data-bind="ifnot: entrySpecDay" class="row-breaker">
+                        <button data-bind="click: revertShowFilters" class="btn btn-default">#{bigcopy.schedulerFilterBtn}</button>
+<!--                        <button data-bind="click: newSpecDay" class="btn btn-info">#{bigcopy.schedulerCreateBtn}</button>-->
+                    </div>
+                </div>
+            </div>
+            <!--search filters-->
+            <div class="row">               
+                <div class="col-md-8 col-md-offset-2">
+                    <div data-bind="slideVisible: showFilters, slideDuration:600, with: filters">
+                        <form class="form-inline" >
+                            <div data-bind="validationElement: date" class="form-group input-group-sm">
+                                <label for="dateFilter">#{bigcopy.tableDate}</label>
+                                <input placeholder="yyyy-mm-dd" class="form-control" id="datepicker-sd" 
+                                       data-bind="value: date, valueUpdate:'keyup'"></input>
+                                <span class="error-text" data-bind="validationMessage: date"></span>
+                            </div>
+                            <div data-bind="validationElement: limit" class="form-group input-group-sm">
+                                <label for="limitFilter">#{bigcopy.schedulerLimit}</label>
+                                <input style="max-width: 5em;" type="number" 
+                                       class="form-control" id="limitFilter" 
+                                       data-bind="value: limit, valueUpdate:'keyup'"></input>
+                                <span class="error-text" data-bind="validationMessage: limit"></span>
+                            </div>
+                            <div data-bind="validationElement: offset" class="form-group input-group-sm">
+                                <label for="offsetFilter">#{bigcopy.schedulerOffset}</label>
+                                <input style="max-width: 5em;" type="number" class="form-control" 
+                                       id="offsetFilter" 
+                                       data-bind="value: offset, valueUpdate:'keyup'"></input>
+                                <span class="error-text" data-bind="validationMessage: offset"></span>
+                            </div>
+                        </form>
+                    </div>
+                </div>                    
+            </div>
+            <div class="row">
+                <div class="col-xs-4 col-md-1 col-md-offset-2">
+                    <div class="row-breaker">
+                        <button type="button" class="btn btn-success">
+                            #{bigcopy.schedulerUpdateBtn}
+                        </button>
+                    </div>                    
+                </div>
+            </div>
             <div class="col-xs-12 col-md-8 col-md-offset-2">
                 <table id="specdaysTable" class="table table-bordered table-hover flexi-table">
                     <thead>

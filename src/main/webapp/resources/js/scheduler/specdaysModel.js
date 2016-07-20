@@ -9,6 +9,7 @@
         self.last = ko.observable();
         self.previous = ko.observable();
         self.dateSortAscending = ko.observable(false);
+        self.showFilters = ko.observable(false);
         self.toJSON = function () {
             var copy = ko.toJS(self);
             return copy;
@@ -19,8 +20,29 @@
             ko.utils.arrayForEach(self.specdays(), function (s) {
                 console.log(s.date());
             });
+            //TODO!!!
 //            self.showButtons(data);
         });
+        self.filters = ko.observable({
+            date: ko.observable().extend({
+                required: false,
+                date: true,
+                minLength: 10
+            }).extend({rateLimit: 530}),
+            limit: ko.observable().extend({
+                digit: true,
+                max: 100,
+                min: 1
+            }).extend({rateLimit: 600}),
+            offset: ko.observable().extend({
+                digit: true,
+                max: 100,
+                min: 0
+            }).extend({rateLimit: 600})
+        });
+        self.newSpecDay = function () {
+            self.entrySpecDay(new sch.EntryAppointment());
+        };
         self.cleanUp = function () {
             $("#specdaysTable thead tr th").each(function () {
                 $(this).attr('class', 'hand-on-hover');
@@ -49,6 +71,9 @@
             } else {
                 $("#sdDateCri").addClass("glyphicon glyphicon-chevron-down");
             }
+        };
+        self.revertShowFilters = function () {
+            self.showFilters(!self.showFilters());
         };
     };
 })(window.sch = window.sch || {}, jQuery, ko);

@@ -14,7 +14,7 @@
                     label.css("color", "#4C4545");
                 }
             });
-        });        
+        });
         //the warning modal before deleting an appointment
         $("#deleteDialog").dialog({
             autoOpen: false,
@@ -42,6 +42,21 @@
             close: function () {
                 $('.ui-widget-overlay').removeClass('custom-overlay');
             }
+        });
+        //create two datepickers for specdays and applications scopes
+        //we must create one instead of two (using jquery wildcard selector)
+        //as the minDate parameter must be different for the two
+        $("#datepicker-sd").datepicker({
+            dateFormat: "yy-mm-dd",
+            gotoCurrent: true,
+            maxDate: "+6m",
+            minDate: new Date()
+        });
+        $("#datepicker-app").datepicker({
+            dateFormat: "yy-mm-dd",
+            gotoCurrent: true,
+            maxDate: "+6m",
+            minDate: "-2y"
         });
     });
 //initialize the validation module
@@ -110,11 +125,11 @@
     };
     //bind the switch of model
     ko.applyBindings(scopeModel);
-    
+
     //bind the application model
     var appmodel = new sch.appointmentsModel(sch.AppointmentsService);
     ko.applyBindings(appmodel, document.getElementById("appointmentsModel"));
-    
+
     //bind the special day model
     var sdmodel = new sch.specdaysModel(sch.SpecdaysService);
     ko.applyBindings(sdmodel, document.getElementById("specdaysModel"));

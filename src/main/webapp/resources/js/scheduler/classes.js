@@ -52,9 +52,9 @@
     };
     sch.EntryAppointment.prototype = Object.create(sch.Appointment.prototype);
     sch.EntryAppointment.prototype.constructor = sch.EntryAppointment;
-    
-    sch.SpecialDay = function(id, date, startAt, endAt, breakStart, breakEnd
-            ,duration, blocked, message){
+
+    sch.SpecialDay = function (id, date, startAt, endAt, breakStart, breakEnd
+            , duration, blocked, message) {
         this.id = ko.observable(id);
         this.date = ko.observable(date);
         this.startAt = ko.observable(startAt);
@@ -65,4 +65,15 @@
         this.blocked = ko.observable(blocked);
         this.message = ko.observable(message);
     };
+    sch.EntrySpecialDay = function (init) {
+        if (init === undefined) {
+            sch.SpecialDay.call(this, "", "", "", "", "", "", "", false, "");
+        } else {
+            sch.SpecialDay.call(this, init.id, init.date, init.startAt, init.endAt,
+                    init.breakStart, init.breakEnd, init.duration, init.blocked ||"", 
+                    init.message||"");
+        }
+    };
+    sch.EntrySpecialDay.prototype = Object.create(sch.SpecialDay.prototype);
+    sch.EntrySpecialDay.prototype.constructor = sch.EntrySpecialDay;
 })(window.sch = window.sch || {}, jQuery, ko);
