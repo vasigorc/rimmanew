@@ -20,32 +20,32 @@
                 required: false,
                 minLength: 4,
                 maxLength: 20
-            }).extend({rateLimit: 500}),
+            }).extend({rateLimit: 1000}),
             typeOptions: ['massage', 'waxing', 'pedicure', 'manicure'],
             type: ko.observable('').extend({
                 required: false
-            }).extend({rateLimit: 500}),
+            }).extend({rateLimit: 1000}),
             date: ko.observable().extend({
                 required: false,
                 date: true,
                 minLength: 10
-            }).extend({rateLimit: 530}),
+            }).extend({rateLimit: 1000}),
             time: ko.observable().extend({
                 required: false,
                 pattern: '^([01]?[0-9]|2[0-3]):[0-5][0-9]'
-            }).extend({rateLimit: 500}),
+            }).extend({rateLimit: 1000}),
             limit: ko.observable().extend({
                 digit: true,
                 max: 100,
                 min: 1
-            }).extend({rateLimit: 600}),
+            }).extend({rateLimit: 1000}),
             offset: ko.observable().extend({
                 digit: true,
                 max: 100,
                 min: 0
-            }).extend({rateLimit: 600}),
+            }).extend({rateLimit: 1000}),
             past: ko.observable(false)
-        }).extend({rateLimit: 600});
+        });
         self.newAppointment = function () {
             self.entryAppointment(new sch.EntryAppointment());
         };
@@ -98,7 +98,6 @@
         };
         self.deleteAppointment = function () {
             $('#failureAlert').css("display", "none");
-            console.log("Preparing to delete the appointment with the id: " + self.deleteCandidateId)
             dataService.deleteAppointment(self.deleteCandidateId, function (action,
                     errorMsg, appId) {
                 if (action === "deleted") {
@@ -117,6 +116,8 @@
             self.deleteCandidateId = ko.toJS(appointment).id;
         };
         self.cancelAppointment = function () {
+            //remove failure alert if activated
+            $('#failureAlert').css("display", "none");
             self.entryAppointment(null);
         };
         self.toJSON = function () {

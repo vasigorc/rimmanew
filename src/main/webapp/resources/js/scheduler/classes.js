@@ -48,7 +48,7 @@
         }).extend({rateLimit: 550});
         this.message.extend({
             maxLength: 250
-        }).extend({rateLimit: 500});
+        }).extend({rateLimit: 500});        
     };
     sch.EntryAppointment.prototype = Object.create(sch.Appointment.prototype);
     sch.EntryAppointment.prototype.constructor = sch.EntryAppointment;
@@ -70,9 +70,33 @@
             sch.SpecialDay.call(this, "", "", "", "", "", "", "", false, "");
         } else {
             sch.SpecialDay.call(this, init.id, init.date, init.startAt, init.endAt,
-                    init.breakStart, init.breakEnd, init.duration, init.blocked ||"", 
-                    init.message||"");
+                    init.breakStart, init.breakEnd, init.duration, init.blocked || "",
+                    init.message || "");
         }
+        this.date.extend({
+            required: true,
+            date: true,
+            minLength: 10
+        }).extend({rateLimit: 1000});
+        this.startAt.extend({
+            required: true,
+            pattern: '^([01]?[0-9]|2[0-3]):[0-5][0-9]'
+        }).extend({rateLimit: 1000});
+        this.endAt.extend({
+            required: true,
+            pattern: '^([01]?[0-9]|2[0-3]):[0-5][0-9]'
+        }).extend({rateLimit: 1000});
+        this.breakStart.extend({
+            pattern: '^([01]?[0-9]|2[0-3]):[0-5][0-9]'
+        }).extend({rateLimit: 1000});
+        this.breakEnd.extend({
+            pattern: '^([01]?[0-9]|2[0-3]):[0-5][0-9]'
+        }).extend({rateLimit: 1000});
+        this.duration.extend({
+                digit: true,
+                max: 120,
+                min: 15
+            }).extend({rateLimit: 1000});
     };
     sch.EntrySpecialDay.prototype = Object.create(sch.SpecialDay.prototype);
     sch.EntrySpecialDay.prototype.constructor = sch.EntrySpecialDay;

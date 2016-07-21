@@ -46,7 +46,7 @@
         //create two datepickers for specdays and applications scopes
         //we must create one instead of two (using jquery wildcard selector)
         //as the minDate parameter must be different for the two
-        $("#datepicker-sd").datepicker({
+        $("input[id^='datepicker-sd']").datepicker({
             dateFormat: "yy-mm-dd",
             gotoCurrent: true,
             maxDate: "+6m",

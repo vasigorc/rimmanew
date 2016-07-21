@@ -444,7 +444,9 @@ public class AppointmentResourceService {
         appointment.setType(appType);
         appointment.setPast(past);
         appointment.setNoShow(noShow);
-        if (clientMsg != null && !clientMsg.trim().equals("")) {
+        if (clientMsg == null) {
+            appointment.setMessage("");
+        }else{
             appointment.setMessage(clientMsg);
         }
         return appointment;

@@ -16,80 +16,198 @@ and open the template in the editor.
                 <div class="col-md-8 col-md-offset-2">
                     <div data-bind="ifnot: entrySpecDay" class="row-breaker">
                         <button data-bind="click: revertShowFilters" class="btn btn-default">#{bigcopy.schedulerFilterBtn}</button>
-<!--                        <button data-bind="click: newSpecDay" class="btn btn-info">#{bigcopy.schedulerCreateBtn}</button>-->
+                        <button data-bind="click: newSpecDay" class="btn btn-info">#{bigcopy.schedulerCreateBtn}</button>
                     </div>
                 </div>
             </div>
-            <!--search filters-->
-            <div class="row">               
-                <div class="col-md-8 col-md-offset-2">
-                    <div data-bind="slideVisible: showFilters, slideDuration:600, with: filters">
-                        <form class="form-inline" >
-                            <div data-bind="validationElement: date" class="form-group input-group-sm">
-                                <label for="dateFilter">#{bigcopy.tableDate}</label>
-                                <input placeholder="yyyy-mm-dd" class="form-control" id="datepicker-sd" 
+            <!-- Success alert -->
+            <div class="col-md-8 col-md-offset-2">
+                <div style="display:none; margin-left:-0.75em;" id="successAlert" class="alert alert-success" role="alert">
+                    <span id="persistOpsTitle" style="font-weight:bold;"></span>
+                    <span id="persistOpsOutcome"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 col-sm-8 col-md-offset-2">                        
+                    <!-- Failure alert -->
+                    <div style="display:none;" id="sd-failureAlert" class="alert alert-danger col-md-offset-2" role="alert">
+                        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                        <span id="sd-requestErrorMsg"></span>
+                    </div>
+                    <!--the form for a new special day-->
+                    <form id="entrySpecialDayForm" class="form-horizontal" role="form" 
+                          data-bind="with: entrySpecDay, submit: saveSpecDay">    
+                        <div data-bind="validationElement: date" class="form-group">
+                            <label for="datepicker-sd-entryDate" class="col-sm-2 control-label">#{bigcopy.tableDate}</label>
+                            <div class="col-sm-10">
+                                <input placeholder="yyyy-mm-dd" class="form-control" id="datepicker-sd-entryDate" 
                                        data-bind="value: date, valueUpdate:'keyup'"></input>
                                 <span class="error-text" data-bind="validationMessage: date"></span>
                             </div>
-                            <div data-bind="validationElement: limit" class="form-group input-group-sm">
-                                <label for="limitFilter">#{bigcopy.schedulerLimit}</label>
-                                <input style="max-width: 5em;" type="number" 
-                                       class="form-control" id="limitFilter" 
-                                       data-bind="value: limit, valueUpdate:'keyup'"></input>
-                                <span class="error-text" data-bind="validationMessage: limit"></span>
+                        </div>
+                        <div data-bind="validationElement: startAt, ifnot:blocked" 
+                             class="form-group">
+                            <label class="col-sm-2 control-label" for="entrystartAt">#{bigcopy.schedulerStartAt}</label>
+                            <div class="col-sm-10">
+                                <input placeholder="hh:mm" class="form-control" id="entrystartAt" 
+                                       data-bind="value: startAt, valueUpdate:'keyup'"></input>
+                                <span class="error-text" data-bind="validationMessage: startAt"></span>
+                            </div>                            
+                        </div>
+                        <div data-bind="validationElement: endAt, ifnot: blocked" 
+                             class="form-group">
+                            <label class="col-sm-2 control-label" for="entryEndAt">#{bigcopy.schedulerEndAt}</label>
+                            <div class="col-sm-10">
+                                <input placeholder="hh:mm" class="form-control" id="entryEndAt" 
+                                       data-bind="value: endAt, valueUpdate:'keyup'"></input>
+                                <span class="error-text" data-bind="validationMessage: endAt"></span>
+                            </div>                            
+                        </div>
+                        <div data-bind="validationElement: breakStart, ifnot: blocked" 
+                             class="form-group">
+                            <label class="col-sm-2 control-label" for="entrybreakStart">#{bigcopy.schedulerBreakStart}</label>
+                            <div class="col-sm-10">
+                                <input placeholder="hh:mm" class="form-control" id="entrybreakStart" 
+                                       data-bind="value: breakStart, valueUpdate:'keyup'"></input>
+                                <span class="error-text" data-bind="validationMessage: breakStart"></span>
+                            </div>                            
+                        </div>
+                        <div data-bind="validationElement: breakEnd, ifnot: blocked" 
+                             class="form-group">
+                            <label class="col-sm-2 control-label" for="entrybreakEnd">#{bigcopy.schedulerBreakEnd}</label>
+                            <div class="col-sm-10">
+                                <input placeholder="hh:mm" class="form-control" id="entrybreakEnd" 
+                                       data-bind="value: breakEnd, valueUpdate:'keyup'"></input>
+                                <span class="error-text" data-bind="validationMessage: breakEnd"></span>
+                            </div>                            
+                        </div>
+                        <div data-bind="validationElement: duration, ifnot: blocked" class="form-group">
+                            <label class="col-sm-2 control-label" for="entryDuration">#{bigcopy.schedulerDuration}</label>
+                            <input style="max-width: 5em;" type="number" 
+                                   class="form-control" id="entryDuration" 
+                                   data-bind="value: duration, valueUpdate:'keyup'"></input>
+                            <span class="error-text" data-bind="validationMessage: duration"></span>
+                        </div>
+                        <div class="checkbox" data-bind="validationElement: blocked">
+                            <label class="col-sm-2 control-label">
+                                <input value="option1" type="checkbox" id="entryBlocked" 
+                                       data-bind="checked: blocked"/> #{bigcopy.schedulerBlocked}
+                            </label>
+                            <span class="error-text" data-bind="validationMessage: blocked"></span>
+                        </div>
+                        <div data-bind="validationElement: message" class="form-group">
+                            <label class="col-sm-2 control-label" for="entrySdMessage">#{copy.importantMsg}</label>
+                            <div class="col-sm-10">
+                                <textarea id="entrySdMessage" cols="50" 
+                                          data-bind="value: message, valueUpdate: 'keyup'" class="form-control" rows="3"></textarea>
+                                <span class="error-text" data-bind="validationMessage: message"></span>
                             </div>
-                            <div data-bind="validationElement: offset" class="form-group input-group-sm">
-                                <label for="offsetFilter">#{bigcopy.schedulerOffset}</label>
-                                <input style="max-width: 5em;" type="number" class="form-control" 
-                                       id="offsetFilter" 
-                                       data-bind="value: offset, valueUpdate:'keyup'"></input>
-                                <span class="error-text" data-bind="validationMessage: offset"></span>
-                            </div>
-                        </form>
-                    </div>
-                </div>                    
-            </div>
-            <div class="row">
-                <div class="col-xs-4 col-md-1 col-md-offset-2">
-                    <div class="row-breaker">
-                        <button type="button" class="btn btn-success">
-                            #{bigcopy.schedulerUpdateBtn}
-                        </button>
-                    </div>                    
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <!--<button type="submit" class="btn btn-primary">#{bigcopy.schedulerSaveNew}</button>-->
+                                <button type="button" data-bind="click: $parent.cancelSpecDay" 
+                                        class="btn btn-danger">#{bigcopy.schedulerCancelNew}</button>
+                            </div>                            
+                        </div>
+                    </form>
                 </div>
             </div>
-            <div class="col-xs-12 col-md-8 col-md-offset-2">
-                <table id="specdaysTable" class="table table-bordered table-hover flexi-table">
-                    <thead>
-                        <tr>
-                            <!--9 columns of which 8 are shown-->
-                            <th style="display: none;">id</th>
-                            <th class="hand-on-hover" data-bind="click: sortByDate">
-                                #{bigcopy.tableDate} <i id="sdDateCri"></i>
-                            </th>
-                            <th>#{bigcopy.schedulerStartAt}</th>
-                            <th>#{bigcopy.schedulerEndAt}</th>
-                            <th>#{bigcopy.schedulerBreakStart}</th>
-                            <th>#{bigcopy.schedulerBreakEnd}</th>
-                            <th>#{bigcopy.schedulerDuration}</th>
-                            <th>#{bigcopy.schedulerBlocked}</th>
-                            <th>#{bigcopy.tableMessage}</th>
-                        </tr>
-                    </thead>
-                    <tbody data-bind="foreach: specdays">
-                        <tr>
-                            <td style="display: none;" data-bind="text:id"></td>
-                            <td data-bind="text:date"></td>
-                            <td data-bind="text:startAt"></td>
-                            <td data-bind="text:endAt"></td>
-                            <td data-bind="text:breakStart"></td>
-                            <td data-bind="text:breakEnd"></td>
-                            <td data-bind="text:duration"></td>
-                            <td data-bind="text: blocked"></td>
-                            <td data-bind="text: message"></td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div data-bind="ifnot: entrySpecDay">                
+                <div class="row">
+                    <!--search filters-->
+                    <div class="col-md-8 col-md-offset-2">
+                        <div data-bind="slideVisible: showFilters, slideDuration:600, with: filters">
+                            <form class="form-inline" >
+                                <div data-bind="validationElement: date, ifnot: (limit() || offset())" class="form-group input-group-sm">
+                                    <label for="dateFilter">#{bigcopy.tableDate}</label>
+                                    <input placeholder="yyyy-mm-dd" class="form-control" id="datepicker-sd" 
+                                           data-bind="value: date, valueUpdate:'keyup'"></input>
+                                    <span class="error-text" data-bind="validationMessage: date"></span>
+                                </div>
+                                <div data-bind="validationElement: limit, ifnot: date" class="form-group input-group-sm">
+                                    <label for="limitFilter">#{bigcopy.schedulerLimit}</label>
+                                    <input style="max-width: 5em;" type="number" 
+                                           class="form-control" id="limitFilter" 
+                                           data-bind="value: limit, valueUpdate:'keyup'"></input>
+                                    <span class="error-text" data-bind="validationMessage: limit"></span>
+                                </div>
+                                <div data-bind="validationElement: offset, ifnot: date" class="form-group input-group-sm">
+                                    <label for="offsetFilter">#{bigcopy.schedulerOffset}</label>
+                                    <input style="max-width: 5em;" type="number" class="form-control" 
+                                           id="offsetFilter" 
+                                           data-bind="value: offset, valueUpdate:'keyup'"></input>
+                                    <span class="error-text" data-bind="validationMessage: offset"></span>
+                                </div>
+                            </form>
+                        </div>
+                    </div>                    
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-4 col-md-1 col-md-offset-2">
+                        <div class="row-breaker">
+                            <button data-bind="click: updateView" type="button" class="btn btn-success">
+                                #{bigcopy.schedulerUpdateBtn}
+                            </button>
+                        </div>                    
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-8 col-md-offset-2">
+                    <div class="buttons-wrapper">
+                        <div class="keep-buttons-left" role="toolbar" aria-label="Basic example">
+                            <button data-bind="click: getFirst" id="sd-fast-backward" 
+                                    type="button" class="btn move-button">
+                                <i class="glyphicon glyphicon-fast-backward"></i>
+                            </button>
+                            <button data-bind="click: getPrevious" id="sd-step-backward" 
+                                    type="button" class="btn move-button">
+                                <i class="glyphicon glyphicon-step-backward"></i>
+                            </button>
+                        </div>
+                        <div class="keep-buttons-right" role="toolbar" aria-label="Another example">
+                            <button data-bind="click: getNext" id="sd-step-forward" 
+                                    type="button" class="btn move-button">
+                                <i class="glyphicon glyphicon-step-forward"></i>
+                            </button>
+                            <button data-bind="click: getLast" id="sd-fast-forward" 
+                                    type="button" class="btn move-button">
+                                <i class="glyphicon glyphicon-fast-forward"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <table id="specdaysTable" class="table table-bordered table-hover flexi-table">
+                        <thead>
+                            <tr>
+                                <!--9 columns of which 8 are shown-->
+                                <th style="display: none;">id</th>
+                                <th class="hand-on-hover" data-bind="click: sortByDate">
+                                    #{bigcopy.tableDate} <i id="sdDateCri"></i>
+                                </th>
+                                <th>#{bigcopy.schedulerStartAt}</th>
+                                <th>#{bigcopy.schedulerEndAt}</th>
+                                <th>#{bigcopy.schedulerBreakStart}</th>
+                                <th>#{bigcopy.schedulerBreakEnd}</th>
+                                <th>#{bigcopy.schedulerDuration}</th>
+                                <th>#{bigcopy.schedulerBlocked}</th>
+                                <th>#{bigcopy.tableMessage}</th>
+                            </tr>
+                        </thead>
+                        <tbody data-bind="foreach: specdays">
+                            <tr>
+                                <td style="display: none;" data-bind="text:id"></td>
+                                <td data-bind="text:date"></td>
+                                <td data-bind="text:startAt"></td>
+                                <td data-bind="text:endAt"></td>
+                                <td data-bind="text:breakStart"></td>
+                                <td data-bind="text:breakEnd"></td>
+                                <td data-bind="text:duration"></td>
+                                <td data-bind="text: blocked"></td>
+                                <td data-bind="text: message"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </ui:composition>

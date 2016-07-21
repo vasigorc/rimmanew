@@ -56,6 +56,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
+import org.apache.logging.log4j.LogManager;
 
 /**
  *
@@ -71,6 +72,8 @@ public class SpecialDayResourceService {
     @Inject
     @JpaRepository
     private AppointmentRepository appointmentsRepository;
+    
+    private final org.apache.logging.log4j.Logger log = LogManager.getLogger();
 
     public void setRepository(SpecialDayRepository repository) {
         this.repository = repository;
@@ -116,6 +119,7 @@ public class SpecialDayResourceService {
     @Produces("application/json")
     public Response getSpecialDays(@DefaultValue("0") @QueryParam("offset") int offset,
             @DefaultValue("10") @QueryParam("size") int size) {
+        log.info("A new query for special days received. Size: "+size+" Offset: "+offset);
         Optional<List<SpecialDay>> pull = ofNullable(repository.getAll());
         //if null or empty list is returned from repository
         if (!pull.isPresent() || pull.get().isEmpty()) {

@@ -136,29 +136,24 @@
     sch.SpecdaysService = {
         getSpecDays: function (copy, callback) {
             serviceURL = sch.restServiceRoot + "/specialdays";
-            console.log("copy:" + copy.entrySpecDay + "\n\
-                            url:" + serviceURL);
-//            serviceURL = serviceURL.concat("?past=" + copy.filters.past);
-//            if (copy.filters.clientName.length > 3) {
-//                serviceURL = serviceURL.concat("&name=" + copy.filters.clientName);
-//            }
-//            if (copy.filters.type !== undefined && copy.filters.type.length > 0) {
-//                serviceURL = serviceURL.concat("&type=" + copy.filters.type);
-//            }
-//            if (copy.filters.date !== undefined && copy.filters.date.length > 0) {
-//                serviceURL = serviceURL.concat("&date=" + copy.filters.date);
-//            }
-//            if (copy.filters.time !== undefined && copy.filters.time.length > 0) {
-//                serviceURL = serviceURL.concat("&time=" + copy.filters.time);
-//            }
-//            if (copy.filters.limit !== undefined && copy.filters.limit.length > 0) {
-//                serviceURL = serviceURL.concat("&size=" + copy.filters.limit);
-//            }
-//            if (copy.filters.offset !== undefined && copy.filters.offset.length > 0) {
-//                serviceURL = serviceURL.concat("&offset=" + copy.filters.offset);
-//            }
-            this.basicQuery(copy, serviceURL, callback);
-        }, basicQuery: function (copy, url, callback) {
+            if (copy.filters.date !== undefined && copy.filters.date.length > 0) {
+                serviceURL = serviceURL.concat("/" + copy.filters.date);
+//                call query for only one employee
+                this.queryOne(copy, serviceURL, callback);
+            } else {
+                serviceURL = serviceURL.concat("?");
+//               if we're here - we are looking for multiple appointments
+//               and thus will be calling a different method
+                if (copy.filters.limit !== undefined && copy.filters.limit.length > 0) {
+                    serviceURL = serviceURL.concat("&size=" + copy.filters.limit);
+                }
+                if (copy.filters.offset !== undefined && copy.filters.offset.length > 0) {
+                    serviceURL = serviceURL.concat("&offset=" + copy.filters.offset);
+                }
+                //same method is called regardless of whether size & offset are set
+                this.queryMultiple(copy, serviceURL, callback);
+            }
+        }, queryMultiple: function (copy, url, callback) {
             $.ajax({
                 url: url,
                 type: 'get',
@@ -177,13 +172,49 @@
                                 item.endAt, item.breakStart || "", item.breakEnd || "",
                                 item.duration, item.blocked, item.message || "");
                     });
-                    callback(copy);
+                    callback("success", copy, null);
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
                     var err = xhr.responseText;
-                    alert(err);
+                    callback("failure", copy, err);
                 }
             });
+        }, queryOne: function (copy, url, callback) {
+            $.ajax({
+                url: url,
+                type: 'get',
+                data: null,
+                dataType: 'json',
+                success: function (data) {
+                    console.log(data);
+                    copy.specdays = [];
+                    var item = data.dayWithSpecialSchedule;
+                    copy.specdays.push(new sch.SpecialDay(item.id, item.date, item.startAt,
+                            item.endAt, item.breakStart || "", item.breakEnd || "",
+                            item.duration, item.blocked, item.message || ""));
+
+                    callback("success", copy, null);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    var err = xhr.responseText;
+                    callback("failure", copy, err);
+                }
+            });
+        }, getNext: function (copy, callback) {
+            var serviceURL = copy.next;
+            this.queryMultiple(copy, serviceURL, callback);
+        },
+        getPrevious: function (copy, callback) {
+            var serviceURL = copy.previous;
+            this.queryMultiple(copy, serviceURL, callback);
+        },
+        getLast: function (copy, callback) {
+            var serviceURL = copy.last;
+            this.queryMultiple(copy, serviceURL, callback);
+        },
+        getFirst: function (copy, callback) {
+            var serviceURL = copy.first;
+            this.queryMultiple(copy, serviceURL, callback);
         }
     };
 })(window.sch = window.sch || {}, jQuery, ko);

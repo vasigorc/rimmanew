@@ -5,6 +5,7 @@
  */
 package com.vgorcinschi.rimmanew.entities;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -25,7 +26,7 @@ import javax.persistence.Table;
  *
  * @author vgorcinschi
  */
-@JsonRootName(value="day with special schedule")
+@JsonRootName(value="dayWithSpecialSchedule")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
 @Access(AccessType.PROPERTY)
@@ -57,6 +58,7 @@ public class SpecialDay implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @JsonGetter("id")
     public long getId() {
         return id;
     }
