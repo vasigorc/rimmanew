@@ -9,7 +9,9 @@
                 <div class="row">
                     <div class="col-md-8 col-md-offset-2">
                         <div data-bind="ifnot: entryAppointment" class="row-breaker">
-                            <button data-bind="click: revertShowFilters" class="btn btn-default">#{bigcopy.schedulerFilterBtn}</button>
+                            <button data-bind="click: revertShowFilters" class="btn btn-default">
+                                <i class="glyphicon glyphicon-search"></i>
+                            </button>
                             <button data-bind="click: newAppointment" class="btn btn-info">#{bigcopy.schedulerCreateBtn}</button>
                         </div>
                     </div>

@@ -110,3 +110,16 @@ fieldset[disabled] .move-button.active {
     opacity: 0.9;
     z-index: 1040;    
 }
+
+.label-std-width{
+    min-width: 3.5em;
+}
+
+.form-inline div input{
+    margin-right: 2em;
+    margin-bottom: 0.5em;
+}
+
+.time-input{
+    max-width: 5.5em;
+}

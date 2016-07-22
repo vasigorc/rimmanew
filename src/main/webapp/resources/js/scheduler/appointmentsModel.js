@@ -119,6 +119,7 @@
             //remove failure alert if activated
             $('#failureAlert').css("display", "none");
             self.entryAppointment(null);
+            self.updateView();
         };
         self.toJSON = function () {
             var copy = ko.toJS(self);

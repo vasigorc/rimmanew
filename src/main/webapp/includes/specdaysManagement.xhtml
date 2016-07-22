@@ -15,7 +15,9 @@ and open the template in the editor.
             <div class="row">
                 <div class="col-md-8 col-md-offset-2">
                     <div data-bind="ifnot: entrySpecDay" class="row-breaker">
-                        <button data-bind="click: revertShowFilters" class="btn btn-default">#{bigcopy.schedulerFilterBtn}</button>
+                        <button data-bind="click: revertShowFilters" class="btn btn-default">
+                            <i class="glyphicon glyphicon-search"></i>
+                        </button>
                         <button data-bind="click: newSpecDay" class="btn btn-info">#{bigcopy.schedulerCreateBtn}</button>
                     </div>
                 </div>
@@ -35,81 +37,77 @@ and open the template in the editor.
                         <span id="sd-requestErrorMsg"></span>
                     </div>
                     <!--the form for a new special day-->
-                    <form id="entrySpecialDayForm" class="form-horizontal" role="form" 
-                          data-bind="with: entrySpecDay, submit: saveSpecDay">    
-                        <div data-bind="validationElement: date" class="form-group">
-                            <label for="datepicker-sd-entryDate" class="col-sm-2 control-label">#{bigcopy.tableDate}</label>
-                            <div class="col-sm-10">
+                    <form id="entrySpecialDayForm" role="form" 
+                          data-bind="with: entrySpecDay, submit: saveSpecDay">
+                        <fieldset class="form-inline">
+                            <div data-bind="validationElement: date" class="form-group">
+                                <label class="label-std-width" for="datepicker-sd-entryDate">#{bigcopy.tableDate}</label>
                                 <input placeholder="yyyy-mm-dd" class="form-control" id="datepicker-sd-entryDate" 
                                        data-bind="value: date, valueUpdate:'keyup'"></input>
                                 <span class="error-text" data-bind="validationMessage: date"></span>
                             </div>
-                        </div>
-                        <div data-bind="validationElement: startAt, ifnot:blocked" 
-                             class="form-group">
-                            <label class="col-sm-2 control-label" for="entrystartAt">#{bigcopy.schedulerStartAt}</label>
-                            <div class="col-sm-10">
-                                <input placeholder="hh:mm" class="form-control" id="entrystartAt" 
+                        </fieldset>
+                        <fieldset class="form-inline">
+                            <div data-bind="validationElement: startAt, ifnot:blocked" 
+                                 class="form-group">
+                                <label class="label-std-width" for="entrystartAt">#{bigcopy.schedulerStartAt}</label>       
+                                <input placeholder="hh:mm" class="form-control time-input" id="entrystartAt" 
                                        data-bind="value: startAt, valueUpdate:'keyup'"></input>
-                                <span class="error-text" data-bind="validationMessage: startAt"></span>
-                            </div>                            
-                        </div>
-                        <div data-bind="validationElement: endAt, ifnot: blocked" 
-                             class="form-group">
-                            <label class="col-sm-2 control-label" for="entryEndAt">#{bigcopy.schedulerEndAt}</label>
-                            <div class="col-sm-10">
-                                <input placeholder="hh:mm" class="form-control" id="entryEndAt" 
+                                <span class="error-text" data-bind="validationMessage: startAt"></span>                               
+                            </div>
+                            <div data-bind="validationElement: endAt, ifnot: blocked" 
+                                 class="form-group">
+                                <label class="label-std-width" for="entryEndAt">#{bigcopy.schedulerEndAt}</label>            
+                                <input placeholder="hh:mm" class="form-control time-input" id="entryEndAt" 
                                        data-bind="value: endAt, valueUpdate:'keyup'"></input>
-                                <span class="error-text" data-bind="validationMessage: endAt"></span>
-                            </div>                            
-                        </div>
-                        <div data-bind="validationElement: breakStart, ifnot: blocked" 
-                             class="form-group">
-                            <label class="col-sm-2 control-label" for="entrybreakStart">#{bigcopy.schedulerBreakStart}</label>
-                            <div class="col-sm-10">
-                                <input placeholder="hh:mm" class="form-control" id="entrybreakStart" 
+                                <span class="error-text" data-bind="validationMessage: endAt"></span>                                       
+                            </div>
+                            <div data-bind="validationElement: duration, ifnot: blocked" class="form-group">
+                                <label class="label-std-width" for="entryDuration">#{bigcopy.schedulerDuration}</label>
+                                <input type="number" class="form-control time-input" id="entryDuration" data-bind="value: duration, valueUpdate:'keyup'"></input>
+                                <span class="error-text" data-bind="validationMessage: duration"></span>
+                            </div>
+                        </fieldset>
+                        <fieldset class="form-inline">
+                            <div data-bind="validationElement: breakStart, ifnot: blocked" 
+                                 class="form-group">
+                                <label class="label-std-width" for="entrybreakStart">#{bigcopy.schedulerBreakStart}</label>
+                                <input placeholder="hh:mm" class="form-control time-input" id="entrybreakStart" 
                                        data-bind="value: breakStart, valueUpdate:'keyup'"></input>
-                                <span class="error-text" data-bind="validationMessage: breakStart"></span>
-                            </div>                            
-                        </div>
-                        <div data-bind="validationElement: breakEnd, ifnot: blocked" 
-                             class="form-group">
-                            <label class="col-sm-2 control-label" for="entrybreakEnd">#{bigcopy.schedulerBreakEnd}</label>
-                            <div class="col-sm-10">
-                                <input placeholder="hh:mm" class="form-control" id="entrybreakEnd" 
+                                <span class="error-text" data-bind="validationMessage: breakStart"></span>                            
+                            </div>
+                            <div data-bind="validationElement: breakEnd, ifnot: blocked" 
+                                 class="form-group">
+                                <label class="label-std-width" for="entrybreakEnd">#{bigcopy.schedulerBreakEnd}</label>
+                                <input placeholder="hh:mm" class="form-control time-input" id="entrybreakEnd" 
                                        data-bind="value: breakEnd, valueUpdate:'keyup'"></input>
                                 <span class="error-text" data-bind="validationMessage: breakEnd"></span>
-                            </div>                            
-                        </div>
-                        <div data-bind="validationElement: duration, ifnot: blocked" class="form-group">
-                            <label class="col-sm-2 control-label" for="entryDuration">#{bigcopy.schedulerDuration}</label>
-                            <input style="max-width: 5em;" type="number" 
-                                   class="form-control" id="entryDuration" 
-                                   data-bind="value: duration, valueUpdate:'keyup'"></input>
-                            <span class="error-text" data-bind="validationMessage: duration"></span>
-                        </div>
-                        <div class="checkbox" data-bind="validationElement: blocked">
-                            <label class="col-sm-2 control-label">
-                                <input value="option1" type="checkbox" id="entryBlocked" 
-                                       data-bind="checked: blocked"/> #{bigcopy.schedulerBlocked}
-                            </label>
-                            <span class="error-text" data-bind="validationMessage: blocked"></span>
-                        </div>
-                        <div data-bind="validationElement: message" class="form-group">
-                            <label class="col-sm-2 control-label" for="entrySdMessage">#{copy.importantMsg}</label>
-                            <div class="col-sm-10">
-                                <textarea id="entrySdMessage" cols="50" 
-                                          data-bind="value: message, valueUpdate: 'keyup'" class="form-control" rows="3"></textarea>
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <div class="checkbox" data-bind="validationElement: blocked">
+                                <label class="label-std-width" for="entryBlocked">
+                                    <input type="checkbox" id="entryBlocked" 
+                                           data-bind="checked: blocked"/> #{bigcopy.schedulerBlocked}
+                                </label>
+                                <span class="error-text" data-bind="validationMessage: blocked"></span>
+                            </div>
+                            <div data-bind="validationElement: message" class="form-group">
+                                <label class="label-std-width"  for="entrySdMessage">#{copy.importantMsg}</label>
+                                <textarea id="entrySdMessage" 
+                                          data-bind="value: message, valueUpdate: 'keyup'" class="form-control"></textarea>
                                 <span class="error-text" data-bind="validationMessage: message"></span>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-sm-offset-2 col-sm-10">
-                                <!--<button type="submit" class="btn btn-primary">#{bigcopy.schedulerSaveNew}</button>-->
+                        </fieldset>
+                        <fieldset>
+                            <div class="form-group">
+                                <!--<div class="col-sm-offset-2 col-sm-10">-->
+                                    <!--<button type="submit" class="btn btn-primary">#{bigcopy.schedulerSaveNew}</button>-->
                                 <button type="button" data-bind="click: $parent.cancelSpecDay" 
                                         class="btn btn-danger">#{bigcopy.schedulerCancelNew}</button>
-                            </div>                            
-                        </div>
+                                <!--</div>                            -->
+                            </div>
+                        </fieldset>
                     </form>
                 </div>
             </div>
