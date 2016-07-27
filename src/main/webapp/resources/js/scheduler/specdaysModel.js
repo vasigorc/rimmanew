@@ -49,7 +49,41 @@
         self.newSpecDay = function () {
             self.entrySpecDay(new sch.EntrySpecialDay());
         };
+        self.validateAndSave = function () {
+            $('#sd-failureAlert').css("display", "none");
+            var requiredFields = [self.entrySpecDay().date];
+            if (self.entrySpecDay().blocked() === false) {
+                requiredFields.push(self.entrySpecDay().startAt, self.entrySpecDay().endAt,
+                        self.entrySpecDay().duration, self.entrySpecDay().blocked);
+            }
+            var errors = ko.validation.group(requiredFields);
+            if (errors().length > 0) {
+                errors.showAllMessages(true);
+                return false;
+            }else{
+                self.saveSpecDay();
+            }
+        };
         self.saveSpecDay = function () {
+            var sdCandidate = ko.toJS(self.entrySpecDay());
+            if (sdCandidate.id === "" || sdCandidate.id === null) {
+                dataService.createSpecialDay(ko.toJSON(sdCandidate), function (action, errorMsg) {
+                    if (action === "saved") {
+                        $('#sd-persistOpsTitle').text(sch.appointmentLabels.get("success"));
+                        $('#persistOpsOutcome')
+                                .text(sch.appointmentLabels.get("sd-saved")
+                                        + self.entrySpecDay().date());
+                        self.entrySpecDay(null);
+                        $('#sd-successAlert').css("display", "block").delay(3000).fadeOut();
+                        self.updateView();
+                    } else if (action === "failed") {
+                        $('#sd-requestErrorMsg').text(" " + errorMsg);
+                        $('#sd-failureAlert').css("display", "block");
+                    }
+                });
+            } else {
+                //TODO: UPDATE CASE
+            }
         };
         self.cleanUp = function () {
             $("#specdaysTable thead tr th").each(function () {

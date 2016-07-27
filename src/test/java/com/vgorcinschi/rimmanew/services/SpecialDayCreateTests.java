@@ -12,9 +12,17 @@ import com.vgorcinschi.rimmanew.entities.SpecialDay;
 import com.vgorcinschi.rimmanew.rest.services.SpecialDayResourceService;
 import static com.vgorcinschi.rimmanew.util.InputValidators.stringIsValidDate;
 import com.vgorcinschi.rimmanew.util.Java8Toolkit;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.time.LocalDate;
 import static java.time.LocalDate.of;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+import javax.json.stream.JsonGenerator;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import org.hamcrest.Matchers;
@@ -36,6 +44,8 @@ public class SpecialDayCreateTests {
     private final SpecialDayResourceService service;
     private final SpecialDayRepository repository;
     private final AppointmentRepository appointmentsRepository;
+    private final Map<String, Object> configs = new HashMap<>(1);
+    private final JsonBuilderFactory factory;
 
     public SpecialDayCreateTests() {
         this.service = new SpecialDayResourceService();
@@ -44,6 +54,8 @@ public class SpecialDayCreateTests {
         this.repository = new OutsideContainerSpecialDayRepository();
         service.setAppointmentsRepository(appointmentsRepository);
         service.setRepository(repository);
+        this.configs.put(JsonGenerator.PRETTY_PRINTING, true);
+        this.factory = Json.createBuilderFactory(configs);
     }
 
     @Before
@@ -113,17 +125,6 @@ public class SpecialDayCreateTests {
     }
 
     @Test
-    public void forgotToProvideDateTest() {
-        try {
-            service.addSpecialDay(null, "9:00", "15:00",
-                    "12:30", "12:00", "40", "false", null, "false");
-        } catch (Exception e) {
-            assertThat(e, Matchers.instanceOf(BadRequestException.class));
-            System.out.println("\nforgotToProvideDateTest: " + e.getMessage());
-        }
-    }
-
-    @Test
     public void wrongDurationFormat() {
         try {
             SpecialDay sd = service.checkAndBuild(Java8Toolkit.localToSqlDate(of(2016, 03, 15)), "9:00", "15:00",
@@ -160,14 +161,23 @@ public class SpecialDayCreateTests {
 
     //INTEGRATION TESTS START HERE
     @Test
-    @Ignore
     public void successfullyStoredSpecialDay() {
         String dayRepr = null;
         while (!stringIsValidDate.apply(dayRepr)) {
             dayRepr = getRandomStringDate();
         }
-        Response response = service.addSpecialDay(dayRepr, "9:00", "15:00",
-                "12:00", "12:30", "30", "false", "Short day", "true");
+        JsonObject value = factory.createObjectBuilder()
+                .add("date", dayRepr)
+                .add("startAt", "9:00")
+                .add("endAt", "15:00")
+                .add("breakStart", "12:00")
+                .add("breakEnd", "12:30")
+                .add("duration", "30")
+                .add("blocked", "false")
+                .add("message", "Short day")
+                .add("allowConflicts", "true").build();
+        InputStream is = new ByteArrayInputStream(value.toString().getBytes());
+        Response response = service.addSpecialDay(is);
         System.out.println("\nsuccessfullyStoredSpecialDayJSON: " + response.getEntity().toString());
         assertTrue("We are "
                 + " testing whether the URI contains the"
@@ -175,25 +185,65 @@ public class SpecialDayCreateTests {
     }
 
     @Test
+    public void forgotToProvideDateTest() {
+        try {
+            JsonObject value = factory.createObjectBuilder()
+                    .add("date", "")
+                    .add("startAt", "9:00")
+                    .add("endAt", "15:00")
+                    .add("breakStart", "12:30")
+                    .add("breakEnd", "12:00")
+                    .add("duration", "40")
+                    .add("blocked", "false")
+                    .add("message", "")
+                    .add("allowConflicts", "false").build();
+            InputStream is = new ByteArrayInputStream(value.toString().getBytes());
+            service.addSpecialDay(is);
+        } catch (Exception e) {
+            assertThat(e, Matchers.instanceOf(BadRequestException.class));
+            System.out.println("\nforgotToProvideDateTest: " + e.getMessage());
+        }
+    }
+
+    @Test
     public void tryToStoreInvalidDate() {
         try {
-            Response response = service.addSpecialDay("2016-02-30", "9:00", "15:00",
-                    "12:00", "12:30", "30", "false", "Short day", "true");
+            JsonObject value = factory.createObjectBuilder()
+                    .add("date", "2016-02-30")
+                    .add("startAt", "9:00")
+                    .add("endAt", "15:00")
+                    .add("breakStart", "12:00")
+                    .add("breakEnd", "12:30")
+                    .add("duration", "30")
+                    .add("blocked", "false")
+                    .add("message", "Short day")
+                    .add("allowConflicts", "true").build();
+            InputStream is = new ByteArrayInputStream(value.toString().getBytes());
+            service.addSpecialDay(is);
         } catch (Exception e) {
             assertThat("Since there isn't a 30th February"
                     + " we are expecting a 400 Error.", e, instanceOf(BadRequestException.class));
-            System.out.println("\n tryToStoreInvalidDate: " + e.getMessage());
+            System.out.println("\ntryToStoreInvalidDate: " + e.getMessage());
         }
     }
 
     @Test
     public void savingSpecialWithConflicts() {
         try {
-            Response response = service.addSpecialDay("2016-03-31", "9:00", "15:00",
-                    "12:00", "12:30", "30", "false", "Short day", "false");
+            JsonObject value = factory.createObjectBuilder()
+                    .add("date", "2016-03-31")
+                    .add("startAt", "9:00")
+                    .add("endAt", "15:00")
+                    .add("breakStart", "12:00")
+                    .add("breakEnd", "12:30")
+                    .add("duration", "30")
+                    .add("blocked", "false")
+                    .add("message", "Short day")
+                    .add("allowConflicts", "false").build();
+            InputStream is = new ByteArrayInputStream(value.toString().getBytes());
+            service.addSpecialDay(is);
         } catch (Exception e) {
-            assertThat("Since there isn't a 30th February"
-                    + " we are expecting a 400 Error.", e, instanceOf(BadRequestException.class));
+            assertThat(e, instanceOf(BadRequestException.class));
             System.out.println("\nsavingSpecialWithConflicts: " + e.getMessage());
         }
     }
@@ -207,27 +257,47 @@ public class SpecialDayCreateTests {
     }
 
     @Test
-    public void testIfCheckAndBuildExceptionIsRethrown() {
+    public void testEmptyDurationSubmission() {
         String dayRepr = null;
         while (!stringIsValidDate.apply(dayRepr)) {
             dayRepr = getRandomStringDate();
         }
         try {
-            Response response = service.addSpecialDay(dayRepr, "9:00", "15:00",
-                    "12:00", "12:30", "", "false", "Short day", "false");
+            JsonObject value = factory.createObjectBuilder()
+                    .add("date", dayRepr)
+                    .add("startAt", "9:00")
+                    .add("endAt", "15:00")
+                    .add("breakStart", "12:00")
+                    .add("breakEnd", "12:30")
+                    .add("duration", "")
+                    .add("blocked", "false")
+                    .add("message", "Short day")
+                    .add("allowConflicts", "false").build();
+            InputStream is = new ByteArrayInputStream(value.toString().getBytes());
+            service.addSpecialDay(is);
         } catch (Exception e) {
             assertThat("We are expecting a 400 Error because of the"
                     + "empty duration field.", e, instanceOf(BadRequestException.class));
-            System.out.println("\ntestIfCheckAndBuildExceptionIsRethrown: " + e.getMessage());
+            System.out.println("\ntestEmptyDurationSubmission: " + e.getMessage());
         }
     }
 
     @Test
     public void attemptingToStoreAnEngagedSpecialDay() {
-        //we know that '2016-05-15' is in the database
+        //we know that '2016-01-01' is in the database
         try {
-            Response response = service.addSpecialDay("2016-05-15", "9:00", "15:00",
-                    "12:00", "12:30", "45", "false", "Short day", "false");
+            JsonObject value = factory.createObjectBuilder()
+                    .add("date", "2016-01-01")
+                    .add("startAt", "9:00")
+                    .add("endAt", "15:00")
+                    .add("breakStart", "12:00")
+                    .add("breakEnd", "12:30")
+                    .add("duration", "45")
+                    .add("blocked", "false")
+                    .add("message", "Short day")
+                    .add("allowConflicts", "false").build();
+            InputStream is = new ByteArrayInputStream(value.toString().getBytes());
+            service.addSpecialDay(is);
         } catch (Exception e) {
             assertThat("We are expecting a 400 Error because of the"
                     + " 'occupied' day.", e, instanceOf(BadRequestException.class));

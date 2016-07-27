@@ -9,6 +9,25 @@
     //this has to be taken from the hidden field in the page <- from companyPropertiesBean
     sch.restServiceRoot = "http://localhost:8080/RimmaNew/rest";
     //dealing with appointments
+
+    var basicPost = function (data, url, callback) {
+        console.log(data);
+        $.ajax({
+            url: url,
+            type: 'post',
+            dataType: 'json',
+            data: data,
+            contentType: 'application/json',
+            success: function (data) {
+                callback("saved", null);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                var err = xhr.responseText;
+                callback("failed", err);
+            }
+        });
+    };
+
     sch.AppointmentsService = {
         getAppointments: function (copy, callback) {
             serviceURL = sch.restServiceRoot + "/appointments";
@@ -51,7 +70,7 @@
         },
         createAppointment: function (data, callback) {
             serviceURL = sch.restServiceRoot + "/appointments";
-            this.basicPost(data, serviceURL, callback);
+            basicPost(data, serviceURL, callback);
         },
         updateAppointment: function (data, appointmentId, callback) {
             serviceURL = sch.restServiceRoot + "/appointments/" + appointmentId;
@@ -87,22 +106,7 @@
                 }
             });
         },
-        basicPost: function (data, url, callback) {
-            $.ajax({
-                url: url,
-                type: 'post',
-                dataType: 'json',
-                data: data,
-                contentType: 'application/json',
-                success: function (data) {
-                    callback("saved", null);
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    var err = xhr.responseText;
-                    callback("failed", err);
-                }
-            });
-        }, basicPut: function (data, url, callback) {
+        basicPut: function (data, url, callback) {
             $.ajax({
                 url: url,
                 type: 'put',
@@ -153,6 +157,10 @@
                 //same method is called regardless of whether size & offset are set
                 this.queryMultiple(copy, serviceURL, callback);
             }
+        },
+        createSpecialDay: function (data, callback) {
+            serviceURL = sch.restServiceRoot + "/specialdays";
+            basicPost(data, serviceURL, callback);
         }, queryMultiple: function (copy, url, callback) {
             $.ajax({
                 url: url,

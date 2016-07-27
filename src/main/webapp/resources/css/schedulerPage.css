@@ -123,3 +123,8 @@ fieldset[disabled] .move-button.active {
 .time-input{
     max-width: 5.5em;
 }
+
+.checkbox label{
+    margin-right: 2em;
+    margin-bottom: 0.5em;
+}

@@ -48,7 +48,7 @@
         }).extend({rateLimit: 550});
         this.message.extend({
             maxLength: 250
-        }).extend({rateLimit: 500});        
+        }).extend({rateLimit: 500});
     };
     sch.EntryAppointment.prototype = Object.create(sch.Appointment.prototype);
     sch.EntryAppointment.prototype.constructor = sch.EntryAppointment;
@@ -93,10 +93,15 @@
             pattern: '^([01]?[0-9]|2[0-3]):[0-5][0-9]'
         }).extend({rateLimit: 1000});
         this.duration.extend({
-                digit: true,
-                max: 120,
-                min: 15
-            }).extend({rateLimit: 1000});
+            required: true,
+            digit: true,
+            max: 120,
+            min: 15
+        }).extend({rateLimit: 1000});
+        this.blocked.extend({
+            required: true
+        });
+        this.allowConflicts = ko.observable(false);
     };
     sch.EntrySpecialDay.prototype = Object.create(sch.SpecialDay.prototype);
     sch.EntrySpecialDay.prototype.constructor = sch.EntrySpecialDay;

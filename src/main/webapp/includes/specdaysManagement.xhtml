@@ -24,9 +24,9 @@ and open the template in the editor.
             </div>
             <!-- Success alert -->
             <div class="col-md-8 col-md-offset-2">
-                <div style="display:none; margin-left:-0.75em;" id="successAlert" class="alert alert-success" role="alert">
-                    <span id="persistOpsTitle" style="font-weight:bold;"></span>
-                    <span id="persistOpsOutcome"></span>
+                <div style="display:none; margin-left:-0.75em;" id="sd-successAlert" class="alert alert-success" role="alert">
+                    <span id="sd-persistOpsTitle" style="font-weight:bold;"></span>
+                    <span id="sd-persistOpsOutcome"></span>
                 </div>
             </div>
             <div class="row">
@@ -38,7 +38,7 @@ and open the template in the editor.
                     </div>
                     <!--the form for a new special day-->
                     <form id="entrySpecialDayForm" role="form" 
-                          data-bind="with: entrySpecDay, submit: saveSpecDay">
+                          data-bind="with: entrySpecDay, submit: validateAndSave">
                         <fieldset class="form-inline">
                             <div data-bind="validationElement: date" class="form-group">
                                 <label class="label-std-width" for="datepicker-sd-entryDate">#{bigcopy.tableDate}</label>
@@ -84,28 +84,33 @@ and open the template in the editor.
                                 <span class="error-text" data-bind="validationMessage: breakEnd"></span>
                             </div>
                         </fieldset>
-                        <fieldset>
-                            <div class="checkbox" data-bind="validationElement: blocked">
+                        <fieldset class="form-inline">                            
+                            <div class="checkbox">
                                 <label class="label-std-width" for="entryBlocked">
                                     <input type="checkbox" id="entryBlocked" 
                                            data-bind="checked: blocked"/> #{bigcopy.schedulerBlocked}
                                 </label>
-                                <span class="error-text" data-bind="validationMessage: blocked"></span>
                             </div>
+                            <div class="checkbox">
+                                <label class="label-std-width" for="entryAllowConflicts">
+                                    <input type="checkbox" id="entryAllowConflicts" 
+                                           data-bind="checked: allowConflicts"/> #{bigcopy.schedulerAllowConflicts}
+                                </label>
+                            </div>
+                        </fieldset>
+                        <fieldset class="form-inline">
                             <div data-bind="validationElement: message" class="form-group">
                                 <label class="label-std-width"  for="entrySdMessage">#{copy.importantMsg}</label>
-                                <textarea id="entrySdMessage" 
+                                <textarea id="entrySdMessage" cols="50"
                                           data-bind="value: message, valueUpdate: 'keyup'" class="form-control"></textarea>
                                 <span class="error-text" data-bind="validationMessage: message"></span>
                             </div>
                         </fieldset>
-                        <fieldset>
-                            <div class="form-group">
-                                <!--<div class="col-sm-offset-2 col-sm-10">-->
-                                    <!--<button type="submit" class="btn btn-primary">#{bigcopy.schedulerSaveNew}</button>-->
+                        <fieldset class="form-inline">
+                            <div style="margin-top: 0.5em;" class="form-group">
+                                <button type="submit" class="btn btn-primary">#{bigcopy.schedulerSaveNew}</button>
                                 <button type="button" data-bind="click: $parent.cancelSpecDay" 
                                         class="btn btn-danger">#{bigcopy.schedulerCancelNew}</button>
-                                <!--</div>                            -->
                             </div>
                         </fieldset>
                     </form>
