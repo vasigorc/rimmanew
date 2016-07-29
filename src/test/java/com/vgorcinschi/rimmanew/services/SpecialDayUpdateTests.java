@@ -9,6 +9,14 @@ import com.vgorcinschi.rimmanew.ejbs.AppointmentRepository;
 import com.vgorcinschi.rimmanew.ejbs.OutsideContainerJpaTests;
 import com.vgorcinschi.rimmanew.ejbs.SpecialDayRepository;
 import com.vgorcinschi.rimmanew.rest.services.SpecialDayResourceService;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
+import javax.json.stream.JsonGenerator;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import static org.hamcrest.Matchers.instanceOf;
@@ -16,6 +24,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 
 /**
  *
@@ -27,6 +36,8 @@ public class SpecialDayUpdateTests {
     private final SpecialDayRepository repository;
     private final AppointmentRepository appointmentsRepository;
     private String storedDate;
+    private final Map<String, Object> configs = new HashMap<>(1);
+    private final JsonBuilderFactory factory;
 
     public SpecialDayUpdateTests() {
         this.service = new SpecialDayResourceService();
@@ -35,11 +46,13 @@ public class SpecialDayUpdateTests {
         this.repository = new OutsideContainerSpecialDayRepository();
         service.setAppointmentsRepository(appointmentsRepository);
         service.setRepository(repository);
+        this.configs.put(JsonGenerator.PRETTY_PRINTING, true);
+        this.factory = Json.createBuilderFactory(configs);
     }
 
     @Before
     public void setUp() {
-        storedDate = "2016-06-18";
+        storedDate = "2016-09-02";
     }
 
     @After
@@ -48,8 +61,18 @@ public class SpecialDayUpdateTests {
 
     @Test
     public void successfullyUpdatedDay() {
-        Response response = service.updateSpecialDay(storedDate, "9:00", "15:00",
-                "12:00", "13:00", "30", "false", "Short day", "true");
+        JsonObject value = factory.createObjectBuilder()
+                .add("date", storedDate)
+                .add("startAt", "9:00")
+                .add("endAt", "15:00")
+                .add("breakStart", "12:00")
+                .add("breakEnd", "12:30")
+                .add("duration", "30")
+                .add("blocked", "false")
+                .add("message", "Short day")
+                .add("allowConflicts", "true").build();
+        InputStream is = new ByteArrayInputStream(value.toString().getBytes());
+        Response response = service.updateSpecialDay(storedDate, is);
         System.out.println("\nsuccessfullyUpdatedDay: " + response.getEntity().toString());
         assertTrue("We are "
                 + " testing whether the URI contains the"
@@ -59,8 +82,18 @@ public class SpecialDayUpdateTests {
     @Test
     public void aMandatoryFieldSkippedInRequestTest() {
         try {
-            Response response = service.updateSpecialDay(storedDate, "9:00", "15:00",
-                    "12:00", "13:00", "30", "", "Short day", "true");
+            JsonObject value = factory.createObjectBuilder()
+                    .add("date", storedDate)
+                    .add("startAt", "9:00")
+                    .add("endAt", "15:00")
+                    .add("breakStart", "12:00")
+                    .add("breakEnd", "13:00")
+                    .add("duration", "30")
+                    .add("blocked", "")
+                    .add("message", "Short day")
+                    .add("allowConflicts", "true").build();
+            InputStream is = new ByteArrayInputStream(value.toString().getBytes());
+            service.updateSpecialDay(storedDate, is);
         } catch (Exception e) {
             assertThat("The caught exception must be of type BadRequestException",
                     e, instanceOf(BadRequestException.class));
@@ -71,8 +104,18 @@ public class SpecialDayUpdateTests {
     @Test
     public void invalidDayFormatRequestTest() {
         try {
-            Response response = service.updateSpecialDay("11th of January", "9:00", "15:00",
-                    "12:00", "13:00", "30", "false", "Short day", "true");
+            JsonObject value = factory.createObjectBuilder()
+                    .add("date", "11th of January")
+                    .add("startAt", "9:00")
+                    .add("endAt", "15:00")
+                    .add("breakStart", "12:00")
+                    .add("breakEnd", "13:00")
+                    .add("duration", "30")
+                    .add("blocked", "false")
+                    .add("message", "Short day")
+                    .add("allowConflicts", "true").build();
+            InputStream is = new ByteArrayInputStream(value.toString().getBytes());
+            service.updateSpecialDay(storedDate, is);
         } catch (Exception e) {
             assertThat("The caught exception must be of type BadRequestException",
                     e, instanceOf(BadRequestException.class));
@@ -90,8 +133,18 @@ public class SpecialDayUpdateTests {
          provided
          */
         try {
-            Response response = service.updateSpecialDay(storedDate, null, null,
-                    "12:00", "13:00", "30", "false", "Short day", "true");
+            JsonObject value = factory.createObjectBuilder()
+                    .add("date", storedDate)
+                    .add("startAt", "")
+                    .add("endAt", "")
+                    .add("breakStart", "12:00")
+                    .add("breakEnd", "13:00")
+                    .add("duration", "30")
+                    .add("blocked", "false")
+                    .add("message", "Short day")
+                    .add("allowConflicts", "true").build();
+            InputStream is = new ByteArrayInputStream(value.toString().getBytes());
+            service.updateSpecialDay(storedDate, is);
         } catch (Exception e) {
             assertThat("The caught exception must be of type BadRequestException",
                     e, instanceOf(BadRequestException.class));
@@ -103,8 +156,18 @@ public class SpecialDayUpdateTests {
     public void requestedForUpdateDateDoesnExistTest() {
         //2015-12-20 isn't stored in the DB
         try {
-            Response response = service.updateSpecialDay("2015-12-20", "9:00", "15:00",
-                    "12:00", "13:00", "30", "false", "Short day", "true");
+            JsonObject value = factory.createObjectBuilder()
+                    .add("date", "2015-12-20")
+                    .add("startAt", "9:00")
+                    .add("endAt", "15:00")
+                    .add("breakStart", "12:00")
+                    .add("breakEnd", "13:00")
+                    .add("duration", "30")
+                    .add("blocked", "false")
+                    .add("message", "Short day")
+                    .add("allowConflicts", "true").build();
+            InputStream is = new ByteArrayInputStream(value.toString().getBytes());
+            service.updateSpecialDay(storedDate, is);
         } catch (Exception e) {
             assertThat("The caught exception must be of type BadRequestException",
                     e, instanceOf(BadRequestException.class));
@@ -116,8 +179,18 @@ public class SpecialDayUpdateTests {
     public void requestWithAllowConflictsNotAllowedTest() {
         //we know that there are appointments on 2016-01-19
         try {
-            Response response = service.updateSpecialDay("2016-01-19", "9:00", "15:00",
-                    "12:00", "13:00", "30", "false", "Short day", "false");
+            JsonObject value = factory.createObjectBuilder()
+                    .add("date", "2016-01-19")
+                    .add("startAt", "9:00")
+                    .add("endAt", "15:00")
+                    .add("breakStart", "12:00")
+                    .add("breakEnd", "13:00")
+                    .add("duration", "30")
+                    .add("blocked", "false")
+                    .add("message", "Short day")
+                    .add("allowConflicts", "false").build();
+            InputStream is = new ByteArrayInputStream(value.toString().getBytes());
+            service.updateSpecialDay(storedDate, is);
         } catch (Exception e) {
             assertThat("The caught exception must be of type BadRequestException",
                     e, instanceOf(BadRequestException.class));
