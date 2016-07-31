@@ -28,6 +28,39 @@
         });
     };
 
+    var basicPut = function (data, url, callback) {
+        $.ajax({
+            url: url,
+            type: 'put',
+            dataType: 'json',
+            data: data,
+            contentType: 'application/json',
+            success: function (data) {
+                callback("updated", null);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                var err = xhr.responseText;
+                callback("failed", err);
+            }
+        });
+    };
+
+    var basicDelete = function (url, pathSuffix, callback) {
+        $.ajax({
+            url: url,
+            type: 'delete',
+            dataType: 'json',
+            contentType: 'application/json',
+            success: function (data) {
+                callback("deleted", null, pathSuffix);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                var err = xhr.responseText;
+                callback("failed", err, pathSuffix);
+            }
+        });
+    };
+
     sch.AppointmentsService = {
         getAppointments: function (copy, callback) {
             serviceURL = sch.restServiceRoot + "/appointments";
@@ -74,11 +107,11 @@
         },
         updateAppointment: function (data, appointmentId, callback) {
             serviceURL = sch.restServiceRoot + "/appointments/" + appointmentId;
-            this.basicPut(data, serviceURL, callback);
+            basicPut(data, serviceURL, callback);
         },
         deleteAppointment: function (appointmentId, callback) {
             serviceURL = sch.restServiceRoot + "/appointments/" + appointmentId;
-            this.basicDelete(serviceURL, appointmentId, callback);
+            basicDelete(serviceURL, appointmentId, callback);
         },
         basicQuery: function (copy, url, callback) {
             $.ajax({
@@ -103,22 +136,6 @@
                 error: function (xhr, ajaxOptions, thrownError) {
                     var err = xhr.responseText;
                     alert(err);
-                }
-            });
-        },
-        basicPut: function (data, url, callback) {
-            $.ajax({
-                url: url,
-                type: 'put',
-                dataType: 'json',
-                data: data,
-                contentType: 'application/json',
-                success: function (data) {
-                    callback("updated", null);
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    var err = xhr.responseText;
-                    callback("failed", err);
                 }
             });
         }, basicDelete: function (url, appId, callback) {
@@ -157,10 +174,15 @@
                 //same method is called regardless of whether size & offset are set
                 this.queryMultiple(copy, serviceURL, callback);
             }
-        },
-        createSpecialDay: function (data, callback) {
+        },  createSpecialDay: function (data, callback) {
             serviceURL = sch.restServiceRoot + "/specialdays";
             basicPost(data, serviceURL, callback);
+        }, updateSpecialDay: function (data, sdDate, callback) {
+            serviceURL = sch.restServiceRoot + "/specialdays/" + sdDate;
+            basicPut(data, serviceURL, callback);
+        }, deleteSpecialDay: function (sdDate, callback) {
+            serviceURL = sch.restServiceRoot + "/specialdays/" + sdDate;
+            basicDelete(serviceURL, sdDate, callback);
         }, queryMultiple: function (copy, url, callback) {
             $.ajax({
                 url: url,

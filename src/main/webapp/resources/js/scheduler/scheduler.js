@@ -43,6 +43,34 @@
                 $('.ui-widget-overlay').removeClass('custom-overlay');
             }
         });
+        //modal before delete for 'sdmodel'
+        $("#sd-deleteDialog").dialog({
+            autoOpen: false,
+            closeOnEscape: true,
+            modal: true,
+            position: {my: "center", at: "center", of: window},
+            buttons: [
+                {
+                    text: sch.appointmentLabels.get("confirm-delete"),
+                    click: function () {
+                        sdmodel.deleteSpecialDay();
+                        $(this).dialog("close");
+                    }
+                }
+            ],
+            hide: {effect: "fadeOut", duration: 750},
+            fluid: true,
+            resizable: true,
+            height: 'auto',
+            width: 'auto', // overcomes width:'auto' and maxWidth bug
+            maxWidth: 600,
+            open: function () {
+                $('.ui-widget-overlay').addClass('custom-overlay');
+            },
+            close: function () {
+                $('.ui-widget-overlay').removeClass('custom-overlay');
+            }
+        });
         //create two datepickers for specdays and applications scopes
         //we must create one instead of two (using jquery wildcard selector)
         //as the minDate parameter must be different for the two

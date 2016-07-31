@@ -11,6 +11,7 @@
         self.previous = ko.observable();
         self.dateSortAscending = ko.observable(false);
         self.showFilters = ko.observable(false);
+        self.deleteCandidateDate = ko.observable("");
         self.filters = ko.observable({
             date: ko.observable().extend({
                 required: false,
@@ -28,6 +29,25 @@
                 min: 0
             }).extend({rateLimit: 1000})
         });
+        self.deleteSpecialDay = function () {
+            $('#sd-failureAlert').css("display", "none");
+            dataService.deleteSpecialDay(self.deleteCandidateDate, function (action,
+                    errorMsg, sdDate) {
+                if (action === "deleted") {
+                    $('#sd-persistOpsOutcome').text(sch.sdLabels.get("deleted1")
+                            + sdDate + sch.sdLabels.get("deleted2"));
+                    $('#sd-successAlert').css("display", "block").delay(3000).fadeOut();
+                    self.updateView();
+                } else if (action === "failed") {
+                    $('#sd-requestErrorMsg').text(" " + errorMsg);
+                    $('#sd-failureAlert').css("display", "block");
+                }
+            });
+        };
+        self.popDelete = function (specialDay) {
+            $("#sd-deleteDialog").dialog("open");
+            self.deleteCandidateDate = ko.toJS(specialDay).date;
+        };
         self.cancelSpecDay = function () {
             //remove failure alert if activated
             $('#sd-failureAlert').css("display", "none");
@@ -49,6 +69,10 @@
         self.newSpecDay = function () {
             self.entrySpecDay(new sch.EntrySpecialDay());
         };
+        self.editSpecDay = function (specDay) {
+            specDay.toggleEdits();
+            self.entrySpecDay(new sch.EntrySpecialDay(ko.toJS(specDay)));
+        };
         self.validateAndSave = function () {
             $('#sd-failureAlert').css("display", "none");
             var requiredFields = [self.entrySpecDay().date];
@@ -60,17 +84,20 @@
             if (errors().length > 0) {
                 errors.showAllMessages(true);
                 return false;
-            }else{
+            } else {
                 self.saveSpecDay();
             }
         };
         self.saveSpecDay = function () {
             var sdCandidate = ko.toJS(self.entrySpecDay());
+            delete sdCandidate.displayEdits;
+            delete sdCandidate.toggleEdits;
+            delete sdCandidate.self;
             if (sdCandidate.id === "" || sdCandidate.id === null) {
                 dataService.createSpecialDay(ko.toJSON(sdCandidate), function (action, errorMsg) {
                     if (action === "saved") {
                         $('#sd-persistOpsTitle').text(sch.appointmentLabels.get("success"));
-                        $('#persistOpsOutcome')
+                        $('#sd-persistOpsOutcome')
                                 .text(sch.appointmentLabels.get("sd-saved")
                                         + self.entrySpecDay().date());
                         self.entrySpecDay(null);
@@ -82,7 +109,23 @@
                     }
                 });
             } else {
-                //TODO: UPDATE CASE
+                dataService.updateSpecialDay(ko.toJSON(sdCandidate),
+                        sdCandidate.date, function (action, errorMsg) {
+                            //1. remove the entry form 2. show the modal 3. update
+                            //the table
+                            if (action === "updated") {
+                                $('#sd-persistOpsTitle').text(sch.appointmentLabels.get("success"));
+                                $('#sd-persistOpsOutcome')
+                                        .text(sch.sdLabels.get("updated")
+                                                + self.entrySpecDay().date());
+                                self.entrySpecDay(null);
+                                $('#sd-successAlert').css("display", "block").delay(3000).fadeOut();
+                                self.updateView();
+                            } else if (action === "failed") {
+                                $('#sd-requestErrorMsg').text(" " + errorMsg);
+                                $('#sd-failureAlert').css("display", "block");
+                            }
+                        });
             }
         };
         self.cleanUp = function () {

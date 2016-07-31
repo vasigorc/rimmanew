@@ -273,6 +273,7 @@ public class SpecialDayResourceService {
             throw new InternalServerErrorException("Could not 'objectify' an incoming Special Day Candidate: "
                     + "" + stream.toString() + ": " + e.getMessage());
         }
+        log.info("New special day candidate: "+candidate);
         String[] cantDoWithout = {candidate.getDate(), candidate.getBlocked(), candidate.getAllowConflicts()};
         if (!InputValidators.allStringsAreGood.apply(cantDoWithout)) {
             throw new BadRequestException("You forgot to enter either the special schedule's "

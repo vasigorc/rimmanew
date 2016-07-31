@@ -64,13 +64,18 @@
         this.duration = ko.observable(duration);
         this.blocked = ko.observable(blocked);
         this.message = ko.observable(message);
+        var self = this;
+        self.displayEdits = ko.observable(false);
+        self.toggleEdits = function () {
+            self.displayEdits(!self.displayEdits());
+        };
     };
     sch.EntrySpecialDay = function (init) {
         if (init === undefined) {
             sch.SpecialDay.call(this, "", "", "", "", "", "", "", false, "");
         } else {
             sch.SpecialDay.call(this, init.id, init.date, init.startAt, init.endAt,
-                    init.breakStart, init.breakEnd, init.duration, init.blocked || "",
+                    init.breakStart, init.breakEnd, init.duration, init.blocked,
                     init.message || "");
         }
         this.date.extend({
