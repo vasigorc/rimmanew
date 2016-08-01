@@ -49,7 +49,6 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.POST;
@@ -370,113 +369,6 @@ public class SpecialDayResourceService {
                     + "the problem to the support team.");
         }
     }
-
-//    @PUT
-//    @Path("{date}")
-//    @Produces("application/json")
-//    @Consumes("application/x-www-form-urlencoded")
-//    public Response updateSpecialDay(@PathParam("date") String appDate, @FormParam("start") String startAt,
-//            @FormParam("end") String endAt, @FormParam("breakStart") String breakStart,
-//            @FormParam("breakEnd") String breakEnd, @FormParam("duration") String duration,
-//            @FormParam("blocked") String blocked, @FormParam("message") String message,
-//            @DefaultValue("false") @FormParam("allowConflicts") String allowConflicts) {
-//        String[] cantDoWithout = {appDate, blocked, allowConflicts};
-//        if (!InputValidators.allStringsAreGood.apply(cantDoWithout)) {
-//            throw new BadRequestException("You forgot to enter either the special schedule's "
-//                    + "day (format: yyyy-MM-dd), whether it is or it is not a "
-//                    + "blocked day or whether you permit this schedule day to "
-//                    + "conflict with the existing appointments (both true or"
-//                    + " false). These fields are mandatory -please try again.",
-//                    Response.status(Response.Status.BAD_REQUEST).build());
-//        }
-//        Date sdDate = new SqlDateConverter().fromString(appDate);
-//        //checking for conflicting appointments
-//        CompletableFuture<Optional<List<Appointment>>> conflictingAppointments
-//                = CompletableFuture.supplyAsync(
-//                        () -> {
-//                            return ofNullable(appointmentsRepository.getByDate(sdDate));
-//                        }, ExecutorFactoryProvider.getSingletonExecutorOf30());
-//        /*
-//         same as in addSpecialDay method
-//         we do not immediately check if the requested appDate exists or not
-//         in order to prevent the legal appDate harvesting by measuring the time
-//         difference in responses between entering valid/invalid appDates
-//         */
-//        CompletableFuture<Optional<SpecialDay>> oldSd
-//                = CompletableFuture.supplyAsync(() -> {
-//                    //safe to use the passed 'appDate' param from the user - already validated
-//                    //above
-//                    return ofNullable(repository.getSpecialDay(parse(appDate)));
-//                },
-//                ExecutorFactoryProvider.getSingletonExecutorOf30());
-//        SpecialDay newDay = null;
-//        try {
-//            newDay = checkAndBuild(sdDate, startAt, endAt, breakStart, breakEnd, duration, blocked, message);
-//        } catch (Exception e) {
-//            //cancelling existing Futures - tested successfully
-//            oldSd.cancel(true);
-//            conflictingAppointments.cancel(true);
-//            throw e;
-//        }
-//        //this line is not reached unless SpecialDay newDay is valid
-//        //only now we check whether the requested date exists and throw a 
-//        //400 error with a corresponding message
-//        try {
-//            Optional<SpecialDay> oldSpecialDay = oldSd.get(1, TimeUnit.SECONDS);
-//            if (!oldSpecialDay.isPresent()) {
-//                //forcing to complete the remaining Future. Using this instead
-//                //of the cancel() method - the later isn't working in these
-//                //circumstances - a known bug - getNow() tested successfully
-//                conflictingAppointments.getNow(null);
-//                throw new BadRequestException("There is no special schedule "
-//                        + "on " + appDate + ". So it is hard to update it. You can consider "
-//                        + "creating one instead.",
-//                        Response.status(Response.Status.BAD_REQUEST).build());
-//            } else {
-//                //CHECK FOR CONFLICTING APPOINTMENTS!!!
-//                Optional<List<Appointment>> conflicts = empty();
-//                try {
-//                    conflicts = conflictingAppointments.get(500, TimeUnit.MILLISECONDS);
-//                } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-//                    Logger.getLogger(SpecialDayResourceService.class.getName()).log(Level.SEVERE, null, ex);
-//                    throw new InternalServerErrorException("It took the application "
-//                            + "too long check for the conflicts with the"
-//                            + " existing appointments. Please contact the support team;");
-//                }
-//                if (conflicts.isPresent() && conflicts.get().size() > 0
-//                        && !allowConflicts.equals("true")) {
-//                    /*
-//                     Make the user is aware that there may be conflicts with the existing
-//                     appointments.
-//                     */
-//                    throw new BadRequestException("Please note that there is(are) currently "
-//                            + conflicts.get().size() + " appointment(s) on " + appDate
-//                            + ". Check the corresponding check-box to confirm "
-//                            + "that you still want to save this day.",
-//                            Response.status(Response.Status.BAD_REQUEST).build());
-//                } else {
-//                    /*
-//                     If we're here - we can safely (with sincere heart)
-//                     So that our JPA doesn't complain we need to add the id of the
-//                     oldSpecialDay to the newDay and merge :-)
-//                     */
-//                    newDay.setId(oldSpecialDay.get().getId());
-//                    repository.updateSpecialDay(newDay);
-//                    //send back 200 response along with the resource address of the
-//                    //updated item
-//                    Map<String, String> map = new HashMap<>();
-//                    map.put("path", "specialdays/" + newDay.getDate().toString());
-//                    return Response.ok(
-//                            getJsonRepr("link", uriGenerator.apply(appsUriBuilder, map).toASCIIString())).build();
-//                }
-//            }
-//        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-//            Logger.getLogger(SpecialDayResourceService.class.getName()).log(Level.SEVERE, null, ex);
-//            throw new InternalServerErrorException("It took the application "
-//                    + "too long to query the database. Please try again or signal "
-//                    + "the problem to the support team.");
-//        }
-//    }
 
     @DELETE
     @Path("{date}")

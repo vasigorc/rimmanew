@@ -7,6 +7,7 @@ package com.vgorcinschi.rimmanew.model;
 
 import com.vgorcinschi.rimmanew.annotations.Production;
 import com.vgorcinschi.rimmanew.ejbs.CompanyProperties;
+import static com.vgorcinschi.rimmanew.util.InputValidators.stringNotNullNorEmpty;
 import java.io.Serializable;
 import static java.lang.String.valueOf;
 import javax.inject.Named;
@@ -21,10 +22,10 @@ import javax.inject.Inject;
 @SessionScoped
 public class UriSetterBean implements Serializable {
 
-    private String hostName, schemeName;
+    private String hostName, schemeName, serviceSuffix, javascriptLink;
     private int port;
     private boolean urisUpdated, updateTried;
-    
+
     @Inject
     @Production
     private CompanyProperties companyProperties;
@@ -32,12 +33,18 @@ public class UriSetterBean implements Serializable {
     public UriSetterBean() {
         this.urisUpdated = false;
         this.updateTried = false;
+        serviceSuffix = "/RimmaNew/rest";
+        if (companyProperties==null) {
+            System.out.println("true");
+        }else{
+            System.out.println("false");
+        }
     }
-    
+
     public void setCompanyProperties(CompanyProperties companyProperties) {
         this.companyProperties = companyProperties;
     }
-    
+
     public String getHostName() {
         return companyProperties.getHostName();
     }
@@ -95,5 +102,35 @@ public class UriSetterBean implements Serializable {
 
     public void setUpdateTried(boolean updateTried) {
         this.updateTried = updateTried;
+    }
+
+    public String getServiceSuffix() {
+        return serviceSuffix;
+    }
+
+    public void setServiceSuffix(String serviceSuffix) {
+        this.serviceSuffix = serviceSuffix;
+    }
+
+    public String getJavascriptLink() {
+        updateJavascriptLink();
+        return javascriptLink;
+    }
+
+    public void setJavascriptLink(String javascriptLink) {
+        this.javascriptLink = javascriptLink;
+    }
+
+    public void updateJavascriptLink() {
+        StringBuilder result = new StringBuilder("");
+        if (stringNotNullNorEmpty.apply(schemeName)) {
+            result.append(schemeName).append("://");
+        }
+        result.append(hostName);
+        if (valueOf(port) == null || port != 0) {
+            result.append(port);
+        }
+        result.append(serviceSuffix);
+        setJavascriptLink(result.toString());
     }
 }

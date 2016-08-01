@@ -138,22 +138,9 @@
                     alert(err);
                 }
             });
-        }, basicDelete: function (url, appId, callback) {
-            $.ajax({
-                url: url,
-                type: 'delete',
-                dataType: 'json',
-                contentType: 'application/json',
-                success: function (data) {
-                    callback("deleted", null, appId);
-                },
-                error: function (xhr, ajaxOptions, thrownError) {
-                    var err = xhr.responseText;
-                    callback("failed", err, appId);
-                }
-            });
         }
     };
+    
     sch.SpecdaysService = {
         getSpecDays: function (copy, callback) {
             serviceURL = sch.restServiceRoot + "/specialdays";
