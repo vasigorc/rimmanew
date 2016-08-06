@@ -7,7 +7,7 @@
 
 (function (sch, $, ko) {
     //this has to be taken from the hidden field in the page <- from companyPropertiesBean
-    sch.restServiceRoot = "http://localhost:8080/RimmaNew/rest";
+    sch.restServiceRoot = $('#RESTServiceBaseURL').val();
     //dealing with appointments
 
     var basicPost = function (data, url, callback) {
@@ -140,7 +140,7 @@
             });
         }
     };
-    
+
     sch.SpecdaysService = {
         getSpecDays: function (copy, callback) {
             serviceURL = sch.restServiceRoot + "/specialdays";
@@ -161,7 +161,7 @@
                 //same method is called regardless of whether size & offset are set
                 this.queryMultiple(copy, serviceURL, callback);
             }
-        },  createSpecialDay: function (data, callback) {
+        }, createSpecialDay: function (data, callback) {
             serviceURL = sch.restServiceRoot + "/specialdays";
             basicPost(data, serviceURL, callback);
         }, updateSpecialDay: function (data, sdDate, callback) {

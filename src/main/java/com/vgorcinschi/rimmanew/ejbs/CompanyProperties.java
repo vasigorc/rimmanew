@@ -35,4 +35,7 @@ public interface CompanyProperties {
     int getDaysBeforeMarkingAsPast();
     @AccessTimeout(unit = TimeUnit.SECONDS, value = 15)
     int getDaysBeforeForceDeletingTheAppointmentRecord();
+    @AccessTimeout(unit = TimeUnit.SECONDS, value = 15)
+    String getSuffix();
+    void setSuffix(String suffix);
 }

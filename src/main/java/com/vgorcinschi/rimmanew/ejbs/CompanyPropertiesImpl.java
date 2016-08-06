@@ -15,6 +15,7 @@ import javax.ejb.Startup;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 /**
  *
  * @author vgorcinschi
@@ -78,6 +79,16 @@ public class CompanyPropertiesImpl implements CompanyProperties {
         } else {
             this.uriProperties.setProperty("port", valueOf(port));
         }
+    }
+
+    @Override
+    public String getSuffix() {
+        return this.uriProperties.getProperty("suffix");
+    }
+
+    @Override
+    public void setSuffix(String suffix) {
+        this.uriProperties.setProperty("suffix", suffix);
     }
 
     @Override
