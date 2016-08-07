@@ -7,6 +7,7 @@ package com.vgorcinschi.rimmanew.model;
 
 import com.vgorcinschi.rimmanew.annotations.Production;
 import com.vgorcinschi.rimmanew.ejbs.CompanyProperties;
+import com.vgorcinschi.rimmanew.util.InputValidators;
 import static com.vgorcinschi.rimmanew.util.InputValidators.stringNotNullNorEmpty;
 import java.io.Serializable;
 import static java.lang.String.valueOf;
@@ -23,7 +24,7 @@ import javax.inject.Inject;
 @SessionScoped
 public class UriSetterBean implements Serializable {
 
-    private String hostName, schemeName,suffix, javascriptLink;
+    private String hostName, schemeName, suffix, javascriptLink;
     private final String restDirectory = "rest";
     private int port;
     private boolean urisUpdated, updateTried;
@@ -31,9 +32,9 @@ public class UriSetterBean implements Serializable {
     @Inject
     @Production
     private CompanyProperties companyProperties;
-    
+
     @PostConstruct
-    public void init(){
+    public void init() {
         setHostName(companyProperties.getHostName());
         setSchemeName(companyProperties.getSchemeName());
         setPort(companyProperties.getPort());
@@ -84,7 +85,7 @@ public class UriSetterBean implements Serializable {
         this.suffix = suffix;
         companyProperties.setSuffix(suffix);
     }
-    
+
     public void updateUriProperties() {
         if (hostName == null || hostName.equals("") || schemeName == null || schemeName
                 .equals("")) {
@@ -93,11 +94,15 @@ public class UriSetterBean implements Serializable {
         } else {
             companyProperties.setHostName(hostName);
             companyProperties.setSchemeName(schemeName);
-            if (valueOf(port) == null || port != 0) {
+            if (valueOf(port) != null || port != 0) {
                 companyProperties.setPort(port);
             } else //i.e. port is not part of the uri
             {
                 companyProperties.setPort(-1);
+            }
+            if (InputValidators.stringNotNullNorEmpty.apply(suffix)
+                    || suffix.length() >= 1 || suffix.matches("^[a-zA-Z0-9]*$")) {
+                companyProperties.setSuffix(suffix);
             }
             updateTried = true;
             urisUpdated = true;
