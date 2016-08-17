@@ -21,7 +21,7 @@ import static org.junit.Assert.*;
  */
 public class ServiceMethodsTests {
     private InMemoryAppointmentRepository repository;
-    private DefaultAppointmentService service;
+    private com.vgorcinschi.rimmanew.ejbs.DefaultAppointmentService service;
     
     public ServiceMethodsTests() {
         repository = new InMemoryAppointmentRepository();

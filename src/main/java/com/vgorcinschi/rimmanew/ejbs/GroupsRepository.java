@@ -5,8 +5,8 @@
  */
 package com.vgorcinschi.rimmanew.ejbs;
 
-import com.vgorcinschi.rimmanew.entities.SpecialDay;
-import java.time.LocalDate;
+import com.vgorcinschi.rimmanew.entities.Credential;
+import com.vgorcinschi.rimmanew.entities.Groups;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.ejb.AccessTimeout;
@@ -20,18 +20,18 @@ import javax.ejb.LockType;
  */
 @Local
 @Lock(LockType.WRITE)
-public interface SpecialDayRepository {
-
-    //Create
-    boolean setSpecialDay(SpecialDay sd);
-    //Read
-    @AccessTimeout(unit = TimeUnit.SECONDS, value = 15)
-    SpecialDay getSpecialDay(LocalDate ld);
-    @AccessTimeout(unit = TimeUnit.SECONDS, value = 15)
-    public List<SpecialDay> getAll();
-    //Update
-    boolean updateSpecialDay(SpecialDay sd);
-    //Delete
-    boolean deleteSpecialDay(SpecialDay sd);
+public interface GroupsRepository {
     
+    public boolean addGroup(Groups group);
+    
+    public boolean updateGroups(Groups group);
+    
+    @AccessTimeout(unit = TimeUnit.SECONDS, value = 15)
+    public Groups getByGroupName(String groupName);
+    
+    @AccessTimeout(unit = TimeUnit.SECONDS, value = 15)
+    public List<Groups> getByCredential(Credential credential);
+    
+    @AccessTimeout(unit = TimeUnit.SECONDS, value = 15)
+    public List<Groups> getAll();
 }
