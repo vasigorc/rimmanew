@@ -9,9 +9,9 @@ import java.io.Serializable;
 import java.time.Instant;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
-import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -56,7 +56,7 @@ public class Credential extends MetaInfo implements Serializable {
         updateModified();
     }
 
-    @Basic
+    @Column(name="passwd")
     public String getPasswd() {
         return passwd;
     }
@@ -66,16 +66,18 @@ public class Credential extends MetaInfo implements Serializable {
         updateModified();
     }
 
-    @ManyToOne
-    public Groups getGroups() {
+    @ManyToOne(fetch = FetchType.LAZY)
+    public Groups getGroup() {
         return group;
     }
 
-    public void setGroups(Groups group) {
+    public void setGroup(Groups group) {
         this.group = group;
+        group.getCredentials().add(this);
         updateModified();
     }
 
+    @Column(name="is_blocked")
     public boolean isBlocked() {
         return blocked;
     }
@@ -85,6 +87,7 @@ public class Credential extends MetaInfo implements Serializable {
         updateModified();
     }
 
+    @Column(name="is_suspended")
     public boolean isSuspended() {
         return suspended;
     }

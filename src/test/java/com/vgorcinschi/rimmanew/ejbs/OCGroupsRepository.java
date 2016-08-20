@@ -5,7 +5,6 @@
  */
 package com.vgorcinschi.rimmanew.ejbs;
 
-import com.vgorcinschi.rimmanew.entities.Appointment;
 import com.vgorcinschi.rimmanew.entities.Groups;
 import com.vgorcinschi.rimmanew.util.EntityManagerFactoryProvider;
 import java.util.List;

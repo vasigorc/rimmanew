@@ -6,10 +6,11 @@
 package com.vgorcinschi.rimmanew.entities;
 
 import java.io.Serializable;
-import java.time.Instant;
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -32,46 +33,55 @@ import javax.persistence.Table;
             query = "SELECT g FROM Groups g order by g.modifiedDate DESC")
 })
 public class Groups extends MetaInfo implements Serializable {
-
+    
     private String groupName;
     private Set<Credential> credentials;
-
+    
     public Groups() {
         super();
+        credentials = new HashSet<>();
     }
-
+    
     public Groups(String groupName) {
-        super(Instant.now(), null);
+        this();
         this.groupName = groupName;
     }
-
+    
     public Groups(String createdBy, String groupName) {
+        this();
         setCreatedBy(createdBy);
         this.groupName = groupName;
     }
-
+    
     @Id
     @Column(name = "group_name")
     public String getGroupName() {
         return groupName;
     }
-
+    
     public void setGroupName(String groupName) {
         this.groupName = groupName;
         updateModified();
     }
-
-    @OneToMany(mappedBy = "groups")
+    
+    @OneToMany
     @JoinTable(
             name = "credential_groups",
-            joinColumns = @JoinColumn(name = "credential"),
-            inverseJoinColumns = @JoinColumn(name = "group")
+            joinColumns = @JoinColumn(name = "group_name"),
+            inverseJoinColumns = @JoinColumn(name = "username", unique=true)
     )
     public Set<Credential> getCredentials() {
         return credentials;
     }
-
+    
     public void setCredentials(Set<Credential> credentials) {
         this.credentials = credentials;
+    }
+    
+    public void addCredential(Credential c) {
+        credentials.add(c);
+        if (c.getGroup() != this) {
+            c.setGroup(this);
+        }
     }
 }
