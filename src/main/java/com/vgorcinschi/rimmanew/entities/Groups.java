@@ -19,7 +19,6 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
 /**
  *
@@ -27,8 +26,7 @@ import javax.persistence.UniqueConstraint;
  */
 @Entity
 @Access(AccessType.PROPERTY)
-@Table(name = "groups", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "group_name")})
+@Table(name = "groups")
 @NamedQueries({
     @NamedQuery(name = "findAllGroups",
             query = "SELECT g FROM Groups g order by g.modifiedDate DESC")

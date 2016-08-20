@@ -7,7 +7,6 @@ package com.vgorcinschi.rimmanew.entities;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.Set;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Basic;
@@ -16,7 +15,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
 /**
  *
@@ -24,8 +22,7 @@ import javax.persistence.UniqueConstraint;
  */
 @Entity
 @Access(AccessType.PROPERTY)
-@Table(name = "credential", uniqueConstraints = {
-		@UniqueConstraint(columnNames = "username")})
+@Table(name = "credential")
 public class Credential extends MetaInfo implements Serializable {
 
     private String username;
