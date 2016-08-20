@@ -13,7 +13,11 @@ import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -25,6 +29,10 @@ import javax.persistence.UniqueConstraint;
 @Access(AccessType.PROPERTY)
 @Table(name = "groups", uniqueConstraints = {
     @UniqueConstraint(columnNames = "group_name")})
+@NamedQueries({
+    @NamedQuery(name = "findAllGroups",
+            query = "SELECT g FROM Groups g order by g.modifiedDate DESC")
+})
 public class Groups extends MetaInfo implements Serializable {
 
     private String groupName;
@@ -55,7 +63,12 @@ public class Groups extends MetaInfo implements Serializable {
         updateModified();
     }
 
-    @ManyToMany
+    @OneToMany(mappedBy = "groups")
+    @JoinTable(
+            name = "credential_groups",
+            joinColumns = @JoinColumn(name = "credential"),
+            inverseJoinColumns = @JoinColumn(name = "group")
+    )
     public Set<Credential> getCredentials() {
         return credentials;
     }

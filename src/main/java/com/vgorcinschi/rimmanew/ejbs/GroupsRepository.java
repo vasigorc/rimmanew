@@ -30,8 +30,5 @@ public interface GroupsRepository {
     public Groups getByGroupName(String groupName);
     
     @AccessTimeout(unit = TimeUnit.SECONDS, value = 15)
-    public List<Groups> getByCredential(Credential credential);
-    
-    @AccessTimeout(unit = TimeUnit.SECONDS, value = 15)
     public List<Groups> getAll();
 }

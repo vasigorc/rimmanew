@@ -12,8 +12,6 @@ import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Transient;
-
 /**
  *
  * @author vgorcinschi

@@ -14,9 +14,7 @@ import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -32,7 +30,7 @@ public class Credential extends MetaInfo implements Serializable {
 
     private String username;
     private String passwd;
-    private Set<Groups> groups;
+    private Groups group;
     private boolean blocked;
     private boolean suspended;
 
@@ -71,28 +69,13 @@ public class Credential extends MetaInfo implements Serializable {
         updateModified();
     }
 
-    @ManyToMany(mappedBy = "credentials")
-    @JoinTable(
-            name = "credential_groups",
-            joinColumns = @JoinColumn(name = "credential"),
-            inverseJoinColumns = @JoinColumn(name = "group")
-    )
-    public Set<Groups> getGroups() {
-        return groups;
+    @ManyToOne
+    public Groups getGroups() {
+        return group;
     }
 
-    public void setGroups(Set<Groups> groups) {
-        this.groups = groups;
-        updateModified();
-    }
-
-    public void addAGroup(Groups group) {
-        groups.add(group);
-        updateModified();
-    }
-
-    public void removeAGroup(Groups group) {
-        groups.remove(group);
+    public void setGroups(Groups group) {
+        this.group = group;
         updateModified();
     }
 
@@ -102,6 +85,7 @@ public class Credential extends MetaInfo implements Serializable {
 
     public void setBlocked(boolean blocked) {
         this.blocked = blocked;
+        updateModified();
     }
 
     public boolean isSuspended() {
@@ -110,5 +94,6 @@ public class Credential extends MetaInfo implements Serializable {
 
     public void setSuspended(boolean suspended) {
         this.suspended = suspended;
+        updateModified();
     }
 }
