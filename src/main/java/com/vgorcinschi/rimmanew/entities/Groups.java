@@ -10,9 +10,9 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -33,51 +33,50 @@ import javax.persistence.Table;
             query = "SELECT g FROM Groups g order by g.modifiedDate DESC")
 })
 public class Groups extends MetaInfo implements Serializable {
-    
+
     private String groupName;
-    private Set<Credential> credentials;
-    
+    private Set<Credential> credentials = new HashSet<>();
+
     public Groups() {
         super();
-        credentials = new HashSet<>();
     }
-    
+
     public Groups(String groupName) {
         this();
         this.groupName = groupName;
     }
-    
+
     public Groups(String createdBy, String groupName) {
         this();
         setCreatedBy(createdBy);
         this.groupName = groupName;
     }
-    
+
     @Id
     @Column(name = "group_name")
     public String getGroupName() {
         return groupName;
     }
-    
+
     public void setGroupName(String groupName) {
         this.groupName = groupName;
         updateModified();
     }
-    
-    @OneToMany
+
+    @OneToMany(fetch=FetchType.EAGER)
     @JoinTable(
             name = "credential_groups",
             joinColumns = @JoinColumn(name = "group_name"),
-            inverseJoinColumns = @JoinColumn(name = "username", unique=true)
+            inverseJoinColumns = @JoinColumn(name = "username", unique = true)
     )
     public Set<Credential> getCredentials() {
         return credentials;
     }
-    
+
     public void setCredentials(Set<Credential> credentials) {
         this.credentials = credentials;
     }
-    
+
     public void addCredential(Credential c) {
         credentials.add(c);
         if (c.getGroup() != this) {

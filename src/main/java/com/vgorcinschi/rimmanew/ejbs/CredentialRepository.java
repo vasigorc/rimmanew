@@ -30,7 +30,7 @@ public interface CredentialRepository {
     public Credential getByUsername(String username);
     
     @AccessTimeout(unit = TimeUnit.SECONDS, value = 15)
-    public List<Credential> getByGroups(Groups group);
+    public List<Credential> getByGroups(String group);
     
     @AccessTimeout(unit = TimeUnit.SECONDS, value = 15)
     public List<Credential> getActive();

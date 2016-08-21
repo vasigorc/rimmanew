@@ -9,11 +9,14 @@ import java.io.Serializable;
 import java.time.Instant;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 /**
@@ -23,6 +26,16 @@ import javax.persistence.Table;
 @Entity
 @Access(AccessType.PROPERTY)
 @Table(name = "credential")
+@NamedQueries({
+    @NamedQuery(name = "findByGroup",
+            query = "SELECT c FROM "
+            + "Credential c WHERE LOWER(c.group.groupName) LIKE :group"),
+    @NamedQuery(name = "findAllCredentials",
+            query = "SELECT c FROM Credential c order by c.modifiedDate DESC"),
+    @NamedQuery(name = "findActiveCredentials",
+            query = "SELECT c FROM Credential c WHERE c.blocked = FALSE AND"
+                    + " c.suspended = FALSE order by c.modifiedDate DESC")
+})
 public class Credential extends MetaInfo implements Serializable {
 
     private String username;
@@ -30,6 +43,7 @@ public class Credential extends MetaInfo implements Serializable {
     private Groups group;
     private boolean blocked;
     private boolean suspended;
+    private String firstname, lastname;
 
     public Credential() {
         super();
@@ -46,7 +60,7 @@ public class Credential extends MetaInfo implements Serializable {
     }
 
     @Id
-    @Column(name="username")
+    @Column(name = "username")
     public String getUsername() {
         return username;
     }
@@ -56,7 +70,7 @@ public class Credential extends MetaInfo implements Serializable {
         updateModified();
     }
 
-    @Column(name="passwd")
+    @Column(name = "passwd")
     public String getPasswd() {
         return passwd;
     }
@@ -66,7 +80,7 @@ public class Credential extends MetaInfo implements Serializable {
         updateModified();
     }
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     public Groups getGroup() {
         return group;
     }
@@ -77,7 +91,7 @@ public class Credential extends MetaInfo implements Serializable {
         updateModified();
     }
 
-    @Column(name="is_blocked")
+    @Column(name = "is_blocked")
     public boolean isBlocked() {
         return blocked;
     }
@@ -87,7 +101,7 @@ public class Credential extends MetaInfo implements Serializable {
         updateModified();
     }
 
-    @Column(name="is_suspended")
+    @Column(name = "is_suspended")
     public boolean isSuspended() {
         return suspended;
     }
@@ -96,4 +110,25 @@ public class Credential extends MetaInfo implements Serializable {
         this.suspended = suspended;
         updateModified();
     }
+
+    @Column(name = "firstname")
+    public String getFirstname() {
+        return firstname;
+    }
+
+    public void setFirstname(String firstname) {
+        this.firstname = firstname;
+        updateModified();
+    }
+
+    @Column(name = "lastname")
+    public String getLastname() {
+        return lastname;
+    }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
+        updateModified();
+    }
+
 }

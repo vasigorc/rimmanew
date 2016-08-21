@@ -6,12 +6,13 @@
 package com.vgorcinschi.rimmanew.ejbs;
 
 import com.vgorcinschi.rimmanew.entities.Credential;
-import com.vgorcinschi.rimmanew.entities.Groups;
 import com.vgorcinschi.rimmanew.util.EntityManagerFactoryProvider;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
+import javax.persistence.NoResultException;
+import javax.persistence.TypedQuery;
 
 /**
  *
@@ -44,27 +45,77 @@ public class OCCredentialRepository implements CredentialRepository {
 
     @Override
     public boolean updateCredential(Credential credential) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        EntityManager em = entityManagerFactory.createEntityManager();
+        EntityTransaction trans = em.getTransaction();
+        try {
+            trans.begin();
+            em.merge(credential);
+            trans.commit();
+            return true;
+        } catch (Exception e) {
+            trans.rollback();
+            return false;
+        } finally {
+            em.close();
+        }
     }
 
     @Override
     public Credential getByUsername(String username) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        EntityManager em = entityManagerFactory.createEntityManager();
+        try {
+            TypedQuery<Credential> query = em.createQuery("SELECT c FROM "
+                    + "Credential c WHERE LOWER(c.username) LIKE :username",
+                    Credential.class).setParameter("username", username.toLowerCase());
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
     }
 
     @Override
-    public List<Credential> getByGroups(Groups group) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public List<Credential> getByGroups(String group) {
+        EntityManager em = entityManagerFactory.createEntityManager();
+        try {
+            TypedQuery<Credential> query = em.createNamedQuery("findByGroup",
+                    Credential.class).setParameter("group", group.toLowerCase());
+            return query.getResultList();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
     }
 
     @Override
     public List<Credential> getActive() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        EntityManager em = entityManagerFactory.createEntityManager();
+        try {
+            TypedQuery<Credential> query = em.createNamedQuery("findActiveCredentials",
+                    Credential.class);
+            return query.getResultList();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
+
     }
 
     @Override
     public List<Credential> getAll() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        EntityManager em = entityManagerFactory.createEntityManager();
+        try {
+            TypedQuery<Credential> query = em.createNamedQuery("findAllCredentials",
+                    Credential.class);
+            return query.getResultList();
+        } catch (NoResultException e) {
+            return null;
+        } finally {
+            em.close();
+        }
     }
 
 }

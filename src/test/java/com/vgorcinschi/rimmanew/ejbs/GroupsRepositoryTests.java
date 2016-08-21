@@ -35,21 +35,19 @@ public class GroupsRepositoryTests {
     }
 
     @Test
-//    @Ignore
+    @Ignore
     public void saveAGroup() {
         Groups group = new Groups("vgorcinschi", "admin");
         assertTrue(repo.addGroup(group));
     }
 
     @Test
-    @Ignore
     public void findAGroup() {
         Groups group = repo.getByGroupName("admin");
         assertNotNull(group);
     }
 
     @Test
-    @Ignore
     public void updateAGroup() {
         Groups group = repo.getByGroupName("admin");
         group.setModifiedDate(Instant.now());
@@ -58,7 +56,6 @@ public class GroupsRepositoryTests {
     }
 
     @Test
-    @Ignore
     public void getAllGroups() {
         assertThat("Just checking that the"
                 + " returned list is not empty", repo.getAll().isEmpty(), is(false));
