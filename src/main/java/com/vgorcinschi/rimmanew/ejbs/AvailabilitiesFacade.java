@@ -5,7 +5,7 @@
  */
 package com.vgorcinschi.rimmanew.ejbs;
 
-import com.vgorcinschi.rimmanew.model.ScheduleDay;
+import com.vgorcinschi.rimmanew.cdi.ScheduleDay;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;

@@ -6,7 +6,7 @@
 package com.vgorcinschi.rimmanew.helpers;
 
 import com.vgorcinschi.rimmanew.ejbs.AvailabilitiesFacadeImpl;
-import com.vgorcinschi.rimmanew.model.SpecialDaySchedule;
+import com.vgorcinschi.rimmanew.cdi.SpecialDaySchedule;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.getAvailabilitiesPerWorkingDay;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.noBreakInSchedule;
 import java.time.LocalDate;

@@ -5,6 +5,7 @@
  */
 package com.vgorcinschi.rimmanew.entities;
 
+import static com.vgorcinschi.rimmanew.util.SecurityPrompt.randomSalt;
 import java.io.Serializable;
 import java.time.Instant;
 import javax.persistence.Access;
@@ -39,7 +40,8 @@ import javax.persistence.Table;
 public class Credential extends MetaInfo implements Serializable {
 
     private String username;
-    private String passwd;
+    private byte[] passwd;
+    private byte[] salt;
     private Groups group;
     private boolean blocked;
     private boolean suspended;
@@ -47,16 +49,17 @@ public class Credential extends MetaInfo implements Serializable {
 
     public Credential() {
         super();
+        salt = randomSalt();
     }
 
     public Credential(String createdBy) {
         super(Instant.now(), createdBy);
+        salt = randomSalt();
     }
 
-    public Credential(String createdBy, String username, String passwd) {
+    public Credential(String createdBy, String username) {
         this(createdBy);
         this.username = username;
-        this.passwd = passwd;
     }
 
     @Id
@@ -71,16 +74,16 @@ public class Credential extends MetaInfo implements Serializable {
     }
 
     @Column(name = "passwd")
-    public String getPasswd() {
+    public byte[] getPasswd() {
         return passwd;
     }
 
-    public void setPasswd(String passwd) {
+    public void setPasswd(byte[] passwd) {
         this.passwd = passwd;
         updateModified();
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
     public Groups getGroup() {
         return group;
     }
@@ -131,4 +134,17 @@ public class Credential extends MetaInfo implements Serializable {
         updateModified();
     }
 
+    @Column(name = "salt")
+    public byte[] getSalt() {
+        return salt;
+    }
+
+    public void setSalt(byte[] salt) {
+        this.salt = salt;
+    }
+
+    @Override
+    public String toString() {
+        return "Credential{" + "username=" + username + ", group=" + group + ", blocked=" + blocked + ", suspended=" + suspended + ", firstname=" + firstname + ", lastname=" + lastname + '}';
+    }    
 }

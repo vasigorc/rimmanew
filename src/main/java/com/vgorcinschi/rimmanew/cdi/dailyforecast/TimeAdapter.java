@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.vgorcinschi.rimmanew.model.dailyforecast;
+package com.vgorcinschi.rimmanew.cdi.dailyforecast;
 
 import com.vgorcinschi.rimmanew.rest.weatherjaxb.Time;
 import java.time.LocalDate;

@@ -5,7 +5,6 @@
  */
 package com.vgorcinschi.rimmanew.ejbs;
 
-import com.vgorcinschi.rimmanew.entities.Credential;
 import com.vgorcinschi.rimmanew.entities.Groups;
 import java.util.List;
 import java.util.concurrent.TimeUnit;

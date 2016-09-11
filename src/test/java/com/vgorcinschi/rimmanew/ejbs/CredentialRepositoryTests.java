@@ -6,8 +6,13 @@
 package com.vgorcinschi.rimmanew.ejbs;
 
 import com.vgorcinschi.rimmanew.entities.Credential;
+import static com.vgorcinschi.rimmanew.entities.Credential_.passwd;
 import com.vgorcinschi.rimmanew.entities.Groups;
+import static com.vgorcinschi.rimmanew.util.SecurityPrompt.pbkdf2;
+import static com.vgorcinschi.rimmanew.util.SecurityPrompt.randomSalt;
+import java.util.Arrays;
 import org.junit.After;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
@@ -41,18 +46,49 @@ public class CredentialRepositoryTests {
     public void createCredentialTest() {
         //retrieve the group
         Groups admin = groupRepo.getByGroupName("admin");
-        Credential sampleUser = new Credential("user_creator", "sample_user", "abc123");
-        admin.addCredential(sampleUser);
-        assertTrue(groupRepo.updateGroups(admin));
+        Credential sampleUser = new Credential("user_creator", "sample_user_nr3");
+        sampleUser.setPasswd(pbkdf2("dnf2", sampleUser.getSalt(),
+                120000, 512));
+        sampleUser.setGroup(admin);
+        assertTrue(credentialRepo.createCredential(sampleUser));
     }
 
     @Test
     @Ignore
     public void savingAnotherCredential() {
         Groups admin = groupRepo.getByGroupName("admin");
-        Credential anoterUser = new Credential("user_creator", "sample_user_two", "abc123");
+        Credential anoterUser = new Credential("user_creator", "sample_user_two");
+        anoterUser.setPasswd(pbkdf2("abc123", anoterUser.getSalt(), 120000, 512));
         admin.addCredential(anoterUser);
         assertTrue(groupRepo.updateGroups(admin));
+    }
+
+    @Test
+    public void canComparePasswords() {
+        //retrieve an user
+        Credential c = credentialRepo.getByUsername("sample_user_two");
+        //get the encoded password
+        byte[] storedPassword = c.getPasswd();
+        //reproduce he encoded password with the same input string and salt
+        byte[] testPassword = pbkdf2("abc123", c.getSalt(), 120000, 512);
+        assertTrue(Arrays.equals(storedPassword, testPassword));
+        System.out.println("\ncanComparePasswords\nstoredPassword: "
+                + "" + Arrays.toString(storedPassword) + "\ntestPassword: "
+                + Arrays.toString(testPassword));
+    }
+    
+    @Test
+    public void wrongPasswordTest(){
+        //retrieve an user
+        Credential c = credentialRepo.getByUsername("sample_user_two");
+        //get the encoded password
+        byte[] storedPassword = c.getPasswd();
+        //same salt BUT the password is different in one letter only
+        byte[] testPassword = pbkdf2("aBc123", c.getSalt(), 120000, 512);
+        assertFalse(Arrays.equals(storedPassword, testPassword));
+        System.out.println("\nwrongPasswordTest\nstoredPassword: "
+                + "" + Arrays.toString(storedPassword) + "\ntestPassword: "
+                + Arrays.toString(testPassword));
     }
 
     @Test
@@ -77,9 +113,9 @@ public class CredentialRepositoryTests {
     public void getAllCredentials() {
         assertTrue(!credentialRepo.getAll().isEmpty());
     }
-    
+
     @Test
-    public void getActiveCredentials(){
+    public void getActiveCredentials() {
         assertTrue(credentialRepo.getActive().size() > 1);
     }
 }

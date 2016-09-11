@@ -20,7 +20,7 @@
         <root level="warn">
             <appender-ref ref="Console" />
         </root>
-        <logger name="com.vgorcinschi.rimmanew.rest.services" 
+        <logger name="com.vgorcinschi.rimmanew" 
               level="debug" additivity="false">
             <appender-ref ref="Console" />
         </logger>

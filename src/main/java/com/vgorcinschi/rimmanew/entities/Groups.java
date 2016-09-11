@@ -14,8 +14,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -35,7 +33,7 @@ import javax.persistence.Table;
 public class Groups extends MetaInfo implements Serializable {
 
     private String groupName;
-    private Set<Credential> credentials = new HashSet<>();
+    private Set<Credential> credentials = new HashSet<>();           
 
     public Groups() {
         super();
@@ -63,12 +61,7 @@ public class Groups extends MetaInfo implements Serializable {
         updateModified();
     }
 
-    @OneToMany(fetch=FetchType.EAGER)
-    @JoinTable(
-            name = "credential_groups",
-            joinColumns = @JoinColumn(name = "group_name"),
-            inverseJoinColumns = @JoinColumn(name = "username", unique = true)
-    )
+    @OneToMany(fetch=FetchType.EAGER, mappedBy = "group")
     public Set<Credential> getCredentials() {
         return credentials;
     }
@@ -82,5 +75,10 @@ public class Groups extends MetaInfo implements Serializable {
         if (c.getGroup() != this) {
             c.setGroup(this);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Groups{" + "groupName=" + groupName + '}';
     }
 }

@@ -30,4 +30,12 @@
             <to-view-id>/appConfirmation.xhtml</to-view-id>
         </navigation-case>
     </navigation-rule>
+    <navigation-rule>
+        <from-view-id>/login.xhtml</from-view-id>
+        <navigation-case>
+            <from-outcome>permit-admin</from-outcome>
+            <to-view-id>/admin/scheduler.xhtml</to-view-id>
+            <redirect></redirect>
+        </navigation-case>
+    </navigation-rule>
 </faces-config>

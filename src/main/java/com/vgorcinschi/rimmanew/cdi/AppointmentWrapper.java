@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.vgorcinschi.rimmanew.model;
+package com.vgorcinschi.rimmanew.cdi;
 
 import com.vgorcinschi.rimmanew.entities.Appointment;
 import java.time.LocalDate;

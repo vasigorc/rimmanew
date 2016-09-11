@@ -8,7 +8,7 @@ package com.vgorcinschi.rimmanew.ejbs;
 import com.vgorcinschi.rimmanew.annotations.JpaRepository;
 import com.vgorcinschi.rimmanew.annotations.JpaService;
 import com.vgorcinschi.rimmanew.entities.Appointment;
-import com.vgorcinschi.rimmanew.model.AppointmentWrapper;
+import com.vgorcinschi.rimmanew.cdi.AppointmentWrapper;
 import java.sql.Date;
 import java.sql.Time;
 import java.util.List;

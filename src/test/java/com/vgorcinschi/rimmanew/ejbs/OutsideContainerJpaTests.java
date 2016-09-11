@@ -7,7 +7,7 @@ package com.vgorcinschi.rimmanew.ejbs;
 
 import com.vgorcinschi.rimmanew.entities.Appointment;
 import com.vgorcinschi.rimmanew.entities.DivizableDay;
-import com.vgorcinschi.rimmanew.model.AppointmentWrapper;
+import com.vgorcinschi.rimmanew.cdi.AppointmentWrapper;
 import com.vgorcinschi.rimmanew.util.EntityManagerFactoryProvider;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.getAvailabilitiesPerWorkingDay;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToSqlDate;

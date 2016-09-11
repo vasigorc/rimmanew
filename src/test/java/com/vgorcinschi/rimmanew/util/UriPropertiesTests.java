@@ -6,7 +6,7 @@
 package com.vgorcinschi.rimmanew.util;
 
 import com.vgorcinschi.rimmanew.ejbs.CompanyPropertiesImpl;
-import com.vgorcinschi.rimmanew.model.UriSetterBean;
+import com.vgorcinschi.rimmanew.cdi.UriSetterBean;
 import java.util.Properties;
 import org.junit.After;
 import static org.junit.Assert.assertTrue;

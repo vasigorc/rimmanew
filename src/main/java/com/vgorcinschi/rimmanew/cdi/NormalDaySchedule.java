@@ -3,10 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.vgorcinschi.rimmanew.model;
+package com.vgorcinschi.rimmanew.cdi;
 
 import java.time.LocalTime;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,18 +13,22 @@ import java.util.Optional;
  *
  * @author vgorcinschi
  */
-public class ClosedDaySchedule implements ScheduleDay{
-
-    private String message;
+public class NormalDaySchedule implements ScheduleDay {
     
+    private final Optional<List<LocalTime>> slots;
+
+    public NormalDaySchedule(Optional<List<LocalTime>> slots) {
+        this.slots = slots;
+    }    
+
     @Override
     public boolean isBlocked() {
-        return true;
+        return false;
     }
 
     @Override
     public Optional<List<LocalTime>> getSlots() {
-        return Optional.of(new LinkedList<LocalTime>());
+        return slots;
     }
 
     @Override
@@ -35,11 +38,7 @@ public class ClosedDaySchedule implements ScheduleDay{
 
     @Override
     public String getMessage() {
-        return Optional.ofNullable(message).orElse("");
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
+        return "";
     }
     
 }

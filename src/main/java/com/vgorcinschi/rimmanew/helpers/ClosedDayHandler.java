@@ -7,7 +7,7 @@ package com.vgorcinschi.rimmanew.helpers;
 
 import com.vgorcinschi.rimmanew.ejbs.AvailabilitiesFacadeImpl;
 import com.vgorcinschi.rimmanew.entities.SpecialDay;
-import com.vgorcinschi.rimmanew.model.ClosedDaySchedule;
+import com.vgorcinschi.rimmanew.cdi.ClosedDaySchedule;
 import java.time.LocalDate;
 import java.util.Optional;
 import static java.util.Optional.ofNullable;

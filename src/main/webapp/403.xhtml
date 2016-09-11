@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html">
+    <h:head>
+        <meta charset="utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+<!--         The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+        <meta name="description" content=""/>
+        <meta name="author" content=""/>
+        <title>#{copy.notAuthorized}</title>
+        <h:outputStylesheet library="css" name="bootstrap/bootstrap.css"/>
+        <h:outputStylesheet library="css" name="bootstrap/ie10-viewport-bug-workaround.css"/>
+    </h:head>
+    <body>        
+        <div class="container">
+
+          <div class="starter-template">
+            <h1>403</h1>
+            <p class="lead">
+                #{bigcopy.notAuthorized}
+            </p>
+          </div>
+
+        </div><!-- /.container -->
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <script type="text/javascript" src="#{request.contextPath}/resources/js/bootstrap/ie10-viewport-bug-workaround.js"></script>
+    </body>
+</html>

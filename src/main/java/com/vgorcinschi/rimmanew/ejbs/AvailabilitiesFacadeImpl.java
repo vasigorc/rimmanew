@@ -10,7 +10,7 @@ import com.vgorcinschi.rimmanew.annotations.Production;
 import com.vgorcinschi.rimmanew.entities.Appointment;
 import com.vgorcinschi.rimmanew.entities.DivizableDay;
 import com.vgorcinschi.rimmanew.helpers.ClosedDayHandler;
-import com.vgorcinschi.rimmanew.model.ScheduleDay;
+import com.vgorcinschi.rimmanew.cdi.ScheduleDay;
 import com.vgorcinschi.rimmanew.helpers.ScheduleHandler;
 import com.vgorcinschi.rimmanew.util.ExecutorFactoryProvider;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToSqlDate;

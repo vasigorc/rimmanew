@@ -7,7 +7,7 @@ package com.vgorcinschi.rimmanew.ejbs;
 
 import com.vgorcinschi.rimmanew.annotations.InMemoryRepository;
 import com.vgorcinschi.rimmanew.entities.Appointment;
-import com.vgorcinschi.rimmanew.model.AppointmentWrapper;
+import com.vgorcinschi.rimmanew.cdi.AppointmentWrapper;
 import java.sql.Date;
 import java.sql.Time;
 import java.util.List;

@@ -3,11 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.vgorcinschi.rimmanew.model;
+package com.vgorcinschi.rimmanew.cdi;
 
-import com.vgorcinschi.rimmanew.model.dailyforecast.DailyForecast;
-import com.vgorcinschi.rimmanew.model.dailyforecast.TimeAdapter;
-import com.vgorcinschi.rimmanew.model.dailyforecast.UnavailableForecast;
+import com.vgorcinschi.rimmanew.cdi.dailyforecast.DailyForecast;
+import com.vgorcinschi.rimmanew.cdi.dailyforecast.TimeAdapter;
+import com.vgorcinschi.rimmanew.cdi.dailyforecast.UnavailableForecast;
 import com.vgorcinschi.rimmanew.rest.clients.WeatherForecastClient;
 import com.vgorcinschi.rimmanew.rest.weatherjaxb.DailyWeatherReport;
 import com.vgorcinschi.rimmanew.rest.weatherjaxb.Time;

@@ -204,19 +204,7 @@
             <version>5.1.35</version>
             <scope>test</scope>
             <type>jar</type>
-        </dependency>
-        <!--salted realm support jar glassfish-->
-        <dependency>
-            <groupId>com.java-adventures.glassfish.realm.salted</groupId>
-            <artifactId>glassfish-jdbc-realm-salted</artifactId>
-            <version>0.2.3</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>*</artifactId>
-                    <groupId>*</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+        </dependency>        
     </dependencies>
     <build>
         <plugins>

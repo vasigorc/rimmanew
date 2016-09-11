@@ -37,7 +37,7 @@ public class GroupsRepositoryTests {
     @Test
     @Ignore
     public void saveAGroup() {
-        Groups group = new Groups("vgorcinschi", "admin");
+        Groups group = new Groups("vgorcinschi", "su");
         assertTrue(repo.addGroup(group));
     }
 
