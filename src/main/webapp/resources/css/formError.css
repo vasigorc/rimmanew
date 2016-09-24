@@ -4,11 +4,12 @@ To change this template file, choose Tools | Templates
 and open the template in the editor.
 */
 /* 
-    Created on : Aug 6, 2016, 2:49:55 PM
+    Created on : Sep 24, 2016, 12:41:54 PM
     Author     : vgorcinschi
 */
-.invalid-entry{
-    margin-top: 1em; padding: 5px; 
+.input-error{
+    margin-top: 1em; 
+    padding: 5px; 
     line-height: 1.4286;
     background-color: #EEEEEE; 
     color: #EE3630;

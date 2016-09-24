@@ -12,7 +12,7 @@ and open the template in the editor.
       xmlns:p="http://primefaces.org/ui">
     <h:head>
         <h:outputStylesheet library="css/bootstrap" name="bootstrap.min.css"/>
-        <h:outputStylesheet library="css/bootstrap" name="uriSettingsPage.css"/>
+        <h:outputStylesheet library="css" name="formError.css"/>
         <title>#{copy.uriPropsPage}</title>
     </h:head>
     <h:body>
@@ -31,7 +31,7 @@ and open the template in the editor.
                                     <f:selectItem itemValue="https" itemLabel="HTTPS"/>
                                 </h:selectOneMenu>
                                 <p class="help-block">
-                                    <h:message errorClass="invalid-entry" 
+                                    <h:message errorClass="input-error" 
                                                for="inputScheme"/></p> 
                             </h:panelGroup>
                         </div>
@@ -51,7 +51,7 @@ and open the template in the editor.
                                 </h:inputText>
                                 <p class="help-block">
                                     <h:message id="inputHostMessageId" 
-                                               errorClass="invalid-entry" for="inputHost"/></p>
+                                               errorClass="input-error" for="inputHost"/></p>
                             </h:panelGroup>                            
                         </div>
                         <div class="form-group">
@@ -62,7 +62,7 @@ and open the template in the editor.
                                 <f:ajax event="blur" render="inputSuffixMessageId"/>
                             </h:inputText>
                             <p class="help-block">
-                                <h:message id="inputSuffixMessageId" errorClass="invalid-entry"
+                                <h:message id="inputSuffixMessageId" errorClass="input-error"
                                            for="inputSuffix"/></p>
                         </div>
                         <h:commandButton action="#{companyPropertiesBean.updateUriProperties()}" class="btn btn-default" id="submitUriChanges"

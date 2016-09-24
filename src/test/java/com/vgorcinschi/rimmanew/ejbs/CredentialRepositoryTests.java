@@ -6,10 +6,8 @@
 package com.vgorcinschi.rimmanew.ejbs;
 
 import com.vgorcinschi.rimmanew.entities.Credential;
-import static com.vgorcinschi.rimmanew.entities.Credential_.passwd;
 import com.vgorcinschi.rimmanew.entities.Groups;
 import static com.vgorcinschi.rimmanew.util.SecurityPrompt.pbkdf2;
-import static com.vgorcinschi.rimmanew.util.SecurityPrompt.randomSalt;
 import java.util.Arrays;
 import org.junit.After;
 import static org.junit.Assert.assertFalse;

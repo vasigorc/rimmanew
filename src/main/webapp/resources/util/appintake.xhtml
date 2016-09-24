@@ -46,10 +46,7 @@ and open the template in the editor.
                             <h:inputText validatorMessage="#{copy.validateName}" class="form-control" id="clientName" value="#{cc.attrs.clientValue}">
                                 <f:validateLength minimum="4" maximum="20"/>
                             </h:inputText>
-                            <p class="help-block"> <h:message errorStyle="margin-top: 1em; padding: 5px; line-height: 1.4286;
-                                                              background-color: #EEEEEE; color: #EE3630;
-                                                              vertical-align: top; border-top: 1px solid #ffffff;
-                                                              border-radius: 10px;" for="clientName"/></p>                           
+                            <p class="help-block"> <h:message errorClass="input-error" for="clientName"/></p>                           
                         </h:panelGroup>                        
                     </div>
                     <div class="form-group">
@@ -65,10 +62,7 @@ and open the template in the editor.
                             <p:inputText style="margin-top: 0.75em;"  type="email" required="true" requiredMessage="#{copy.requiredEmail}"
                                          validatorMessage="#{copy.validateEmail}" 
                                          id="clientEmail"  class="form-control" value="#{cc.attrs.emailValue}"/>
-                            <p class="help-block"> <h:message errorStyle="margin-top: 1em; padding: 5px; line-height: 1.4286;
-                                                              background-color: #EEEEEE; color: #EE3630;
-                                                              vertical-align: top; border-top: 1px solid #ffffff;
-                                                              border-radius: 10px;" for="clientEmail"/></p>
+                            <p class="help-block"> <h:message errorClass="input-error" for="clientEmail"/></p>
                         </h:panelGroup>
                     </div>                           
                     <div class="form-group">

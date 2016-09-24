@@ -16,7 +16,7 @@ import javax.enterprise.context.SessionScoped;
 import java.io.Serializable;
 import java.util.Arrays;
 import javax.faces.application.FacesMessage;
-import javax.faces.validator.ValidatorException;
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 
@@ -87,7 +87,9 @@ public class LoginBean implements Serializable {
                     .getMessage("com.vgorcinschi.rimmanew.messagebundles.bigcopies",
                             "authenticationFailure", null);
             message.setSeverity(FacesMessage.SEVERITY_ERROR);
-            throw new ValidatorException(message);
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            facesContext.addMessage("authenticate", message);
+            return null;
         }
         byte[] attemptedPassword = pbkdf2(getPasswordField(), unchecked.getSalt(), ITERATIONS_COUNT, KEY_LENGTH);
         if (!Arrays.equals(attemptedPassword, unchecked.getPasswd())) {
@@ -95,10 +97,13 @@ public class LoginBean implements Serializable {
                     .getMessage("com.vgorcinschi.rimmanew.messagebundles.bigcopies",
                             "authenticationFailure", null);
             message.setSeverity(FacesMessage.SEVERITY_ERROR);
-            throw new ValidatorException(message);
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            facesContext.addMessage("authenticate", message);
+            return null;
         }
         credential = unchecked;
-        return "permit-admin";
+        return credential.getGroup().getGroupName().equalsIgnoreCase("admin")
+                ? "permit-admin" : "permit-superuser";
     }
 
     public void forgotPassword() {
