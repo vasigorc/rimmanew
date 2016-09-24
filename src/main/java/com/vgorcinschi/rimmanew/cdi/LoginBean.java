@@ -15,6 +15,7 @@ import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.function.Supplier;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
@@ -83,27 +84,26 @@ public class LoginBean implements Serializable {
         loginAttemptsCount++;
         Credential unchecked = repository.getByUsername(getUsernameField());
         if (unchecked == null) {
-            FacesMessage message = com.vgorcinschi.rimmanew.util.Messages
-                    .getMessage("com.vgorcinschi.rimmanew.messagebundles.bigcopies",
-                            "authenticationFailure", null);
-            message.setSeverity(FacesMessage.SEVERITY_ERROR);
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            facesContext.addMessage("authenticate", message);
+            setAuthenticationErrorForUI(() -> "authenticationFailure");
             return null;
         }
         byte[] attemptedPassword = pbkdf2(getPasswordField(), unchecked.getSalt(), ITERATIONS_COUNT, KEY_LENGTH);
         if (!Arrays.equals(attemptedPassword, unchecked.getPasswd())) {
-            FacesMessage message = com.vgorcinschi.rimmanew.util.Messages
-                    .getMessage("com.vgorcinschi.rimmanew.messagebundles.bigcopies",
-                            "authenticationFailure", null);
-            message.setSeverity(FacesMessage.SEVERITY_ERROR);
-            FacesContext facesContext = FacesContext.getCurrentInstance();
-            facesContext.addMessage("authenticate", message);
+            setAuthenticationErrorForUI(() -> "authenticationFailure");
             return null;
         }
         credential = unchecked;
         return credential.getGroup().getGroupName().equalsIgnoreCase("admin")
                 ? "permit-admin" : "permit-superuser";
+    }
+
+    private void setAuthenticationErrorForUI(Supplier<String> bundleKey) {
+        FacesMessage message = com.vgorcinschi.rimmanew.util.Messages
+                .getMessage("com.vgorcinschi.rimmanew.messagebundles.bigcopies",
+                        bundleKey.get(), null);
+        message.setSeverity(FacesMessage.SEVERITY_ERROR);
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        facesContext.addMessage("authenticate", message);
     }
 
     public void forgotPassword() {

@@ -50,6 +50,17 @@ public class CredentialRepositoryTests {
         sampleUser.setGroup(admin);
         assertTrue(credentialRepo.createCredential(sampleUser));
     }
+    
+    @Test
+    @Ignore
+    public void createSuCredentialTest(){
+        //retrieve the group
+        Groups su = groupRepo.getByGroupName("su");
+        Credential suUser = new Credential("Vasile", "su-user");
+        suUser.setPasswd(pbkdf2("qwerty", suUser.getSalt(), 120000, 512));
+        suUser.setGroup(su);
+        assertTrue(credentialRepo.createCredential(suUser));
+    }
 
     @Test
     @Ignore
