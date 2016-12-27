@@ -16,7 +16,7 @@
   
   overflow-x: auto;
   
-  // optional - looks better for small cell values
+  /* optional - looks better for small cell values*/
   white-space: nowrap;
 
   border-collapse: collapse;
@@ -25,10 +25,10 @@
 
 .rtable,
 .rtable--flip tbody {
-  // optional - enable iOS momentum scrolling
+  /* optional - enable iOS momentum scrolling*/
   -webkit-overflow-scrolling: touch;
   
-  // scrolling shadows
+  /* scrolling shadows*/
   background: radial-gradient(left, ellipse, rgba(0,0,0, .2) 0%, rgba(0,0,0, 0) 75%) 0 center,
               radial-gradient(right, ellipse, rgba(0,0,0, .2) 0%, rgba(0,0,0, 0) 75%) 100% center;
   background-size: 10px 100%, 10px 100%;
@@ -36,8 +36,8 @@
   background-repeat: no-repeat;
 }
 
-// change these gradients from white to your background colour if it differs
-// gradient on the first cells to hide the left shadow
+/* change these gradients from white to your background colour if it differs
+// gradient on the first cells to hide the left shadow*/
 .rtable td:first-child,
 .rtable--flip tbody tr:first-child {
   background-image: linear-gradient(to right, rgba(255,255,255, 1) 50%, rgba(255,255,255, 0) 100%);
@@ -45,7 +45,7 @@
   background-size: 20px 100%;
 }
 
-// gradient on the last cells to hide the right shadow
+/* gradient on the last cells to hide the right shadow*/
 .rtable td:last-child,
 .rtable--flip tbody tr:last-child {
   background-image: linear-gradient(to left, rgba(255,255,255, 1) 50%, rgba(255,255,255, 0) 100%);
@@ -100,11 +100,11 @@
 
 .rtable--flip td {
   background-image: none !important;
-  // border-collapse is no longer active
+  /* border-collapse is no longer active*/
   border-left: 0;
 }
 
-// border-collapse is no longer active
+/* border-collapse is no longer active*/
 .rtable--flip th:not(:last-child),
 .rtable--flip td:not(:last-child) {
   border-bottom: 0;

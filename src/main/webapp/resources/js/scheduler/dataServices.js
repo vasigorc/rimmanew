@@ -121,7 +121,7 @@
                 dataType: 'json',
                 success: function (data) {
                     var typedApps = data.appointments.current;
-
+                    
                     copy.next = data.appointments.next;
                     copy.first = data.appointments.first;
                     copy.last = data.appointments.last;

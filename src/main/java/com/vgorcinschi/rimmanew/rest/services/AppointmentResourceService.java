@@ -276,7 +276,7 @@ public class AppointmentResourceService {
             //if the list.size() ==0 return a corresponding Response
             //do the forEach on checkedParameters to filter futureList.stream()
             //with the remaining keys of checkedParameters
-            //collect toList() and proceed with th rest of the code
+            //collect toList() and proceed with the rest of the code
             initialSelection = futureList.get(500, TimeUnit.MILLISECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException ex) {
             Logger.getLogger(AppointmentResourceService.class.getName()).log(Level.SEVERE, null, ex);

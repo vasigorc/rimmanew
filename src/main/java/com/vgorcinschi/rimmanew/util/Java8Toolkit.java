@@ -173,7 +173,7 @@ public class Java8Toolkit {
     
     public static Supplier<UriBuilder> appsUriBuilder = () -> {
         Properties props = PropertiesProvider.getUriProperties();
-        UriBuilder uriBuilder = UriBuilder.fromPath("RimmaNew/rest").scheme(props.getProperty("scheme"))
+        UriBuilder uriBuilder = UriBuilder.fromPath("rimmanew/rest").scheme(props.getProperty("scheme"))
                 .host(props.getProperty("host"));
         if (props.getProperty("port") == null || props.getProperty("port").equals("")) {
             return uriBuilder;

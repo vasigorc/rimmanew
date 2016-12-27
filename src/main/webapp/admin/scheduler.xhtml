@@ -9,15 +9,15 @@
         <title>Scheduler</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <h:outputStylesheet library="css/bootstrap" name="bootstrap.css"/>
-        <h:outputStylesheet library="css" name="toggle-switch.css"/>
-        <h:outputStylesheet library="css" name="schedulerPage.css"/>
-        <h:outputStylesheet library="css/jquery" name="jquery-ui.min.css"/>
-        <script type="text/javascript" src="#{request.contextPath}/resources/js/jquery/jquery-1.11.3.min.js"></script>
-        <h:outputScript library="js/jquery" name="jquery-ui.min.js"/>
-        <h:outputScript library="js/jquery" name="datepicker-fr-CA.js"/>
-        <h:outputScript library="js/jquery" name="datepicker-en-GB.js"/>
-        <h:outputScript library="js/jquery" name="datepicker-ru.js"/>
+        <h:outputStylesheet name="css/bootstrap/bootstrap.css"/>
+        <h:outputStylesheet name="css/toggle-switch.css"/>
+        <h:outputStylesheet name="css/schedulerPage.css"/>
+        <h:outputStylesheet name="css/jquery/jquery-ui.min.css"/>
+        <h:outputScript name="js/jquery/jquery-1.11.3.min.js"/>
+        <h:outputScript name="js/jquery/jquery-ui.min.js"/>
+        <h:outputScript name="js/jquery/datepicker-fr-CA.js"/>
+        <h:outputScript name="js/jquery/datepicker-en-GB.js"/>
+        <h:outputScript name="js/jquery/datepicker-ru.js"/>
     </head>
     <body>
         <h:inputHidden id="pageLocale" value="#{scheduleManagementBean.displayLanguage}"></h:inputHidden>
@@ -46,8 +46,19 @@
         <div class="row" data-bind="fadeVisible: selectedScope()==='#{bigcopy.specialDaysLabel}', stopBinding: true">
             <ui:include src="../includes/specdaysManagement.xhtml"/>
         </div>
-
-        <script type="text/javascript" src="#{request.contextPath}/resources/js/knockout-3.3.0.js"></script>
+        
+        <h:outputScript name="js/knockout-3.3.0.js"/>
+        <h:outputScript name="js/knockout.validation.js"/>
+        <h:outputScript name="js/ko-validation-locales/en-US.js"/>
+        <h:outputScript name="js/ko-validation-locales/fr-FR.js"/>
+        <h:outputScript name="js/ko-validation-locales/ru-RU.js"/>
+        <h:outputScript name="js/scheduler/scheduler-locale-support.js"/>
+        <h:outputScript name="js/scheduler/classes.js"/>
+        <h:outputScript name="js/scheduler/dataServices.js"/>
+        <h:outputScript name="js/scheduler/appointmentsModel.js"/>
+        <h:outputScript name="js/scheduler/specdaysModel.js"/>
+        <h:outputScript name="js/scheduler/scheduler.js"/>
+<!--        <script type="text/javascript" src="#{request.contextPath}/resources/js/knockout-3.3.0.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/js/knockout.validation.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/js/ko-validation-locales/en-US.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/js/ko-validation-locales/fr-FR.js"></script>
@@ -57,6 +68,6 @@
         <script type="text/javascript" src="#{request.contextPath}/resources/js/scheduler/dataServices.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/js/scheduler/appointmentsModel.js"></script>
         <script type="text/javascript" src="#{request.contextPath}/resources/js/scheduler/specdaysModel.js"></script>
-        <script type="text/javascript" src="#{request.contextPath}/resources/js/scheduler/scheduler.js"></script>
+        <script type="text/javascript" src="#{request.contextPath}/resources/js/scheduler/scheduler.js"></script>-->
     </body>
 </html>

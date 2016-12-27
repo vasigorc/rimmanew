@@ -136,7 +136,7 @@
                 $(this).removeAttr('class');
             });
         };
-        self.showButtons = function (data) {
+        self.showButtons = function (data) {           
             if (data.next !== undefined) {
                 self.next(data.next);
                 $("#step-forward").removeClass("move-button-invisible");
@@ -219,7 +219,7 @@
             else
                 $("#appTypeCri").addClass("glyphicon glyphicon-chevron-down");
         };        
-        //initial load
+        //INITIAL LOAD!!!
         dataService.getAppointments(self.toJSON(), function (data) {
             self.appointments(data.appointments);
             self.showButtons(data);

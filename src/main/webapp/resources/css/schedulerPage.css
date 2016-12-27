@@ -69,13 +69,11 @@ fieldset[disabled] .move-button.active {
 .keep-buttons-left{
     margin-left: 6em; 
     float: left;
-    //margin-bottom: 0.7em;
 }
 
 .keep-buttons-right{
     margin-right: 9em; 
     float: right;
-    //margin-bottom: 0.7em;
 }
 
 .buttons-wrapper{

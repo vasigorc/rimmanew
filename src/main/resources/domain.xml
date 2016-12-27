@@ -1,4 +1,4 @@
-<domain application-root="${com.sun.aas.instanceRoot}/applications" version="13" log-root="${com.sun.aas.instanceRoot}/logs">
+<domain application-root="${com.sun.aas.instanceRoot}/applications" version="1" log-root="${com.sun.aas.instanceRoot}/logs">
   <security-configurations>
     <authentication-service default="true" name="adminAuth" use-password-credential="true">
       <security-provider provider-name="adminSpc" name="spcrealm" type="LoginModule">
@@ -132,7 +132,7 @@
       <property name="EnableQueryTimeouts" value="true"></property>
       <property name="LogXaCommands" value="false"></property>
       <property name="PrepStmtCacheSize" value="25"></property>
-      <property name="Password" value="ASKallice69"></property>
+      <property name="Password" value="insta11!"></property>
       <property name="SelfDestructOnPingMaxOperations" value="0"></property>
       <property name="ZeroDateTimeBehavior" value="exception"></property>
       <property name="CallableStmtCacheSize" value="100"></property>
@@ -423,7 +423,7 @@
             <http max-connections="250" default-virtual-server="server">
               <file-cache></file-cache>
             </http>
-            <ssl ssl3-enabled="false" classname="com.sun.enterprise.security.ssl.GlassfishSSLImpl" cert-nickname="s1as"></ssl>
+            <ssl classname="com.sun.enterprise.security.ssl.GlassfishSSLImpl" cert-nickname="s1as"></ssl>
           </protocol>
           <protocol name="admin-listener">
             <http encoded-slash-enabled="true" max-connections="250" default-virtual-server="__asadmin">
@@ -432,7 +432,7 @@
           </protocol>
         </protocols>
         <network-listeners>
-          <network-listener protocol="http-listener-1" port="8080" name="http-listener-1" thread-pool="http-thread-pool" transport="tcp"></network-listener>
+          <network-listener protocol="http-listener-1" port="8081" name="http-listener-1" thread-pool="http-thread-pool" transport="tcp"></network-listener>
           <network-listener protocol="http-listener-2" port="8181" name="http-listener-2" thread-pool="http-thread-pool" transport="tcp"></network-listener>
           <network-listener protocol="admin-listener" port="4848" name="admin-listener" thread-pool="admin-thread-pool" transport="tcp"></network-listener>
         </network-listeners>
@@ -595,7 +595,7 @@
             <http default-virtual-server="server">
               <file-cache></file-cache>
             </http>
-            <ssl ssl3-enabled="false" classname="com.sun.enterprise.security.ssl.GlassfishSSLImpl" cert-nickname="s1as"></ssl>
+            <ssl classname="com.sun.enterprise.security.ssl.GlassfishSSLImpl" cert-nickname="s1as"></ssl>
           </protocol>
           <protocol name="admin-listener">
             <http max-connections="250" default-virtual-server="__asadmin">
@@ -606,7 +606,7 @@
             <http encoded-slash-enabled="true" default-virtual-server="__asadmin">
               <file-cache></file-cache>
             </http>
-            <ssl ssl3-enabled="false" classname="com.sun.enterprise.security.ssl.GlassfishSSLImpl" client-auth="want" cert-nickname="glassfish-instance" renegotiate-on-client-auth-want="false"></ssl>
+            <ssl classname="com.sun.enterprise.security.ssl.GlassfishSSLImpl" client-auth="want" cert-nickname="glassfish-instance" renegotiate-on-client-auth-want="false"></ssl>
           </protocol>
           <protocol name="admin-http-redirect">
             <http-redirect secure="true"></http-redirect>
@@ -657,51 +657,11 @@
   </secure-admin>
   <clusters></clusters>
   <applications>
-    <application context-root="/jsfWsClient" object-type="user" name="jsfWsClient" directory-deployed="true" location="file:/home/vgorcinschi/Documents/netbeansProjects/jsfWsClient/build/web/">
-      <property name="appLocation" value="file:/home/vgorcinschi/Documents/netbeansProjects/jsfWsClient/build/web/"></property>
+    <application context-root="/rimmanew" object-type="user" name="RimmaNew" directory-deployed="true" location="file:/home/vgorcinschi/concordia/rimmanew/target/RimmaNew-1.0-SNAPSHOT/">
       <property name="archiveType" value="war"></property>
-      <property name="defaultAppName" value="web"></property>
-      <module name="jsfWsClient">
-        <engine sniffer="webservices"></engine>
-        <engine sniffer="weld"></engine>
-        <engine sniffer="security"></engine>
-        <engine sniffer="web"></engine>
-      </module>
-    </application>
-    <application context-root="/RestfulOne" object-type="user" name="RestfulOne" directory-deployed="true" location="file:/home/vgorcinschi/Documents/netbeansProjects/RestfulOne/target/RestfulOne-1.0-SNAPSHOT/">
-      <property name="appLocation" value="file:/home/vgorcinschi/Documents/netbeansProjects/RestfulOne/target/RestfulOne-1.0-SNAPSHOT/"></property>
-      <property name="archiveType" value="war"></property>
-      <property name="defaultAppName" value="RestfulOne-1.0-SNAPSHOT"></property>
-      <module name="RestfulOne">
-        <engine sniffer="weld"></engine>
-        <engine sniffer="security"></engine>
-        <engine sniffer="web"></engine>
-      </module>
-    </application>
-    <application context-root="/ConsumeRest" object-type="user" directory-deployed="true" name="ConsumeRest" location="file:/home/vgorcinschi/Documents/netbeansProjects/ConsumeRest/target/ConsumeRest-1.0-SNAPSHOT/">
-      <property name="archiveType" value="war"></property>
-      <property name="appLocation" value="file:/home/vgorcinschi/Documents/netbeansProjects/ConsumeRest/target/ConsumeRest-1.0-SNAPSHOT/"></property>
-      <property name="defaultAppName" value="ConsumeRest-1.0-SNAPSHOT"></property>
-      <property name="keepSessions" value="true"></property>
-      <module name="ConsumeRest">
-        <engine sniffer="security"></engine>
-        <engine sniffer="web"></engine>
-      </module>
-    </application>
-    <application context-root="/ajaxandxml" object-type="user" directory-deployed="true" name="ajaxandxml" location="file:/home/vgorcinschi/Documents/netbeansProjects/ajaxandxml/target/ajaxandxml-1.0-SNAPSHOT/">
-      <property name="appLocation" value="file:/home/vgorcinschi/Documents/netbeansProjects/ajaxandxml/target/ajaxandxml-1.0-SNAPSHOT/"></property>
-      <property name="archiveType" value="war"></property>
-      <property name="defaultAppName" value="ajaxandxml-1.0-SNAPSHOT"></property>
-      <module name="ajaxandxml">
-        <engine sniffer="webservices"></engine>
-        <engine sniffer="security"></engine>
-        <engine sniffer="web"></engine>
-      </module>
-    </application>
-    <application context-root="/RimmaNew" object-type="user" directory-deployed="true" name="RimmaNew" location="file:/home/vgorcinschi/NetBeansProjects/RimmaNew/target/RimmaNew-1.0-SNAPSHOT/">
-      <property name="archiveType" value="war"></property>
-      <property name="appLocation" value="file:/home/vgorcinschi/NetBeansProjects/RimmaNew/target/RimmaNew-1.0-SNAPSHOT/"></property>
-      <property name="org.glassfish.ejb.container.application_unique_id" value="96648917120122880"></property>
+      <property name="org.glassfish.ejb.startup.keepstate" value="true"></property>
+      <property name="appLocation" value="file:/home/vgorcinschi/concordia/rimmanew/target/RimmaNew-1.0-SNAPSHOT/"></property>
+      <property name="org.glassfish.ejb.container.application_unique_id" value="97181894995279872"></property>
       <property name="defaultAppName" value="RimmaNew-1.0-SNAPSHOT"></property>
       <property name="keepSessions" value="true"></property>
       <module name="RimmaNew">
