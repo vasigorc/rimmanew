@@ -9,10 +9,47 @@ and open the template in the editor.
       xmlns:ui="http://java.sun.com/jsf/facelets"
       xmlns:h="http://java.sun.com/jsf/html">
     <h:head>
-        <title><ui:insert name="windowTitle"></ui:insert></title>
+        <title><ui:insert name="windowTitle">#{copy.defaultWindowTitle}</ui:insert></title>
+        <ui:insert name="stylesAndScripts"></ui:insert>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <!-- default styles -->
+        <!--not yet defined TODO consider if bootstrap/mini could be picked -->
     </h:head>
     <body>
-        <div>TODO write content</div>
+        <!-- navigation bar -->
+        <nav class="navbar navbar-inverse">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>                        
+                    </button>
+                    <a class="navbar-brand" href="#">Company image</a>
+                </div>
+                <div class="collapse navbar-collapse" id="myNavbar">
+                    <ul class="nav navbar-nav">
+                        <li class="active"><a href="#">#{copy.main}</a></li>                        
+                        <li><a href="#">#{copy.appointment}</a></li>
+                        <li><a href="#">#{copy.services}</a></li>
+                        <li><a href="#">#{copy.contacts}</a></li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">#{copy.selectLanguage} <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">Page 1-1</a></li>
+                                <li><a href="#">Page 1-2</a></li>
+                                <li><a href="#">Page 1-3</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <ui:insert name="pageContent">#{copy.pageContent}</ui:insert>
+        <!-- optional body scripts may go here -->
+        <ui:insert name="bodyScripts"></ui:insert>
     </body>
 </html>
