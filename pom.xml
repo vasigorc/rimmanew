@@ -87,7 +87,7 @@
                 <exclusion>
                     <groupId>org.codehaus.plexus</groupId>
                     <artifactId>plexus-container-default</artifactId>
-                </exclusion>
+                </exclusion>                
             </exclusions>
         </dependency>
         <dependency>
@@ -199,8 +199,47 @@
             <version>5.1.35</version>
             <scope>test</scope>
             <type>jar</type>
+        </dependency>
+        <!-- the support for the arquillian test framework -->         
+        <dependency>
+            <groupId>org.jboss.arquillian.junit</groupId>
+            <artifactId>arquillian-junit-container</artifactId>
+            <version>1.1.11.Final</version>
+            <scope>test</scope>
         </dependency>        
     </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.jboss.arquillian</groupId>
+                <artifactId>arquillian-bom</artifactId>
+                <version>1.1.11.Final</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>       
+        </dependencies>
+    </dependencyManagement>
+    <profiles>
+        <profile>
+            <id>arquillian-glassfish-embedded</id>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jboss.arquillian.container</groupId>
+                        <artifactId>arquillian-glassfish-embedded-3.1</artifactId>
+                        <version>1.0.0.CR4</version>
+                        <scope>test</scope>                 
+                    </dependency>
+                    <dependency>
+                        <groupId>org.glassfish.main.extras</groupId>
+                        <artifactId>glassfish-embedded-all</artifactId>
+                        <version>3.1.2</version>
+                        <scope>provided</scope>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+    </profiles>
     <build>
         <plugins>
             <plugin>
@@ -254,7 +293,7 @@
                 </executions>
             </plugin>
         </plugins>
-    </build>
+    </build>   
     <repositories>
         <repository>
             <url>http://repository.primefaces.org/</url>

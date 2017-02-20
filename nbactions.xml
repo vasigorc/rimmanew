@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+        <action>
+            <actionName>CUSTOM-mvn dependencies conflicts</actionName>
+            <displayName>mvn dependencies conflicts</displayName>
+            <goals>
+                <goal>dependency:tree</goal>
+                <goal>-Dverbose</goal>
+            </goals>
+        </action>
+        <action>
+            <actionName>CUSTOM-dependency:tree -Dverbose</actionName>
+            <displayName>dependency:tree -Dverbose</displayName>
+            <goals>
+                <goal>dependency:tree</goal>
+                <goal>-Dverbose</goal>
+            </goals>
+        </action>
+    </actions>
