@@ -39,10 +39,15 @@ public class UserPreferenciesTests {
     
     @Inject
     UserPreferencies preferencies;
+    
+    @Test
+    public void localeIsNotNull(){
+        assertNotNull(preferencies.getCurrentLocale().getCountry());
+    }
 
     @Test
     public void defaultLocaleTest() {
         assertTrue("The default locale should be \"fr\"",
-                "fr".equalsIgnoreCase(preferencies.getCurrentLocale().getCountry()));
+                "fr".equalsIgnoreCase(preferencies.getCurrentLocale().getLanguage()));
     }
 }

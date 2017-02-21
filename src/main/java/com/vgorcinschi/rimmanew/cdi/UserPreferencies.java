@@ -37,12 +37,14 @@ public class UserPreferencies implements Serializable {
          * if a user specific locale is provided in the browser
          * we should be setting it here
          */
-        Optional<ExternalContext> optContext = ofNullable(FacesContext.getCurrentInstance()
-                .getExternalContext());
-        if (optContext.isPresent()) {
-            Optional<Locale> userLocale = ofNullable(optContext.get().getRequestLocale());
-            if (userLocale.isPresent()) {
-                currentLocale = userLocale.get();
+        if(FacesContext.getCurrentInstance() != null){
+            Optional<ExternalContext> optContext = ofNullable(FacesContext.getCurrentInstance()
+                    .getExternalContext());
+            if (optContext.isPresent()) {
+                Optional<Locale> userLocale = ofNullable(optContext.get().getRequestLocale());
+                if (userLocale.isPresent()) {
+                    currentLocale = userLocale.get();
+                }
             }
         }
     }

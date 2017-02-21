@@ -6,7 +6,6 @@
 package com.vgorcinschi.rimmanew.util;
 
 import com.vgorcinschi.rimmanew.entities.SpecialDay;
-import static com.vgorcinschi.rimmanew.util.InputValidators.allStringsAreGood;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.genericTypeIdentifier;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
