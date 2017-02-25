@@ -7,7 +7,6 @@ package com.vgorcinschi.rimmanew.rest.services.helpers;
 
 import java.util.Collection;
 import java.util.LinkedList;
-import org.junit.Assert.*;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;

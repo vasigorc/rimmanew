@@ -12,7 +12,6 @@ import static org.junit.Assert.*;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToSqlTime;
 import static com.vgorcinschi.rimmanew.util.Localizer.getLocalizedLabel;
 import java.time.LocalTime;
-import javax.faces.context.FacesContext;
 import static org.hamcrest.Matchers.*;
 
 /**

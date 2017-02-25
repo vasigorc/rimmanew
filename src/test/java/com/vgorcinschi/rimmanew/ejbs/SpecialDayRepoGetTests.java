@@ -23,14 +23,6 @@ public class SpecialDayRepoGetTests {
     public SpecialDayRepoGetTests() {
         repository = new OutsideContainerSpecialDayRepository();
     }
-    
-    @Before
-    public void setUp() {
-    }
-    
-    @After
-    public void tearDown() {
-    }
 
     @Test
     public void getAllSpecialDaysTest(){
