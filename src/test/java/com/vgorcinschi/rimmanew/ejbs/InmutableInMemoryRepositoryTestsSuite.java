@@ -15,7 +15,7 @@ import org.junit.runners.Suite.SuiteClasses;
  * @author vgorcinschi
  */
 @RunWith(value=org.junit.runners.Suite.class)
-@SuiteClasses(value={InjectionTesting.class, ServiceMethodsTests.class})
+@SuiteClasses(value={ArquillianInjectionTesting.class, ServiceMethodsTests.class})
 public class InmutableInMemoryRepositoryTestsSuite {
     
     public InmutableInMemoryRepositoryTestsSuite() {

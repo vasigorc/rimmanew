@@ -6,51 +6,50 @@
 package com.vgorcinschi.rimmanew.ejbs;
 
 import com.vgorcinschi.rimmanew.annotations.InMemoryRepository;
+import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToSqlDate;
+import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToSqlTime;
 import static java.sql.Date.valueOf;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import javax.ejb.EJB;
-import org.jglue.cdiunit.AdditionalClasses;
-import org.jglue.cdiunit.CdiRunner;
-import org.jglue.cdiunit.ejb.SupportEjb;
-import org.junit.After;
-import org.junit.Before;
+import javax.enterprise.inject.Default;
+import javax.inject.Inject;
+import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.shrinkwrap.api.ShrinkWrap;
+import org.jboss.shrinkwrap.api.asset.EmptyAsset;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Test;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
-import static com.vgorcinschi.rimmanew.util.Java8Toolkit.*;
-import static org.junit.Assert.assertEquals;
 
 /**
  *
  * @author vgorcinschi
  */
-@RunWith(CdiRunner.class)
-@AdditionalClasses({DefaultAppointmentService.class,
-    InMemoryAppointmentRepository.class})
-@SupportEjb
-public class InjectionTesting {
+@RunWith(Arquillian.class)
+public class ArquillianInjectionTesting {
 
-    @EJB
+    @Deployment
+    public static WebArchive createDeployment() {
+        return ShrinkWrap.create(WebArchive.class, "injectionTest.war")
+                .addClasses(AppointmentService.class,
+                        DefaultAppointmentService.class,
+                        AppointmentRepository.class,
+                        InMemoryAppointmentRepository.class)
+                .addAsResource("test-persistence.xml", "META-INF/persistence.xml")
+                .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
+    }
+
+    @Inject
+    @Default
     private AppointmentService service;
 
-    @EJB
+    @Inject
     @InMemoryRepository
     private AppointmentRepository repository;
 
-    public InjectionTesting() {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
-    }
-
     @Test
-    public void ServiceNotNullTest() {
+    public void serviceIsNotNullTest() {
         assertNotNull(service);
     }
 
@@ -58,7 +57,7 @@ public class InjectionTesting {
     public void RepositoryNotNull() {
         assertNotNull(repository);
     }
-
+    
     @Test
     public void testRetrieveAppointmentByDate() {
         assertEquals(service.findByDate(localToSqlDate(LocalDate.now()
@@ -87,9 +86,6 @@ public class InjectionTesting {
     
     @Test
     public void testGetAll(){
-//        assertEquals(service.findAll().size(),4);
         assertEquals(repository.getAll().size(), 6);
-        System.out.println(repository.getAll().size());
-        System.out.println(repository.getAll());
     }
 }
