@@ -5,6 +5,8 @@
  */
 package com.vgorcinschi.rimmanew.cdi;
 
+import com.vgorcinschi.rimmanew.annotations.Production;
+import com.vgorcinschi.rimmanew.ejbs.CompanyProperties;
 import java.io.Serializable;
 import java.util.Locale;
 import java.util.Optional;
@@ -13,6 +15,7 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 import javax.inject.Named;
 
 /**
@@ -22,6 +25,13 @@ import javax.inject.Named;
 @Named
 @SessionScoped
 public class UserPreferencies implements Serializable {
+
+    /**
+     * gives access to application-wide supported languages
+     */
+    @Inject
+    @Production
+    private CompanyProperties companyProperties;
 
     private Locale currentLocale;
 
@@ -34,15 +44,16 @@ public class UserPreferencies implements Serializable {
     @PostConstruct
     public void initialize() {
         /**
-         * if a user specific locale is provided in the browser
-         * we should be setting it here
+         * if a user specific locale is provided in the browser we should be
+         * setting it here
          */
-        if(FacesContext.getCurrentInstance() != null){
+        if (FacesContext.getCurrentInstance() != null) {
             Optional<ExternalContext> optContext = ofNullable(FacesContext.getCurrentInstance()
                     .getExternalContext());
             if (optContext.isPresent()) {
                 Optional<Locale> userLocale = ofNullable(optContext.get().getRequestLocale());
-                if (userLocale.isPresent()) {
+                if (userLocale.isPresent()
+                        && isLocaleSupported(userLocale.get())) {
                     currentLocale = userLocale.get();
                 }
             }
@@ -54,7 +65,15 @@ public class UserPreferencies implements Serializable {
     }
 
     public void setCurrentLocale(Locale currentLocale) {
-        this.currentLocale = currentLocale;
+        //if is required to protect from manual modifications
+        //of POST requests
+        if (isLocaleSupported(currentLocale)) {
+            this.currentLocale = currentLocale;
+        }
     }
-    
+
+    public boolean isLocaleSupported(Locale locale) {
+        return companyProperties.getLanguages().stream()
+                .anyMatch(l -> l.equalsIgnoreCase(locale.getLanguage()));
+    }
 }

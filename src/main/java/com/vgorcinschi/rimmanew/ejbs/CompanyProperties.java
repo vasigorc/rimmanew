@@ -5,6 +5,7 @@
  */
 package com.vgorcinschi.rimmanew.ejbs;
 
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import javax.ejb.AccessTimeout;
 import javax.ejb.Local;
@@ -38,4 +39,6 @@ public interface CompanyProperties {
     @AccessTimeout(unit = TimeUnit.SECONDS, value = 15)
     String getSuffix();
     void setSuffix(String suffix);
+    @AccessTimeout(unit = TimeUnit.SECONDS, value = 15)
+    public Set<String> getLanguages();
 }

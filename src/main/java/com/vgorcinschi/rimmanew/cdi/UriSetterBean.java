@@ -101,7 +101,7 @@ public class UriSetterBean implements Serializable {
                 companyProperties.setPort(-1);
             }
             if (InputValidators.stringNotNullNorEmpty.apply(suffix)
-                    || suffix.length() >= 1 || suffix.matches("^[a-zA-Z0-9]*$")) {
+                    && suffix.length() >= 1 && suffix.matches("^[a-zA-Z0-9_-]*$")) {
                 companyProperties.setSuffix(suffix);
             }
             updateTried = true;

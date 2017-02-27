@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.vgorcinschi.rimmanew.util;
 
 import com.vgorcinschi.rimmanew.helpers.LockWrapper;
@@ -32,10 +27,10 @@ public class PropertiesProvider {
                     uriProperties = new Properties();
                     try (final InputStream stream
                             = PropertiesProvider.class
-                                    .getResourceAsStream("/com/vgorcinschi/rimmanew/entproperties/uriinfo.properties")) {
+                                    .getResourceAsStream("/com/vgorcinschi/rimmanew/entproperties/client.properties")) {
                                  uriProperties.load(stream);
                             } catch (NullPointerException npe) {
-                                log.error("File 'uriinfo.properties' was not uploaded");
+                                log.error("File 'client.properties' was not uploaded");
                                 uriProperties.setProperty("scheme", "unknown");
                                 uriProperties.setProperty("host", "unknown");
                                 uriProperties.setProperty("port", "unknown");
