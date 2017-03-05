@@ -5,8 +5,8 @@
  */
 package com.vgorcinschi.rimmanew.util;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 

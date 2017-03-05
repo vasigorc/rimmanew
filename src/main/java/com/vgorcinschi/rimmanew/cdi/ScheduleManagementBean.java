@@ -5,7 +5,7 @@
  */
 package com.vgorcinschi.rimmanew.cdi;
 
-import static com.vgorcinschi.rimmanew.util.Localizer.getCurrentViewLocale;
+import static com.vgorcinschi.rimmanew.util.Localizer.getCurrentViewRoot;
 import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
 import java.io.Serializable;
@@ -18,7 +18,7 @@ import java.io.Serializable;
 @SessionScoped
 public class ScheduleManagementBean implements Serializable {
 
-    private String displayLanguage = getCurrentViewLocale().toString();
+    private String displayLanguage = getCurrentViewRoot().getLocale().toString();
     /**
      * Creates a new instance of ScheduleManagementBean
      */

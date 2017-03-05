@@ -25,7 +25,7 @@ public class EntityManagerFactoryProvider {
         if (uniqueInstance == null) {
             synchronized (EntityManagerFactoryProvider.class) {
                 if (uniqueInstance == null) {
-                    uniqueInstance = Persistence.createEntityManagerFactory("outsideContainer");
+                    uniqueInstance = Persistence.createEntityManagerFactory("payaraEmbedded");
                 }
             }
         }

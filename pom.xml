@@ -55,42 +55,6 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-resources-plugin</artifactId>
-            <version>2.7</version>
-            <type>maven-plugin</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-jdk14</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-nop</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>nekohtml</groupId>
-                    <artifactId>nekohtml</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>nekohtml</groupId>
-                    <artifactId>xercesMinimal</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.maven.wagon</groupId>
-                    <artifactId>wagon-webdav-jackrabbit</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>jcl-over-slf4j</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.codehaus.plexus</groupId>
-                    <artifactId>plexus-container-default</artifactId>
-                </exclusion>                
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>eclipselink</artifactId>
             <version>2.5.2</version>
@@ -290,12 +254,12 @@
                         <id>copy-test-persistence</id>
                         <phase>process-test-resources</phase>
                         <configuration>
-                            <tasks>
+                            <target>
                                 <!--backup the "proper" persistence.xml-->
-                                <copy file="${project.build.outputDirectory}/META-INF/persistence.xml" tofile="${project.build.outputDirectory}/META-INF/persistence.xml.proper"/>
+                                <copy file="${project.build.outputDirectory}/META-INF/persistence.xml" tofile="${project.build.outputDirectory}/META-INF/persistence.xml.proper" />
                                 <!--replace the "proper" persistence.xml with the "test" version-->
-                                <copy file="${project.build.testOutputDirectory}/META-INF/test-persistence.xml" tofile="${project.build.outputDirectory}/META-INF/persistence.xml"/>
-                            </tasks>
+                                <copy file="${project.build.testOutputDirectory}/META-INF/test-persistence.xml" tofile="${project.build.outputDirectory}/META-INF/persistence.xml" />
+                            </target>
                         </configuration>
                         <goals>
                             <goal>run</goal>
@@ -305,17 +269,18 @@
                         <id>restore-persistence</id>
                         <phase>prepare-package</phase>
                         <configuration>
-                            <tasks>
+                            <target>
                                 <!--restore the "proper" persistence.xml-->
-                                <copy file="${project.build.outputDirectory}/META-INF/persistence.xml.proper" tofile="${project.build.outputDirectory}/META-INF/persistence.xml"/>
-                            </tasks>
+                                <move file="${project.build.outputDirectory}/META-INF/persistence.xml.proper"
+                                      tofile="${project.build.outputDirectory}/META-INF/persistence.xml" />
+                            </target>
                         </configuration>
                         <goals>
                             <goal>run</goal>
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>     
         </plugins>
     </build>   
     <repositories>

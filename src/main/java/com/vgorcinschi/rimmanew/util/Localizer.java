@@ -29,9 +29,9 @@ public class Localizer {
     }
     
     /*
-        Same as above - just returning the Locale
+        Same as above - just returning the view root
     */
-    public static Locale getCurrentViewLocale(){
-        return FacesContext.getCurrentInstance().getViewRoot().getLocale();
+    public static UIViewRoot getCurrentViewRoot(){
+        return FacesContext.getCurrentInstance().getViewRoot();
     }
 }

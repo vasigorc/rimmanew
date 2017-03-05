@@ -19,7 +19,7 @@ import static com.vgorcinschi.rimmanew.util.Java8Toolkit.getNextSuitableDate;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.isAWeekEnd;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.localToUtilDate;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.nextNotWeekEnd;
-import static com.vgorcinschi.rimmanew.util.Localizer.getCurrentViewLocale;
+import com.vgorcinschi.rimmanew.util.Localizer;
 import static com.vgorcinschi.rimmanew.util.Localizer.getLocalizedLabel;
 import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
@@ -174,7 +174,7 @@ public class AppointmentFormBean implements Serializable {
     public InternationalizableDateImpl displayDate(){
         return new InternationalizableDateImpl(new InternationalizableDateBuilder
         (utilToSql(this.selectedDate).toLocalDate()).setDayOfWeekStyle(TextStyle.FULL)
-        .setMonthsStyle(TextStyle.SHORT).setSessionLocale(getCurrentViewLocale()));
+        .setMonthsStyle(TextStyle.SHORT).setSessionLocale(Localizer.getCurrentViewRoot().getLocale()));
     }
     
     public String getLocalizedType(){

@@ -3,15 +3,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://java.sun.com/jsf/facelets"
       xmlns:h="http://java.sun.com/jsf/html"
-      xmlns:jsf="http://xmlns.jcp.org/jsf">
+      xmlns:jsf="http://xmlns.jcp.org/jsf"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
     <h:head>
         <title><ui:insert name="windowTitle">#{copy.defaultWindowTitle}</ui:insert></title>
         <h:outputStylesheet name="css/bootstrap/bootstrap.min.css"/>
         <h:outputScript name="js/bootstrap/bootstrap.min.js"/>
         <ui:insert name="stylesAndScripts"></ui:insert>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <!-- default styles -->
-        <!--not yet defined TODO consider if bootstrap/mini could be picked -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0,charset=utf-8" />
     </h:head>
     <h:body>
         <!-- navigation bar -->
@@ -36,10 +35,26 @@
                         <li class="dropdown">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="#">#{copy.selectLanguage} <span class="caret"></span></a>
                             <ul class="dropdown-menu">
-                                <li>#{copy.en}</li>
-                                <li>#{copy.fr}</li>
-                                <li>#{copy.ru}</li>
+                                <h:form>
+                                <ui:repeat var="locale" value="#{userPreferencies.availableLocales}">
+                                    <li><h:commandLink actionListener="#{userPreferencies.changeLocale}" 
+                                                       value="#{copy[locale.language]}" 
+                                                       rendered="#{userPreferencies.currentLocale.language ne locale.language}">
+                                            <f:attribute name="languageCode" value="#{locale}"/>
+                                        </h:commandLink>
+                                    </li>                                    
+                                </ui:repeat>
+                                    </h:form>
                             </ul>
+                            <ui:remove>
+                                <h:selectOneMenu value="#{userPreferencies.currentLocale}">
+                                    <f:selectItems
+                                        value="#{userPreferencies.availableLocales}"
+                                        var="locale"
+                                        itemLabel="locale.language"
+                                        itemValue="locale" />
+                                </h:selectOneMenu>
+                            </ui:remove>                            
                         </li>
                         <li><a jsf:outcome="login" href="#"><span class="glyphicon glyphicon-log-in"></span>#{copy.authPage}</a></li>
                     </ul>
