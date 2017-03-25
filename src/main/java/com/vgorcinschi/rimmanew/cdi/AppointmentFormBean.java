@@ -104,12 +104,18 @@ public class AppointmentFormBean implements Serializable {
     }   
 
     public Map<String, String> getTypes() {
-        if (types.isEmpty()) {
+        /*
+            yes, I am repopulating this map on each page refresh. The
+            reason is Mojara 2.2 bug that makes Localizing Composite Components
+            (ex Core JavaServer Faces 3rd Ed pp.359-360) useless. The suggested 
+            alternative: http://stackoverflow.com/questions/18134378/how-to-localize-jsf-composite-component
+            also doesn't work
+        */
+            types.clear();
             types.put(getLocalizedLabel("manicure"), "manicure");
             types.put(getLocalizedLabel("massage"), "massage");
             types.put(getLocalizedLabel("pedicure"), "pedicure");
             types.put(getLocalizedLabel("waxing"), "waxing");
-        }
         return types;
     }
 
