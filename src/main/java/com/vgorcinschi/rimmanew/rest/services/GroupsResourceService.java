@@ -1,8 +1,6 @@
 package com.vgorcinschi.rimmanew.rest.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.vgorcinschi.rimmanew.annotations.Production;
 import com.vgorcinschi.rimmanew.ejbs.GroupsRepository;
 import com.vgorcinschi.rimmanew.entities.Groups;
@@ -26,7 +24,7 @@ import org.apache.logging.log4j.LogManager;
  */
 @Path("/groups")
 @Produces("application/json")
-public class GroupsResourceService {
+public class GroupsResourceService extends RimmaRestService{
     
     @Inject
     @Production
@@ -56,11 +54,5 @@ public class GroupsResourceService {
              throw new BadRequestException("You haven't provided a group parameter",
                         Response.status(Response.Status.BAD_REQUEST).build());
         }
-    }
-    
-    public ObjectMapper getMapper(){
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
-        return mapper;
     }
 }
