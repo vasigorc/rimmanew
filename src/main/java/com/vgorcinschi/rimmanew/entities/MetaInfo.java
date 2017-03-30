@@ -5,7 +5,9 @@
  */
 package com.vgorcinschi.rimmanew.entities;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.vgorcinschi.rimmanew.helpers.InstantConverter;
+import com.vgorcinschi.rimmanew.rest.services.helpers.InstantToDateSerializer;
 import java.time.Instant;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -37,6 +39,7 @@ public abstract class MetaInfo {
 
     @Convert(converter = InstantConverter.class)
     @Column(name = "created_date")
+    @JsonSerialize(using = InstantToDateSerializer.class)
     public Instant getCreatedDate() {
         return createdDate;
     }
@@ -50,6 +53,7 @@ public abstract class MetaInfo {
 
     @Convert(converter = InstantConverter.class)
     @Column(name = "modified_date")
+    @JsonSerialize(using = InstantToDateSerializer.class)
     public Instant getModifiedDate() {
         return modifiedDate;
     }

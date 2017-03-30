@@ -5,6 +5,9 @@
  */
 package com.vgorcinschi.rimmanew.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -23,6 +26,8 @@ import javax.persistence.Table;
  *
  * @author vgorcinschi
  */
+@JsonRootName(value="userGroup")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
 @Access(AccessType.PROPERTY)
 @Table(name = "groups")
@@ -62,6 +67,7 @@ public class Groups extends MetaInfo implements Serializable {
     }
 
     @OneToMany(fetch=FetchType.EAGER, mappedBy = "group")
+    @JsonIgnore//we do not want to include all users with each @get request
     public Set<Credential> getCredentials() {
         return credentials;
     }
