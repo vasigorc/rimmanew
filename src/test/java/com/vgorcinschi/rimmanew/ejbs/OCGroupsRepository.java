@@ -5,6 +5,7 @@
  */
 package com.vgorcinschi.rimmanew.ejbs;
 
+import com.vgorcinschi.rimmanew.annotations.OCRepository;
 import com.vgorcinschi.rimmanew.entities.Groups;
 import com.vgorcinschi.rimmanew.util.EntityManagerFactoryProvider;
 import java.util.List;
@@ -18,6 +19,7 @@ import javax.persistence.TypedQuery;
  *
  * @author vgorcinschi
  */
+@OCRepository
 public class OCGroupsRepository implements GroupsRepository {
 
     private final EntityManagerFactory entityManagerFactory;
@@ -68,7 +70,7 @@ public class OCGroupsRepository implements GroupsRepository {
                     + "Groups g WHERE LOWER(g.groupName) LIKE :groupName",
                     Groups.class).setParameter("groupName", groupName.toLowerCase());
             return query.getSingleResult();
-        } catch (NoResultException e) {
+        } catch (IllegalArgumentException | NoResultException e) {
             return null;
         } finally {
             em.close();

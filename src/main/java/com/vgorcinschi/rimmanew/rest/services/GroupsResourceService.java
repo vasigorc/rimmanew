@@ -5,6 +5,7 @@ import com.vgorcinschi.rimmanew.annotations.Production;
 import com.vgorcinschi.rimmanew.ejbs.GroupsRepository;
 import com.vgorcinschi.rimmanew.entities.Groups;
 import com.vgorcinschi.rimmanew.util.InputValidators;
+import java.util.Arrays;
 import java.util.Optional;
 import static java.util.Optional.ofNullable;
 import javax.inject.Inject;
@@ -29,6 +30,10 @@ public class GroupsResourceService extends RimmaRestService{
     @Inject
     @Production
     private GroupsRepository groupsRepository;
+
+    public void setGroupsRepository(GroupsRepository groupsRepository) {
+        this.groupsRepository = groupsRepository;
+    }
     
     private final org.apache.logging.log4j.Logger logger = LogManager.getLogger(this.getClass());
     
@@ -41,9 +46,11 @@ public class GroupsResourceService extends RimmaRestService{
             if(optGroup.isPresent()){//ultimately success scenario
                 try {
                     String output = getMapper().writeValueAsString(optGroup.get());
+                    System.out.println(output);
                     return Response.ok(output).build();
                 } catch (JsonProcessingException e) {
-                    logger.error("Serialization error: "+e.getMessage());
+                    logger.error("Serialization error: "+e.getMessage()+
+                            "\n"+e.getClass().getCanonicalName());
                     throw new InternalServerErrorException("Server error "
                             + " serializing the requested group \""+group+"\"");
                 }

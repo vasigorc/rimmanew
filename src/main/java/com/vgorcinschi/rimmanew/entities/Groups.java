@@ -1,13 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.vgorcinschi.rimmanew.entities;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRootName;
+import com.fasterxml.jackson.annotation.JsonValue;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -57,6 +54,8 @@ public class Groups extends MetaInfo implements Serializable {
 
     @Id
     @Column(name = "group_name")
+//    @JsonGetter("group_Name")
+    @JsonValue
     public String getGroupName() {
         return groupName;
     }
@@ -67,7 +66,7 @@ public class Groups extends MetaInfo implements Serializable {
     }
 
     @OneToMany(fetch=FetchType.EAGER, mappedBy = "group")
-    @JsonIgnore//we do not want to include all users with each @get request
+    @JsonIgnore
     public Set<Credential> getCredentials() {
         return credentials;
     }

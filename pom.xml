@@ -181,7 +181,7 @@
             <artifactId>payara-embedded-all</artifactId>
             <version>4.1.1.161</version>
             <scope>test</scope>
-        </dependency>       
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>
@@ -265,7 +265,7 @@
                         <goals>
                             <goal>run</goal>
                         </goals>
-                    </execution>
+                    </execution>                    
                     <execution>
                         <id>restore-persistence</id>
                         <phase>prepare-package</phase>
@@ -283,6 +283,14 @@
                 </executions>
             </plugin>     
         </plugins>
+        <testResources>
+            <testResource>
+                <directory>${project.basedir}/src/test/resources</directory>
+              </testResource>
+              <testResource>
+                <directory>${project.basedir}/src/main/java</directory>
+              </testResource>
+        </testResources>
     </build>   
     <repositories>
         <repository>
