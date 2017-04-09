@@ -36,7 +36,7 @@ public class ArquillianInjectionTesting {
                         DefaultAppointmentService.class,
                         AppointmentRepository.class,
                         InMemoryAppointmentRepository.class)
-                .addAsResource("test-persistence.xml", "META-INF/persistence.xml")
+                .addAsResource("META-INF/test-persistence.xml", "META-INF/persistence.xml")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
     }
 

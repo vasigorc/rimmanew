@@ -65,7 +65,7 @@ import org.apache.logging.log4j.LogManager;
  * @author vgorcinschi
  */
 @Path("/specialdays")
-public class SpecialDayResourceService {
+public class SpecialDayResourceService extends RimmaRestService <SpecialDay>{
 
     @Inject
     @JpaRepository
@@ -441,24 +441,6 @@ public class SpecialDayResourceService {
             }
         }
 
-    }
-
-    public int sizeValidator(int listSize, int requestOffset, int requestSize) {
-        int answerSize;
-        if (requestSize < 1) {
-            throw new BadRequestException("You haven't requested any days with "
-                    + "special schedule");
-        }
-        if ((listSize - requestOffset) < 0) {
-            throw new BadRequestException("There are less entries in the "
-                    + "system than you have requested");
-        }
-        if ((listSize - requestOffset) < requestSize) {
-            answerSize = listSize - requestOffset;
-        } else {
-            answerSize = requestSize;
-        }
-        return answerSize;
     }
 
     public SpecialDay checkAndBuild(Date sdDate, String startAt, String endAt, String breakStart,

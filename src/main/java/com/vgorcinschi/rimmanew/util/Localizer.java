@@ -7,6 +7,7 @@ package com.vgorcinschi.rimmanew.util;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
+import javaslang.control.Try;
 import javax.faces.application.Application;
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.FacesContext;
@@ -32,6 +33,13 @@ public class Localizer {
         Same as above - just returning the view root
     */
     public static UIViewRoot getCurrentViewRoot(){
-        return FacesContext.getCurrentInstance().getViewRoot();
+        if(uiViewRoot().isSuccess()){
+            return uiViewRoot().get();
+        }
+        return null;
+    }
+    
+    public static Try<UIViewRoot> uiViewRoot(){
+        return Try.of(()-> FacesContext.getCurrentInstance().getViewRoot());
     }
 }

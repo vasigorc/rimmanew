@@ -48,4 +48,11 @@ public class GroupsResourceServiceTest {
         Response success = groupsResourceService.getGroup("admin");
         assertTrue(success.getStatus()==200);
     }
+    
+    @Test
+    public void getAllGroupsTest(){
+        Response success = groupsResourceService.getGroups(0, 2);
+        assertTrue(success.getStatus() == 200);
+        System.out.println(success.getEntity().toString());
+    }
 }
