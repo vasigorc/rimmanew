@@ -19,7 +19,6 @@ import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import org.apache.logging.log4j.LogManager;
@@ -29,7 +28,6 @@ import org.apache.logging.log4j.LogManager;
  * @author vgorcinschi
  */
 @Path("/groups")
-@Produces("application/json")
 public class GroupsResourceService extends RimmaRestService<Groups>{
     
     @Inject
@@ -68,7 +66,6 @@ public class GroupsResourceService extends RimmaRestService<Groups>{
     }
     
     @GET
-    @Produces("application/json")
     public Response getGroups(@DefaultValue("0") @QueryParam("offset") int offset,
             @DefaultValue("10") @QueryParam("size") int size){
         Optional<List<Groups>> optGroups = ofNullable(groupsRepository.getAll());

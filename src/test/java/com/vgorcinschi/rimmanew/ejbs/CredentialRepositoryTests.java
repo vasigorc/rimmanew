@@ -7,6 +7,8 @@ package com.vgorcinschi.rimmanew.ejbs;
 
 import com.vgorcinschi.rimmanew.entities.Credential;
 import com.vgorcinschi.rimmanew.entities.Groups;
+import com.vgorcinschi.rimmanew.helpers.NotAValidEmailException;
+import com.vgorcinschi.rimmanew.helpers.UserWithEmailAlreadyExists;
 import static com.vgorcinschi.rimmanew.util.SecurityPrompt.pbkdf2;
 import java.util.Arrays;
 import org.junit.After;
@@ -44,10 +46,11 @@ public class CredentialRepositoryTests {
     public void createCredentialTest() {
         //retrieve the group
         Groups admin = groupRepo.getByGroupName("admin");
-        Credential sampleUser = new Credential("user_creator", "sample_user_nr3");
-        sampleUser.setPasswd(pbkdf2("dnf2", sampleUser.getSalt(),
+        Credential sampleUser = new Credential("su-user", "admin");
+        sampleUser.setPasswd(pbkdf2("admin", sampleUser.getSalt(),
                 120000, 512));
         sampleUser.setGroup(admin);
+        sampleUser.setEmailAddress("elenatodorasco@gmail.com");
         assertTrue(credentialRepo.createCredential(sampleUser));
     }
     
@@ -70,6 +73,15 @@ public class CredentialRepositoryTests {
         anoterUser.setPasswd(pbkdf2("abc123", anoterUser.getSalt(), 120000, 512));
         admin.addCredential(anoterUser);
         assertTrue(groupRepo.updateGroups(admin));
+    }
+    
+    @Test(expected = UserWithEmailAlreadyExists.class)
+    public void savingCredentialWithExistingEmail() {
+        Groups admin = groupRepo.getByGroupName("admin");
+        Credential anoterUser = new Credential("user_creator", "FAKE");
+        anoterUser.setPasswd(pbkdf2("abc123", anoterUser.getSalt(), 120000, 512));
+        anoterUser.setEmailAddress("vasigorc@gmail.com");
+        credentialRepo.createCredential(anoterUser);
     }
 
     @Test
@@ -107,9 +119,10 @@ public class CredentialRepositoryTests {
 
     @Test
     public void updateACredential() {
-        Credential c = credentialRepo.getByUsername("sample_user_two");
-        c.setFirstname("John");
-        c.setLastname("Smith");
+        Credential c = credentialRepo.getByUsername("admin");
+        c.setFirstname("Elena");
+        c.setLastname("Todorasco");
+        c.setEmailAddress("elenatodorasco@gmail.com");
         assertTrue(credentialRepo.updateCredential(c));
     }
 
@@ -126,5 +139,20 @@ public class CredentialRepositoryTests {
     @Test
     public void getActiveCredentials() {
         assertTrue(credentialRepo.getActive().size() > 1);
+    }
+    
+    @Test
+    public void emailAlreadyExistsTest(){
+        assertTrue(credentialRepo.emailIsAssigned("vasigorc@yahoo.ca"));
+    }
+    
+    @Test(expected = NotAValidEmailException.class)
+    public void notAValidEmailTest(){
+        credentialRepo.emailIsAssigned("asasdfgf3274624");
+    }
+    
+    @Test
+    public void inexistingEmailTest(){
+        assertTrue(credentialRepo.emailIsAssigned("elenatodorasco@gmail.com"));
     }
 }

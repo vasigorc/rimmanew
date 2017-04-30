@@ -5,6 +5,7 @@
     <!--<exclude-unlisted-classes>false</exclude-unlisted-classes>-->
     <class>com.vgorcinschi.rimmanew.entities.Groups</class>
     <class>com.vgorcinschi.rimmanew.entities.Credential</class>
+    <class>com.vgorcinschi.rimmanew.entities.Email</class>
     <class>com.vgorcinschi.rimmanew.helpers.InstantConverter</class>
     <properties>
       <property name="eclipselink.ddl-generation" value="create-or-extend-tables"/>

@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * this will be a collection of static methods and lambdas to validate user
@@ -18,6 +19,10 @@ import java.util.function.Function;
  */
 public class InputValidators {
 
+    public static final String EMAIL_PATTERN = 
+		"^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+		+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+    
     public static Function<String[], Boolean> allStringsAreGood = (java.lang.String[] array) -> {
         if (Arrays.asList(array).isEmpty()) {
             return false;
@@ -50,5 +55,10 @@ public class InputValidators {
         } catch (Exception e) {
             return false;
         }
+    };
+    
+    public static Predicate<String> isValidEmail = (String candidate)-> {
+        return stringNotNullNorEmpty.apply(candidate) && 
+                candidate.matches(EMAIL_PATTERN);
     };
 }

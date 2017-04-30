@@ -36,4 +36,7 @@ public interface CredentialRepository {
     
     @AccessTimeout(unit = TimeUnit.SECONDS, value = 15)
     public List<Credential> getAll();
+    
+    @AccessTimeout(unit = TimeUnit.SECONDS, value = 15)
+    public boolean emailIsAssigned(String... args);
 }

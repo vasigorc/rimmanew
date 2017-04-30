@@ -35,6 +35,7 @@ public class RestfulBeautyShop extends Application {
         set.add(AppointmentResourceService.class);
         set.add(SpecialDayResourceService.class);
         set.add(GroupsResourceService.class);
+        set.add(CredentialResourceService.class);
         set.add(BadRequestExceptionMapper.class);
         set.add(InternalServerErrorExceptionMapper.class);
         set.add(NotFoundExceptionMapper.class);

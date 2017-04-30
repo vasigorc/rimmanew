@@ -12,12 +12,14 @@ import com.vgorcinschi.rimmanew.rest.services.helpers.JaxbSpecialDayListWrapperB
 import java.util.List;
 import javaslang.control.Try;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.Produces;
 
 /**
  *
  * @author vgorcinschi
  * @param <A> - model for which this resource will be a support
  */
+@Produces("application/json")
 public abstract class RimmaRestService <A>{
     
     protected ObjectMapper getMapper(){

@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import static com.vgorcinschi.rimmanew.util.InputValidators.EMAIL_PATTERN;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -19,11 +20,8 @@ import org.junit.runners.Parameterized;
  */
 @RunWith(Parameterized.class)
 public class EmailPatternTests {
-    private static final String EMAIL_PATTERN = 
-		"^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
-		+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
-    private final String candidate;
     
+    private final String candidate;
     
     public EmailPatternTests(String candidate) {
         this.candidate=candidate;

@@ -7,6 +7,10 @@ package com.vgorcinschi.rimmanew.ejbs;
 
 import com.vgorcinschi.rimmanew.annotations.Production;
 import com.vgorcinschi.rimmanew.entities.Credential;
+import com.vgorcinschi.rimmanew.helpers.NotAValidEmailException;
+import com.vgorcinschi.rimmanew.helpers.UserWithEmailAlreadyExists;
+import com.vgorcinschi.rimmanew.util.InputValidators;
+import java.util.Arrays;
 import java.util.List;
 import javax.ejb.Singleton;
 import javax.persistence.EntityExistsException;
@@ -15,6 +19,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceContextType;
 import javax.persistence.TransactionRequiredException;
+import javax.persistence.TypedQuery;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -33,13 +38,19 @@ public class JpaCredentialRepository implements CredentialRepository {
 
     @Override
     public boolean createCredential(Credential credential) {
-        try {
-            em.persist(credential);
-            log.info("A new user has been saved: " + credential);
-            return true;
-        } catch (EntityExistsException | TransactionRequiredException | IllegalArgumentException e) {
-            log.error(e.getMessage());
-            return false;
+        if(emailIsAssigned(credential.getEmailAddress())){
+            //only then we bother
+            try {
+                em.persist(credential);
+                log.info("A new user has been saved: " + credential);
+                return true;
+            } catch (EntityExistsException | TransactionRequiredException | IllegalArgumentException e) {
+                log.error(e.getMessage());
+                return false;
+            }
+        } else {
+            throw new UserWithEmailAlreadyExists("User with email "
+            +credential.getEmailAddress()+" already exists.");
         }
     }
 
@@ -97,4 +108,25 @@ public class JpaCredentialRepository implements CredentialRepository {
         }
     }
 
+    @Override
+    public boolean emailIsAssigned(String... args) {
+        assert(args.length > 0);
+        if(InputValidators.isValidEmail.test(args[0])){
+            Long nrOfOccurences = Long.valueOf(0);
+            TypedQuery<Long> query = em.createQuery("SELECT COUNT(c) "
+                        + "FROM Credential c WHERE c.emailAddress "
+                        + "= :email AND c.username != :username", 
+                    Long.TYPE).setParameter("email", args)
+                    .setParameter("username", null);
+            if(InputValidators.stringNotNullNorEmpty.apply(args[1])){
+                //only if the username has been provided
+                query.setParameter("username", args[1]);
+            }
+            nrOfOccurences = query.getSingleResult();
+            return nrOfOccurences > 0;
+        } else {
+            throw new NotAValidEmailException(Arrays.toString(args) + " is not a"
+                    + " valid email address.");
+        }
+    }
 }

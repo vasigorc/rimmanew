@@ -5,6 +5,11 @@
  */
 package com.vgorcinschi.rimmanew.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonRootName;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.vgorcinschi.rimmanew.rest.services.helpers.CustomGroupsSerializer;
 import static com.vgorcinschi.rimmanew.util.SecurityPrompt.randomSalt;
 import java.io.Serializable;
 import java.time.Instant;
@@ -15,6 +20,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -24,9 +30,13 @@ import javax.persistence.Table;
  *
  * @author vgorcinschi
  */
+@JsonRootName(value="user")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
 @Access(AccessType.PROPERTY)
-@Table(name = "credential")
+@Table(name = "credential", indexes = {
+    @Index(name="Credential_Email_Address_Index", columnList = "email")
+})
 @NamedQueries({
     @NamedQuery(name = "findByGroup",
             query = "SELECT c FROM "
@@ -45,13 +55,13 @@ public class Credential extends MetaInfo implements Serializable {
     private Groups group;
     private boolean blocked;
     private boolean suspended;
-    private String firstname, lastname;
-
+    private String firstname, lastname, emailAddress;
+    
     public Credential() {
         super();
         salt = randomSalt();
     }
-
+    
     public Credential(String createdBy) {
         super(Instant.now(), createdBy);
         salt = randomSalt();
@@ -61,7 +71,7 @@ public class Credential extends MetaInfo implements Serializable {
         this(createdBy);
         this.username = username;
     }
-
+    
     @Id
     @Column(name = "username")
     public String getUsername() {
@@ -74,6 +84,7 @@ public class Credential extends MetaInfo implements Serializable {
     }
 
     @Column(name = "passwd")
+    @JsonIgnore
     public byte[] getPasswd() {
         return passwd;
     }
@@ -83,7 +94,8 @@ public class Credential extends MetaInfo implements Serializable {
         updateModified();
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REFRESH)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonSerialize(using = CustomGroupsSerializer.class)
     public Groups getGroup() {
         return group;
     }
@@ -133,8 +145,9 @@ public class Credential extends MetaInfo implements Serializable {
         this.lastname = lastname;
         updateModified();
     }
-
+    
     @Column(name = "salt")
+    @JsonIgnore
     public byte[] getSalt() {
         return salt;
     }
@@ -145,6 +158,15 @@ public class Credential extends MetaInfo implements Serializable {
 
     @Override
     public String toString() {
-        return "Credential{" + "username=" + username + ", group=" + group + ", blocked=" + blocked + ", suspended=" + suspended + ", firstname=" + firstname + ", lastname=" + lastname + '}';
-    }    
+        return "Credential{" + "username=" + username + ", group=" + group + ", blocked=" + blocked + ", suspended=" + suspended + ", firstname=" + firstname + ", lastname=" + lastname + ", emailAddress=" + emailAddress + '}';
+    }
+
+    @Column(name="email", unique = true)
+    public String getEmailAddress() {
+        return emailAddress;
+    }
+
+    public void setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
+    }
 }

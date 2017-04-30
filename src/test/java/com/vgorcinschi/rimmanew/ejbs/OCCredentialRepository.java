@@ -6,7 +6,10 @@
 package com.vgorcinschi.rimmanew.ejbs;
 
 import com.vgorcinschi.rimmanew.entities.Credential;
+import com.vgorcinschi.rimmanew.helpers.NotAValidEmailException;
+import com.vgorcinschi.rimmanew.helpers.UserWithEmailAlreadyExists;
 import com.vgorcinschi.rimmanew.util.EntityManagerFactoryProvider;
+import com.vgorcinschi.rimmanew.util.InputValidators;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -28,18 +31,23 @@ public class OCCredentialRepository implements CredentialRepository {
 
     @Override
     public boolean createCredential(Credential credential) {
-        EntityManager em = entityManagerFactory.createEntityManager();
-        EntityTransaction trans = em.getTransaction();
-        try {
-            trans.begin();
-            em.persist(credential);
-            trans.commit();
-            return true;
-        } catch (Exception e) {
-            trans.rollback();
-            return false;
-        } finally {
-            em.close();
+        if(!emailIsAssigned(credential.getEmailAddress())){
+            EntityManager em = entityManagerFactory.createEntityManager();
+            EntityTransaction trans = em.getTransaction();
+            try {
+                trans.begin();
+                em.persist(credential);
+                trans.commit();
+                return true;
+            } catch (Exception e) {
+                trans.rollback();
+                return false;
+            } finally {
+                em.close();
+            }
+        } else {
+            throw new UserWithEmailAlreadyExists("User with email "
+            +credential.getEmailAddress()+" already exists.");
         }
     }
 
@@ -118,4 +126,37 @@ public class OCCredentialRepository implements CredentialRepository {
         }
     }
 
+    @Override
+    public boolean emailIsAssigned(String... args) {
+        assert(args.length > 0);
+        if(InputValidators.isValidEmail.test(args[0])){
+            EntityManager em = entityManagerFactory.createEntityManager();
+            try {
+                String query = "SELECT COUNT(c) FROM Credential c WHERE c.emailAddress "
+                        + "= :email AND c.username ";
+                TypedQuery<Long> count;
+                if(args.length >1 && InputValidators.stringNotNullNorEmpty.apply(args[1])){
+                    query = query.concat("!= :username");
+                    count = em.createQuery(query, 
+                    //only if the username has been provided
+                        Long.TYPE).setParameter("email", args[0])
+                        .setParameter("username", args[1]);
+                } else {
+                    query = query.concat("IS NOT NULL");
+                    count = em.createQuery(query, 
+                    //only if the username has been provided
+                        Long.TYPE).setParameter("email", args[0]);
+                }
+                return count.getSingleResult() > 0;
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                return false;
+            } finally {
+                em.close();
+            }
+        }else{
+            throw new NotAValidEmailException(args[0] + " is not a"
+                    + " valid email address.");
+        }
+    }
 }
