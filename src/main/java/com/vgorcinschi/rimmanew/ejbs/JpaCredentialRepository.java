@@ -70,8 +70,8 @@ public class JpaCredentialRepository implements CredentialRepository {
     public Credential getByUsername(String username) {
         try {
             return em.createQuery("SELECT c FROM "
-                    + "Credential c WHERE LOWER(c.username) LIKE :username", Credential.class)
-                    .setParameter("username", username.toLowerCase()).getSingleResult();
+                    + "Credential c WHERE c.username = :username", Credential.class)
+                    .setParameter("username", username).getSingleResult();
         } catch (NoResultException e) {
             log.error(e.getMessage());
             return null;

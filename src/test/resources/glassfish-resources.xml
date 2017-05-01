@@ -25,6 +25,6 @@ file and include the License file at packager/legal/LICENSE.txt.
                           datasource-classname="com.mysql.jdbc.jdbc2.optional.MysqlDataSource">
         <property name="user" value="root"/>
         <property name="password" value="ASKallice69"/>
-        <property name="url" value="jdbc:mysql://127.0.0.1:3306/beauty_shop"/>
+        <property name="url" value="jdbc:mysql://127.0.0.1:3306/beauty_shop?zeroDateTimeBehavior=convertToNull"/>
     </jdbc-connection-pool>
 </resources>

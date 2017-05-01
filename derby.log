@@ -1,0 +1,13 @@
+----------------------------------------------------------------
+Sun Apr 30 20:57:33 EDT 2017:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.10.2.0 - (1582446): instance a816c00e-015b-c183-3746-00000e7e70f8 
+on database directory /tmp/gfembed2076104186150805250tmp/lib/databases/embedded_default with class loader sun.misc.Launcher$AppClassLoader@4aa298b7 
+Loaded from file:/home/vgorcinschi/.m2/repository/fish/payara/extras/payara-embedded-all/4.1.1.161/payara-embedded-all-4.1.1.161.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.8.0_131-b11
+user.dir=/home/vgorcinschi/NetBeansProjects/rimmanew
+os.name=Linux
+os.arch=amd64
+os.version=4.4.0-66-generic
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''

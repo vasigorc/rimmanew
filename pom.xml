@@ -182,6 +182,33 @@
             <version>4.1.1.161</version>
             <scope>test</scope>
         </dependency>
+        <!-- For rest arquillian support -->
+        <dependency>
+            <groupId>org.jboss.arquillian.extension</groupId>
+            <artifactId>arquillian-rest-client-api</artifactId>
+            <version>1.0.0.Alpha4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.arquillian.extension</groupId>
+            <artifactId>arquillian-rest-client-impl-3x</artifactId>
+            <version>1.0.0.Alpha4</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jboss.arquillian.junit</groupId>
+                    <artifactId>arquillian-junit-container</artifactId> 
+                </exclusion>
+                <exclusion>
+                    <groupId>org.jboss.arquillian.protocol</groupId>
+                    <artifactId>arquillian-protocol-servlet</artifactId> 
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>
