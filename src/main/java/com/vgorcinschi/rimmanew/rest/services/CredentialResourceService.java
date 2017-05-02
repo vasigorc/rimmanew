@@ -1,6 +1,5 @@
 package com.vgorcinschi.rimmanew.rest.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.vgorcinschi.rimmanew.annotations.Production;
 import com.vgorcinschi.rimmanew.ejbs.CredentialRepository;
 import com.vgorcinschi.rimmanew.entities.Credential;
@@ -8,6 +7,7 @@ import com.vgorcinschi.rimmanew.util.InputValidators;
 import java.util.Optional;
 import static java.util.Optional.ofNullable;
 import javax.inject.Inject;
+import javax.json.JsonObject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
@@ -39,9 +39,9 @@ public class CredentialResourceService extends RimmaRestService<Credential>{
             Optional<Credential> optCredential = ofNullable(repository.getByUsername(username));
             if(optCredential.isPresent()){
                 try {
-                    String output = getMapper().writeValueAsString(optCredential.get());
+                    String output = toJSON(optCredential.get());
                     return Response.ok(output).build();
-                } catch (JsonProcessingException e) {
+                } catch (Exception e) {
                     logger.error("Serialization error: "+e.getMessage()+
                             "\n"+e.getClass().getCanonicalName());
                     throw new InternalServerErrorException("Server error "
@@ -54,5 +54,25 @@ public class CredentialResourceService extends RimmaRestService<Credential>{
             throw new BadRequestException("You haven't provided the username.",
             Response.status(Response.Status.BAD_REQUEST).build());
         }
+    }
+
+    @Override
+    protected String toJSON(Credential entity) {
+        JsonObject value = factory.createObjectBuilder()
+                .add("credential", factory.createObjectBuilder()
+                        .add("username", entity.getUsername())
+                        .add("group", entity.getGroup().getGroupName())
+                        .add("blocked", entity.isBlocked())
+                        .add("suspended", entity.isSuspended())
+                        .add("firstname", entity.getFirstname())
+                        .add("lastname", entity.getLastname())
+                        .add("email", entity.getEmailAddress())
+                        .add("metaInfo", factory.createObjectBuilder()
+                        .add("createdBy", entity.getCreatedBy())
+                        .add("createdOn", formatter.format(entity.getCreatedDate()))
+                        .add("modifiedBy", entity.getModifiedBy())
+                        .add("modifiedOn", formatter.format(entity.getModifiedDate()))
+                                .build()).build()).build();
+        return value.toString();
     }
 }

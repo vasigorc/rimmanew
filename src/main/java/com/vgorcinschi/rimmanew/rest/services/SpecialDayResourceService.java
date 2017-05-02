@@ -525,4 +525,9 @@ public class SpecialDayResourceService extends RimmaRestService <SpecialDay>{
         object.put(key, value);
         return object.toString();
     }
+
+    @Override
+    protected String toJSON(SpecialDay entity) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

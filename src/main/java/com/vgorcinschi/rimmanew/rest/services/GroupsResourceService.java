@@ -101,4 +101,9 @@ public class GroupsResourceService extends RimmaRestService<Groups>{
                     Response.status(Response.Status.BAD_REQUEST).build());
         }
     }
+
+    @Override
+    protected String toJSON(Groups entity) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

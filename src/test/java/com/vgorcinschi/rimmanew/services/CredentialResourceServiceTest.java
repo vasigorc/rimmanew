@@ -6,10 +6,14 @@ import com.vgorcinschi.rimmanew.ejbs.JpaCredentialRepository;
 import com.vgorcinschi.rimmanew.entities.Credential;
 import com.vgorcinschi.rimmanew.helpers.InstantConverter;
 import com.vgorcinschi.rimmanew.rest.services.CredentialResourceService;
+import java.net.URL;
 import javax.inject.Inject;
+import javax.ws.rs.core.Response;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
+import org.jboss.arquillian.extension.rest.client.ArquillianResteasyResource;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -26,9 +30,12 @@ import org.junit.runner.RunWith;
 @RunWith(Arquillian.class)
 public class CredentialResourceServiceTest {
     
+    @ArquillianResource
+    private URL deploymentURL;
+    
     @Deployment
     @RunAsClient
-    public static WebArchive createDeployment(){
+    public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class, "credentialRestService.war")
                 .addClasses(CredentialRepository.class,
                         JpaCredentialRepository.class,
@@ -54,21 +61,22 @@ public class CredentialResourceServiceTest {
     @After
     public void tearDown() {
     }
-
+    
     @Test
-    public void repositoryNotNull(){
+    public void repositoryNotNull() {
         assertNotNull(credentialRepository);
     }
     
     @Test
-    public void getUserWithoutRestCall(){
+    public void getUserWithoutRestCall() {
         Credential byUsername = credentialRepository.getByUsername("admin");
-        System.out.println(byUsername);
         assertNotNull(byUsername);
     }
     
     @Test
-    public void testTest(){
-        System.out.println(credentialRepository.getAll());
+    public void getByUsername(
+            @ArquillianResteasyResource CredentialResourceService crs) {
+        final Response response = crs.getCredential("admin");
+        assertTrue(response.getEntity().toString().contains("elenatodorasco@gmail.com"));
     }
 }

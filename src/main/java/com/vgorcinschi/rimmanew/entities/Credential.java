@@ -6,6 +6,7 @@
 package com.vgorcinschi.rimmanew.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -31,6 +32,7 @@ import javax.persistence.Table;
  * @author vgorcinschi
  */
 @JsonRootName(value="user")
+@JsonIgnoreProperties({ "passwd, salt" })
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
 @Access(AccessType.PROPERTY)
@@ -84,7 +86,6 @@ public class Credential extends MetaInfo implements Serializable {
     }
 
     @Column(name = "passwd")
-    @JsonIgnore
     public byte[] getPasswd() {
         return passwd;
     }
@@ -147,7 +148,6 @@ public class Credential extends MetaInfo implements Serializable {
     }
     
     @Column(name = "salt")
-    @JsonIgnore
     public byte[] getSalt() {
         return salt;
     }

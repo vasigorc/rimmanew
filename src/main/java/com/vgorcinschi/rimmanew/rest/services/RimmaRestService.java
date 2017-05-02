@@ -9,8 +9,17 @@ import com.vgorcinschi.rimmanew.rest.services.helpers.GenericBaseJaxbListWrapper
 import com.vgorcinschi.rimmanew.rest.services.helpers.JaxbAppointmentListWrapperBuilder;
 import com.vgorcinschi.rimmanew.rest.services.helpers.JaxbGroupsListWrapperBuilder;
 import com.vgorcinschi.rimmanew.rest.services.helpers.JaxbSpecialDayListWrapperBuilder;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import javaslang.control.Try;
+import javax.json.Json;
+import javax.json.JsonBuilderFactory;
+import javax.json.stream.JsonGenerator;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Produces;
 
@@ -22,9 +31,23 @@ import javax.ws.rs.Produces;
 @Produces("application/json")
 public abstract class RimmaRestService <A>{
     
+    //for the toJSON method
+    protected final Map<String, Object> configs = new HashMap<>(1);
+    protected final JsonBuilderFactory factory;
+    DateTimeFormatter formatter =
+    DateTimeFormatter.ofLocalizedDateTime( FormatStyle.SHORT )
+                     .withLocale( Locale.CANADA )
+                     .withZone( ZoneId.systemDefault() );
+
+    public RimmaRestService() {
+        this.configs.put(JsonGenerator.PRETTY_PRINTING, true);
+        this.factory = Json.createBuilderFactory(configs);
+    }
+    
     protected ObjectMapper getMapper(){
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
+        mapper.enableDefaultTyping();
         return mapper;
     }    
     
@@ -62,4 +85,6 @@ public abstract class RimmaRestService <A>{
                     + " a custom list wrapper");
         }
     }
+    
+    protected abstract String toJSON(A entity);
 }
