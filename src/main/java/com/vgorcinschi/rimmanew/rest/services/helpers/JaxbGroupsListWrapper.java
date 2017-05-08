@@ -14,5 +14,4 @@ public class JaxbGroupsListWrapper extends GenericBaseJaxbListWrapper<Groups>{
     public JaxbGroupsListWrapper(List<Groups> current) {
         super(current);
     }
-    
 }

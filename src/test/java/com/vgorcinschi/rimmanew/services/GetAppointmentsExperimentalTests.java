@@ -12,9 +12,9 @@ import com.vgorcinschi.rimmanew.entities.Appointment;
 import com.vgorcinschi.rimmanew.rest.services.AppointmentResourceService;
 import com.vgorcinschi.rimmanew.rest.services.helpers.SqlDateConverter;
 import com.vgorcinschi.rimmanew.rest.services.helpers.SqlTimeConverter;
-import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.AppointmentsQueryCandidate;
-import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.AppointmentsQueryCandidatesTriage;
-import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.QueryCommandControl;
+import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.appointment.AppointmentsQueryCandidate;
+import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.appointment.AppointmentsQueryCandidatesTriage;
+import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.appointment.AppointmentQueryCommandControl;
 import com.vgorcinschi.rimmanew.util.ExecutorFactoryProvider;
 import java.sql.Date;
 import java.sql.Time;
@@ -271,12 +271,11 @@ public class GetAppointmentsExperimentalTests {
             checkedParameters.put("date", dateConverted);
         }
         List<Appointment> initialSelection = new LinkedList<>();
-        CompletableFuture<List<Appointment>> futureList = supplyAsync(
-                () -> {
+        CompletableFuture<List<Appointment>> futureList = supplyAsync(() -> {
                     if (!winner.isPresent()) {
                         return repository.getAll();
                     } else {
-                        return new QueryCommandControl().executeQuery(winner.get(), repository);
+                        return new AppointmentQueryCommandControl().executeQuery(winner.get(), repository);
                     }
                 }, ExecutorFactoryProvider.getSingletonExecutorOf30());
         Set<String> unusedKeys = checkedParameters.keySet();
@@ -336,12 +335,11 @@ public class GetAppointmentsExperimentalTests {
             checkedParameters.put("date", dateConverted);
         }
         List<Appointment> initialSelection = new LinkedList<>();
-        CompletableFuture<List<Appointment>> futureList = supplyAsync(
-                () -> {
+        CompletableFuture<List<Appointment>> futureList = supplyAsync(() -> {
                     if (!winner.isPresent()) {
                         return repository.getAll();
                     } else {
-                        return new QueryCommandControl().executeQuery(winner.get(), repository);
+                        return new AppointmentQueryCommandControl().executeQuery(winner.get(), repository);
                     }
                 }, ExecutorFactoryProvider.getSingletonExecutorOf30());
         Set<String> unusedKeys = checkedParameters.keySet();
@@ -403,12 +401,11 @@ public class GetAppointmentsExperimentalTests {
             checkedParameters.put("date", dateConverted);
         }
         List<Appointment> initialSelection = new LinkedList<>();
-        CompletableFuture<List<Appointment>> futureList = supplyAsync(
-                () -> {
+        CompletableFuture<List<Appointment>> futureList = supplyAsync(() -> {
                     if (!winner.isPresent()) {
                         return repository.getAll();
                     } else {
-                        return new QueryCommandControl().executeQuery(winner.get(), repository);
+                        return new AppointmentQueryCommandControl().executeQuery(winner.get(), repository);
                     }
                 }, ExecutorFactoryProvider.getSingletonExecutorOf30());
         Set<String> unusedKeys = checkedParameters.keySet();
@@ -470,12 +467,11 @@ public class GetAppointmentsExperimentalTests {
             checkedParameters.put("date", dateConverted);
         }
         List<Appointment> initialSelection = new LinkedList<>();
-        CompletableFuture<List<Appointment>> futureList = supplyAsync(
-                () -> {
+        CompletableFuture<List<Appointment>> futureList = supplyAsync(() -> {
                     if (!winner.isPresent()) {
                         return repository.getAll();
                     } else {
-                        return new QueryCommandControl().executeQuery(winner.get(), repository);
+                        return new AppointmentQueryCommandControl().executeQuery(winner.get(), repository);
                     }
                 }, ExecutorFactoryProvider.getSingletonExecutorOf30());
         Set<String> unusedKeys = checkedParameters.keySet();
@@ -538,12 +534,11 @@ public class GetAppointmentsExperimentalTests {
             checkedParameters.put("date", dateConverted);
         }
         List<Appointment> initialSelection = new LinkedList<>();
-        CompletableFuture<List<Appointment>> futureList = supplyAsync(
-                () -> {
+        CompletableFuture<List<Appointment>> futureList = supplyAsync(() -> {
                     if (!winner.isPresent()) {
                         return repository.getAll();
                     } else {
-                        return new QueryCommandControl().executeQuery(winner.get(), repository);
+                        return new AppointmentQueryCommandControl().executeQuery(winner.get(), repository);
                     }
                 }, ExecutorFactoryProvider.getSingletonExecutorOf30());
         Set<String> unusedKeys = checkedParameters.keySet();
@@ -606,12 +601,11 @@ public class GetAppointmentsExperimentalTests {
             checkedParameters.put("date", dateConverted);
         }
         List<Appointment> initialSelection = new LinkedList<>();
-        CompletableFuture<List<Appointment>> futureList = supplyAsync(
-                () -> {
+        CompletableFuture<List<Appointment>> futureList = supplyAsync(() -> {
                     if (!winner.isPresent()) {
                         return repository.getAll();
                     } else {
-                        return new QueryCommandControl().executeQuery(winner.get(), repository);
+                        return new AppointmentQueryCommandControl().executeQuery(winner.get(), repository);
                     }
                 }, ExecutorFactoryProvider.getSingletonExecutorOf30());
         Set<String> unusedKeys = checkedParameters.keySet();
@@ -668,7 +662,7 @@ public class GetAppointmentsExperimentalTests {
             if (!winner.isPresent()) {
                         return repository.getAll();
                     } else {
-                        return new QueryCommandControl().executeQuery(winner.get(), repository);
+                        return new AppointmentQueryCommandControl().executeQuery(winner.get(), repository);
                     }
         });        
         //unverified map with all params as strings - may contain empty values
@@ -756,7 +750,7 @@ public class GetAppointmentsExperimentalTests {
             if (!winner.isPresent()) {
                         return repository.getAll();
                     } else {
-                        return new QueryCommandControl().executeQuery(winner.get(), repository);
+                        return new AppointmentQueryCommandControl().executeQuery(winner.get(), repository);
                     }
         });        
         //unverified map with all params as strings - may contain empty values

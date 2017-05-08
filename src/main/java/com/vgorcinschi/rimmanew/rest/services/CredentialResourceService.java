@@ -1,19 +1,43 @@
 package com.vgorcinschi.rimmanew.rest.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.vgorcinschi.rimmanew.annotations.Production;
 import com.vgorcinschi.rimmanew.ejbs.CredentialRepository;
 import com.vgorcinschi.rimmanew.entities.Credential;
+import com.vgorcinschi.rimmanew.rest.services.helpers.GenericBaseJaxbListWrapper;
+import com.vgorcinschi.rimmanew.rest.services.helpers.JaxbCredentialListWrapper;
+import com.vgorcinschi.rimmanew.rest.services.helpers.JaxbCredentialListWrapperBuilder;
+import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.credential.CredentialQueryCandidate;
+import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.credential.CredentialQueryCandidatesTriage;
+import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.credential.CredentialQueryCommandControl;
+import com.vgorcinschi.rimmanew.util.ExecutorFactoryProvider;
 import com.vgorcinschi.rimmanew.util.InputValidators;
+import com.vgorcinschi.rimmanew.util.JavaSlangUtil;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import static java.util.Optional.ofNullable;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+import static java.util.stream.Collectors.toList;
+import javaslang.control.Try;
 import javax.inject.Inject;
 import javax.json.JsonObject;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -56,6 +80,109 @@ public class CredentialResourceService extends RimmaRestService<Credential>{
         }
     }
 
+    @GET
+    public Response allCredentials(@QueryParam("username") String username,
+            @QueryParam("group") String group, 
+            @DefaultValue("true") @QueryParam("isActive") String isActive,
+            @DefaultValue("0") @QueryParam("offset") int offset,
+            @DefaultValue("10") @QueryParam("size") int size){
+        //if the isActive was provided - it should be correctly
+        //converted to a boolean type
+        String [] array = {isActive};
+        if(!InputValidators.allStringsAreGood.apply(array) 
+                && !InputValidators.validStringsAreTrueOrFalse.apply(array)){
+            logger.error(isActive+" is not a valid Boolean value (\"true\" "
+                    + "or \"false\") for the \"isActive\" parameter.");
+            throw new BadRequestException("You provided an erroneous value "
+                    + "for the 'isActive' parameter. You may "
+                    + "only use 'true' or 'false'.",
+                    Response.status(Response.Status.BAD_REQUEST).build());
+        }
+        //safe to parse
+        boolean booleanIsActive = Boolean.parseBoolean(isActive);
+        //find the narrowest possible query
+        CredentialQueryCandidatesTriage triage = new CredentialQueryCandidatesTriage(username, group, booleanIsActive);
+        //calculate the winner
+        CompletableFuture<Optional<CredentialQueryCandidate>> futureWinner = 
+                CompletableFuture.supplyAsync(()->{
+            Optional<CredentialQueryCandidate> winner = triage.triage();
+            return winner;
+        }, ExecutorFactoryProvider.getSingletonExecutorOf30());
+        //but eventually we need a list of appointments and not a type of query
+        //so let us extend our asynchronous call
+        CompletableFuture<List<Credential>> futureList = futureWinner.thenApply((Optional<CredentialQueryCandidate> winner) -> {
+            if(winner.isPresent()){
+                return new CredentialQueryCommandControl().executeQuery(winner.get(), repository);
+            } else {
+                return repository.getAll();
+            }
+        });
+        //checkedParameters will contain non-empty values of correct type
+        Map<String, Object> checkedParameters = new HashMap<>();
+        triage.allProps().forEach((k,v) ->{
+            if (!v.toString().equals("")) {
+                checkedParameters.put(k, v);
+            }
+        });
+        //set of keys of checked parameters
+        Set<String> unusedKeys = new HashSet<>(checkedParameters.keySet());
+        List<Credential> initialSelection = new LinkedList<>();
+        //at this point we only need the first future
+        Optional<CredentialQueryCandidate> winner = Optional.empty();
+        Try<Optional<CredentialQueryCandidate>> tryCandidate = JavaSlangUtil.fromComplFuture(futureWinner);
+        if(tryCandidate.isSuccess()){
+            winner = tryCandidate.get();
+        }else{
+            logger.error("Failed to obtain CredentialQueryCandidate from "
+                    + "a Future: "+tryCandidate.getCause());
+            throw new InternalServerErrorException("It took the application "
+                    + "too long to grab the results. Please contact the support team.");
+        }
+        if(winner.isPresent()){
+            //util.Set is mutable so this is fine
+            unusedKeys.removeAll(winner.get().getParams().keySet());
+        }
+        /*
+        if the list.size() ==0 return a corresponding Response,
+        else do the forEach on checkedParameters to filter futureList.stream()
+        with the remaining keys of checkedParameters
+        */
+        Try<List<Credential>> tryInitSelection = JavaSlangUtil.fromComplFuture(futureList);
+        if(tryInitSelection.isSuccess()){
+            initialSelection = tryInitSelection.get();
+        } else {
+            logger.error("Failed to obtain a List of Credentials from "
+                    + "a Future: "+tryInitSelection.getCause());
+            throw new InternalServerErrorException("It took the application "
+                    + "too long to grab the results. Please contact the support team.");
+        }
+        String output;
+        if(initialSelection.isEmpty()){
+            GenericBaseJaxbListWrapper response =
+                    new JaxbCredentialListWrapperBuilder(0,0,offset,initialSelection).compose();
+            try {
+                output = getMapper().writeValueAsString(response);
+            } catch (JsonProcessingException ex) {
+                logger.error(ex.getMessage()+", location: "+ex.getLocation().toString());
+                throw new InternalServerErrorException("Code error serializing the appointments that you have requested.");
+            }
+            return Response.ok(output).build();
+        }else{
+            //do a foreach on the unused keys
+            for(String k : unusedKeys){
+                if (initialSelection.isEmpty()) {
+                    break;
+                }
+                switch(k){
+                    case "username": 
+                        initialSelection = initialSelection.stream().filter(c -> c.getUsername().equals(k)).collect(toList());
+                        break;
+                }
+            }
+        }
+        return null;
+    }
+    
     @Override
     protected String toJSON(Credential entity) {
         JsonObject value = factory.createObjectBuilder()

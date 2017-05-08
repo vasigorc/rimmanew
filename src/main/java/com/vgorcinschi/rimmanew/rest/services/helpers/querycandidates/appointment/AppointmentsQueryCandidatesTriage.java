@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates;
+package com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.appointment;
 
+import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.QueryCandidateTriage;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;

@@ -19,9 +19,9 @@ import com.vgorcinschi.rimmanew.rest.services.helpers.GenericBaseJaxbListWrapper
 import com.vgorcinschi.rimmanew.rest.services.helpers.JaxbAppointmentListWrapperBuilder;
 import com.vgorcinschi.rimmanew.rest.services.helpers.SqlDateConverter;
 import com.vgorcinschi.rimmanew.rest.services.helpers.SqlTimeConverter;
-import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.AppointmentsQueryCandidate;
-import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.AppointmentsQueryCandidatesTriage;
-import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.QueryCommandControl;
+import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.appointment.AppointmentsQueryCandidate;
+import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.appointment.AppointmentsQueryCandidatesTriage;
+import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.appointment.AppointmentQueryCommandControl;
 import com.vgorcinschi.rimmanew.util.ExecutorFactoryProvider;
 import static com.vgorcinschi.rimmanew.util.InputValidators.allStringsAreGood;
 import static com.vgorcinschi.rimmanew.util.InputValidators.validStringsAreTrueOrFalse;
@@ -231,9 +231,9 @@ public class AppointmentResourceService {
                 return futureRepository.getAll();
             } else {
                 if (booleanPast) {
-                    return new QueryCommandControl().executeQuery(winner.get(), repository);
+                    return new AppointmentQueryCommandControl().executeQuery(winner.get(), repository);
                 }
-                return new QueryCommandControl().executeQuery(winner.get(), futureRepository);
+                return new AppointmentQueryCommandControl().executeQuery(winner.get(), futureRepository);
             }
         });
         //unverified map with all params as strings - may contain empty values

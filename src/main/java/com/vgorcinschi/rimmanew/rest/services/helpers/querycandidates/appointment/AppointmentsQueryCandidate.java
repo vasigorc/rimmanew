@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates;
+package com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.appointment;
 
 import java.util.Map;
 
@@ -14,7 +14,7 @@ import java.util.Map;
 public abstract class AppointmentsQueryCandidate {
     protected Map<String, Object> params;
     protected Integer priority;
-    protected QuerySignature signature;
+    protected AppointmentQuerySignature signature;
 
     protected AppointmentsQueryCandidate() {
     }
@@ -31,9 +31,7 @@ public abstract class AppointmentsQueryCandidate {
         return priority;
     }
 
-    public QuerySignature getSignature() {
+    public AppointmentQuerySignature getSignature() {
         return signature;
-    }
-    
-    
+    }   
 }

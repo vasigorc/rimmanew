@@ -5,13 +5,13 @@
  */
 package com.vgorcinschi.rimmanew.services;
 
-import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.AppointmentsQueryCandidate;
-import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.AppointmentsQueryCandidatesTriage;
-import static com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.QuerySignature.getByDate;
-import static com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.QuerySignature.getByDateAndTime;
-import static com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.QuerySignature.getByDateAndType;
-import static com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.QuerySignature.getByName;
-import static com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.QuerySignature.getByType;
+import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.appointment.AppointmentsQueryCandidate;
+import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.appointment.AppointmentsQueryCandidatesTriage;
+import static com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.appointment.AppointmentQuerySignature.getByDate;
+import static com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.appointment.AppointmentQuerySignature.getByDateAndTime;
+import static com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.appointment.AppointmentQuerySignature.getByDateAndType;
+import static com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.appointment.AppointmentQuerySignature.getByName;
+import static com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.appointment.AppointmentQuerySignature.getByType;
 import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
