@@ -7,6 +7,7 @@
     <class>com.vgorcinschi.rimmanew.entities.Credential</class>
     <class>com.vgorcinschi.rimmanew.entities.Email</class>
     <class>com.vgorcinschi.rimmanew.helpers.InstantConverter</class>
+    <class>com.vgorcinschi.rimmanew.entities.Appointment</class>
     <properties>
       <property name="eclipselink.ddl-generation" value="create-or-extend-tables"/>
       <property name="eclipselink.logging.level" value="INFO"/>

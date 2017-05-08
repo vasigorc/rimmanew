@@ -83,6 +83,8 @@ public class CredentialResourceService extends RimmaRestService<Credential>{
     @GET
     public Response allCredentials(@QueryParam("username") String username,
             @QueryParam("group") String group, 
+            @QueryParam("firstName") String firstName, @QueryParam("lastName")
+            String lastName, @QueryParam("email") String email,
             @DefaultValue("true") @QueryParam("isActive") String isActive,
             @DefaultValue("0") @QueryParam("offset") int offset,
             @DefaultValue("10") @QueryParam("size") int size){
@@ -101,7 +103,9 @@ public class CredentialResourceService extends RimmaRestService<Credential>{
         //safe to parse
         boolean booleanIsActive = Boolean.parseBoolean(isActive);
         //find the narrowest possible query
-        CredentialQueryCandidatesTriage triage = new CredentialQueryCandidatesTriage(username, group, booleanIsActive);
+        CredentialQueryCandidatesTriage triage = 
+                new CredentialQueryCandidatesTriage(username, group, booleanIsActive,
+                firstName, lastName, email);
         //calculate the winner
         CompletableFuture<Optional<CredentialQueryCandidate>> futureWinner = 
                 CompletableFuture.supplyAsync(()->{
@@ -177,10 +181,38 @@ public class CredentialResourceService extends RimmaRestService<Credential>{
                     case "username": 
                         initialSelection = initialSelection.stream().filter(c -> c.getUsername().equals(k)).collect(toList());
                         break;
-                }
+                    case "group":
+                        initialSelection = initialSelection.stream().filter(c -> k.equalsIgnoreCase(c.getGroup().getGroupName())).collect(toList());
+                        break;
+                    case "isActive":
+                        initialSelection = initialSelection.stream().filter(c -> (c.isBlocked() == booleanIsActive
+                            && c.isSuspended() == booleanIsActive)).collect(toList());
+                        break;
+                    case "firstName":
+                        initialSelection = initialSelection.stream().filter(c -> k.equalsIgnoreCase(c.getFirstname())).collect(toList());
+                        break;
+                    case "lastName":
+                        initialSelection = initialSelection.stream().filter(c -> k.equalsIgnoreCase(c.getLastname())).collect(toList());
+                        break;
+                    case "email":
+                        initialSelection = initialSelection.stream().filter(c -> k.equals(c.getEmailAddress())).collect(toList());
+                        break;
+                }       
+            }
+            int totalMatches = initialSelection.size();
+            //figuring out how many can we actually return
+            int answerSize = sizeValidator(totalMatches, offset, size);
+            List<Credential> finalList = initialSelection.stream().skip(offset).limit(answerSize).collect(toList());
+            GenericBaseJaxbListWrapper response
+                    = new JaxbCredentialListWrapperBuilder(answerSize, totalMatches, offset, finalList, checkedParameters).compose();
+            try {
+                output = getMapper().writeValueAsString(response);
+                return Response.ok(output).build();
+            } catch (JsonProcessingException e) {
+                logger.error(e.getMessage()+", location: "+e.getLocation().toString());
+                throw new InternalServerErrorException("Code error serializing the appointments that you have requested.");
             }
         }
-        return null;
     }
     
     @Override
