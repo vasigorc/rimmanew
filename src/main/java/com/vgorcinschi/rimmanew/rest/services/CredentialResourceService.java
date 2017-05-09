@@ -209,7 +209,7 @@ public class CredentialResourceService extends RimmaRestService<Credential>{
                 output = getMapper().writeValueAsString(response);
                 return Response.ok(output).build();
             } catch (JsonProcessingException e) {
-                logger.error(e.getMessage()+", location: "+e.getLocation().toString());
+                logger.error(e.getMessage());
                 throw new InternalServerErrorException("Code error serializing the appointments that you have requested.");
             }
         }

@@ -79,4 +79,11 @@ public class CredentialResourceServiceTest {
         final Response response = crs.getCredential("admin");
         assertTrue(response.getEntity().toString().contains("elenatodorasco@gmail.com"));
     }
+    
+    @Test
+    public void getAllUsers(@ArquillianResteasyResource CredentialResourceService crs){
+        final Response response = crs.allCredentials(null, null, null, null, null, "true", 0, 10);
+        assertTrue(response.getStatus() == 200);
+        System.out.println(response.getEntity().toString());
+    }
 }
