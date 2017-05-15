@@ -45,6 +45,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import static java.util.stream.Collectors.toList;
 import javax.inject.Inject;
+import javax.json.JsonObject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -59,6 +60,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import org.apache.logging.log4j.LogManager;
+import rx.Observable;
 
 /**
  *
@@ -527,7 +529,12 @@ public class SpecialDayResourceService extends RimmaRestService <SpecialDay>{
     }
 
     @Override
-    protected String toJSON(SpecialDay entity) {
+    protected JsonObject entityToJson(SpecialDay entity) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    protected Observable<SpecialDay> rxEntityList(List<SpecialDay> l) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

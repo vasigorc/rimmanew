@@ -21,6 +21,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 
 /**
@@ -68,15 +69,18 @@ public class CredentialResourceServiceTest {
     }
     
     @Test
+    @Ignore
     public void getUserWithoutRestCall() {
         Credential byUsername = credentialRepository.getByUsername("admin");
         assertNotNull(byUsername);
     }
     
     @Test
+    @Ignore
     public void getByUsername(
             @ArquillianResteasyResource CredentialResourceService crs) {
         final Response response = crs.getCredential("admin");
+        System.out.println(response.getEntity());
         assertTrue(response.getEntity().toString().contains("elenatodorasco@gmail.com"));
     }
     

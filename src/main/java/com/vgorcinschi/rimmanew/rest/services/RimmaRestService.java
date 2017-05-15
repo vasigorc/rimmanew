@@ -19,9 +19,11 @@ import java.util.Map;
 import javaslang.control.Try;
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
+import javax.json.JsonObject;
 import javax.json.stream.JsonGenerator;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Produces;
+import rx.Observable;
 
 /**
  *
@@ -31,7 +33,7 @@ import javax.ws.rs.Produces;
 @Produces("application/json")
 public abstract class RimmaRestService <A>{
     
-    //for the toJSON method
+    //for the entityToJson method
     protected final Map<String, Object> configs = new HashMap<>(1);
     protected final JsonBuilderFactory factory;
     DateTimeFormatter formatter =
@@ -86,5 +88,7 @@ public abstract class RimmaRestService <A>{
         }
     }
     
-    protected abstract String toJSON(A entity);
+    protected abstract JsonObject entityToJson(A entity);
+    
+    protected abstract Observable<A> rxEntityList(List<A> l);
 }

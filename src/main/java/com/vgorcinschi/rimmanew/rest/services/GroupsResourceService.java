@@ -12,6 +12,7 @@ import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 import javaslang.control.Try;
 import javax.inject.Inject;
+import javax.json.JsonObject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -22,6 +23,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import org.apache.logging.log4j.LogManager;
+import rx.Observable;
 
 /**
  *
@@ -103,7 +105,12 @@ public class GroupsResourceService extends RimmaRestService<Groups>{
     }
 
     @Override
-    protected String toJSON(Groups entity) {
+    protected JsonObject entityToJson(Groups entity) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    protected Observable<Groups> rxEntityList(List<Groups> l) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

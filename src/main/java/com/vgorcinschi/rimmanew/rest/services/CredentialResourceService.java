@@ -5,7 +5,6 @@ import com.vgorcinschi.rimmanew.annotations.Production;
 import com.vgorcinschi.rimmanew.ejbs.CredentialRepository;
 import com.vgorcinschi.rimmanew.entities.Credential;
 import com.vgorcinschi.rimmanew.rest.services.helpers.GenericBaseJaxbListWrapper;
-import com.vgorcinschi.rimmanew.rest.services.helpers.JaxbCredentialListWrapper;
 import com.vgorcinschi.rimmanew.rest.services.helpers.JaxbCredentialListWrapperBuilder;
 import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.credential.CredentialQueryCandidate;
 import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.credential.CredentialQueryCandidatesTriage;
@@ -22,14 +21,14 @@ import java.util.Optional;
 import static java.util.Optional.ofNullable;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.logging.Level;
 import static java.util.stream.Collectors.toList;
 import javaslang.control.Try;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -41,6 +40,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import rx.Observable;
+import rx.schedulers.Schedulers;
 
 /**
  *
@@ -63,7 +64,7 @@ public class CredentialResourceService extends RimmaRestService<Credential>{
             Optional<Credential> optCredential = ofNullable(repository.getByUsername(username));
             if(optCredential.isPresent()){
                 try {
-                    String output = toJSON(optCredential.get());
+                    String output = entityToJson(optCredential.get()).toString();
                     return Response.ok(output).build();
                 } catch (Exception e) {
                     logger.error("Serialization error: "+e.getMessage()+
@@ -206,9 +207,9 @@ public class CredentialResourceService extends RimmaRestService<Credential>{
             GenericBaseJaxbListWrapper response
                     = new JaxbCredentialListWrapperBuilder(answerSize, totalMatches, offset, finalList, checkedParameters).compose();
             try {
-                output = getMapper().writeValueAsString(response);
+                output = listWrapperToJson(response);
                 return Response.ok(output).build();
-            } catch (JsonProcessingException e) {
+            } catch (Exception e) {
                 logger.error(e.getMessage());
                 throw new InternalServerErrorException("Code error serializing the appointments that you have requested.");
             }
@@ -216,22 +217,45 @@ public class CredentialResourceService extends RimmaRestService<Credential>{
     }
     
     @Override
-    protected String toJSON(Credential entity) {
+    protected JsonObject entityToJson(Credential entity) {
         JsonObject value = factory.createObjectBuilder()
-                .add("credential", factory.createObjectBuilder()
-                        .add("username", entity.getUsername())
-                        .add("group", entity.getGroup().getGroupName())
-                        .add("blocked", entity.isBlocked())
-                        .add("suspended", entity.isSuspended())
-                        .add("firstname", entity.getFirstname())
-                        .add("lastname", entity.getLastname())
-                        .add("email", entity.getEmailAddress())
-                        .add("metaInfo", factory.createObjectBuilder()
-                        .add("createdBy", entity.getCreatedBy())
-                        .add("createdOn", formatter.format(entity.getCreatedDate()))
-                        .add("modifiedBy", entity.getModifiedBy())
-                        .add("modifiedOn", formatter.format(entity.getModifiedDate()))
-                                .build()).build()).build();
-        return value.toString();
+                .add("username", entity.getUsername())
+                .add("group", entity.getGroup().getGroupName())
+                .add("blocked", entity.isBlocked())
+                .add("suspended", entity.isSuspended())
+                .add("firstname", entity.getFirstname() != null ? entity.getFirstname() : "")
+                .add("lastname", entity.getLastname() != null ? entity.getLastname() : "")
+                .add("email", entity.getEmailAddress() !=null ? entity.getEmailAddress() : "")
+                .add("metaInfo", factory.createObjectBuilder()
+                .add("createdBy", entity.getCreatedBy())
+                .add("createdOn", formatter.format(entity.getCreatedDate()))
+                .add("modifiedBy", entity.getModifiedBy())
+                .add("modifiedOn", formatter.format(entity.getModifiedDate()))
+                        .build()).build();
+        return value;
+    }
+ 
+    @Override
+    protected Observable<Credential> rxEntityList(List<Credential> l){
+        return Observable.defer(()->
+                Observable.from(l)).subscribeOn(Schedulers.io());
+    }
+    
+    private String listWrapperToJson(GenericBaseJaxbListWrapper response){
+        JsonObjectBuilder listWrapper = Json.createObjectBuilder();
+        JsonArrayBuilder current = Json.createArrayBuilder();
+        //parallel json transformation with RxJava
+        rxEntityList((List<Credential>) response.getCurrent()).toBlocking()
+        .subscribe((c) -> {//onNext
+                current.add(entityToJson((Credential) c));
+            }, (e)->{//onError
+                logger.error("Error serializaing one of the credentials for the "
+                        + "final list wrapper: "+((Throwable) e).getMessage());
+            },
+                ()->{//onCompleted
+                listWrapper.add("credential", current);
+                });
+        //add root
+        return listWrapper.build().toString();
     }
 }
