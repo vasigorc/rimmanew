@@ -21,7 +21,6 @@ import java.util.Optional;
 import static java.util.Optional.ofNullable;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import static java.util.stream.Collectors.toList;
 import javaslang.control.Try;
 import javax.inject.Inject;
@@ -41,6 +40,7 @@ import javax.ws.rs.core.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import rx.Observable;
+import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
 /**
@@ -166,9 +166,9 @@ public class CredentialResourceService extends RimmaRestService<Credential>{
             GenericBaseJaxbListWrapper response =
                     new JaxbCredentialListWrapperBuilder(0,0,offset,initialSelection).compose();
             try {
-                output = getMapper().writeValueAsString(response);
-            } catch (JsonProcessingException ex) {
-                logger.error(ex.getMessage()+", location: "+ex.getLocation().toString());
+                output = listWrapperToJson(response);
+            } catch (Exception ex) {
+                logger.error(ex.getMessage()+", location: "+ex.getMessage());
                 throw new InternalServerErrorException("Code error serializing the appointments that you have requested.");
             }
             return Response.ok(output).build();
@@ -245,17 +245,43 @@ public class CredentialResourceService extends RimmaRestService<Credential>{
         JsonObjectBuilder listWrapper = Json.createObjectBuilder();
         JsonArrayBuilder current = Json.createArrayBuilder();
         //parallel json transformation with RxJava
-        rxEntityList((List<Credential>) response.getCurrent()).toBlocking()
-        .subscribe((c) -> {//onNext
-                current.add(entityToJson((Credential) c));
-            }, (e)->{//onError
+        Subscriber<Credential> subscriber = new Subscriber<Credential>() {
+            @Override
+            public void onCompleted() {
+                listWrapper.add("current", current);
+            }
+
+            @Override
+            public void onError(Throwable thrwbl) {
                 logger.error("Error serializaing one of the credentials for the "
-                        + "final list wrapper: "+((Throwable) e).getMessage());
-            },
-                ()->{//onCompleted
-                listWrapper.add("credential", current);
-                });
-        //add root
-        return listWrapper.build().toString();
+                        + "final list wrapper: "+thrwbl.getMessage());
+            }
+
+            @Override
+            public void onNext(Credential c) {
+                current.add(entityToJson((Credential) c));
+            }
+        };
+        rxEntityList((List<Credential>) response.getCurrent()).subscribe(subscriber);
+        if(response.getFirst() != null){
+            listWrapper.add("first", response.getFirst().toASCIIString());
+        }
+        if(response.getNext() != null){
+            listWrapper.add("next", response.getNext().toASCIIString());
+        }
+        if(response.getLast() != null){
+            listWrapper.add("last", response.getLast().toASCIIString());
+        }
+        if(response.getPrevious() != null){
+            listWrapper.add("previous", response.getPrevious().toASCIIString());
+        }
+        if(response.getAll() != null){
+            listWrapper.add("all", response.getAll().toASCIIString());
+        }
+        listWrapper.add("returnedSize", response.getReturnedSize());
+        while (!subscriber.isUnsubscribed()) {//only return when the subscriber is done
+        }
+        //add root and return
+        return factory.createObjectBuilder().add("credential", listWrapper).build().toString();
     }
 }

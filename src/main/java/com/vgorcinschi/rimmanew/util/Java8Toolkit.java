@@ -202,6 +202,4 @@ public class Java8Toolkit {
                 Class<?> stringListClass = (Class<?>) stringListType.getActualTypeArguments()[0];
                 return stringListClass.getTypeName();
             };
-
-    
 }
