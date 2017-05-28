@@ -1,9 +1,10 @@
 package com.vgorcinschi.rimmanew.rest.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vgorcinschi.rimmanew.annotations.Production;
 import com.vgorcinschi.rimmanew.ejbs.CredentialRepository;
 import com.vgorcinschi.rimmanew.entities.Credential;
+import com.vgorcinschi.rimmanew.rest.services.helpers.CredentialCandidate;
 import com.vgorcinschi.rimmanew.rest.services.helpers.GenericBaseJaxbListWrapper;
 import com.vgorcinschi.rimmanew.rest.services.helpers.JaxbCredentialListWrapperBuilder;
 import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.credential.CredentialQueryCandidate;
@@ -43,6 +44,8 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
+import static com.vgorcinschi.rimmanew.util.InputValidators.*;
+import java.io.InputStream;
 /**
  *
  * @author vgorcinschi
@@ -92,8 +95,8 @@ public class CredentialResourceService extends RimmaRestService<Credential>{
         //if the isActive was provided - it should be correctly
         //converted to a boolean type
         String [] array = {isActive};
-        if(!InputValidators.allStringsAreGood.apply(array) 
-                && !InputValidators.validStringsAreTrueOrFalse.apply(array)){
+        if(!allStringsAreGood.apply(array) 
+                || !validStringsAreTrueOrFalse.apply(array)){
             logger.error(isActive+" is not a valid Boolean value (\"true\" "
                     + "or \"false\") for the \"isActive\" parameter.");
             throw new BadRequestException("You provided an erroneous value "
@@ -235,6 +238,20 @@ public class CredentialResourceService extends RimmaRestService<Credential>{
         return value;
     }
  
+    public Response updateCredential(final String username, InputStream stream){
+        ObjectMapper mapper = getMapper();
+        CredentialCandidate candidate = new CredentialCandidate();
+        Try<CredentialCandidate> tryCand = Try.of(()->mapper.readValue(stream, CredentialCandidate.class));
+        tryCand.onFailure(ex->{
+                logger.error("Could not 'objectify' an incoming Appointment Candidate: "
+                    + "" + stream.toString() + ": " + ex.getMessage());
+                throw new BadRequestException("Unable to correctly transform the passed candidate "
+                        + "on the server: "  + ex.getMessage(), Response.status(Response.Status.BAD_REQUEST).build());
+        });
+        candidate = tryCand.get();
+        return null;
+    }
+    
     @Override
     protected Observable<Credential> rxEntityList(List<Credential> l){
         return Observable.defer(()->
