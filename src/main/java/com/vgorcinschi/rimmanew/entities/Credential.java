@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.vgorcinschi.rimmanew.rest.services.helpers.CustomGroupsSerializer;
+import com.vgorcinschi.rimmanew.util.InputValidators;
 import static com.vgorcinschi.rimmanew.util.SecurityPrompt.randomSalt;
 import java.io.Serializable;
 import java.time.Instant;
@@ -25,6 +26,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 /**
  *
@@ -50,13 +53,20 @@ import javax.persistence.Table;
 })
 public class Credential extends MetaInfo implements Serializable {
 
+    @Size(min=4, max=20)
     private String username;
     private byte[] passwd;
     private byte[] salt;
     private Groups group;
     private boolean blocked;
     private boolean suspended;
-    private String firstname, lastname, emailAddress;
+    
+    @Size(min=1)
+    private String firstname, lastname;
+    
+    @Size(min=6)
+    @Pattern(regexp = InputValidators.EMAIL_PATTERN)
+    private String emailAddress;
     
     public Credential() {
         super();

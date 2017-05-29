@@ -2,18 +2,17 @@ package com.vgorcinschi.rimmanew.services;
 
 import com.vgorcinschi.rimmanew.annotations.Production;
 import com.vgorcinschi.rimmanew.ejbs.CredentialRepository;
+import com.vgorcinschi.rimmanew.ejbs.GroupsRepository;
 import com.vgorcinschi.rimmanew.ejbs.JpaCredentialRepository;
+import com.vgorcinschi.rimmanew.ejbs.JpaGroupsRepository;
 import com.vgorcinschi.rimmanew.entities.Credential;
 import com.vgorcinschi.rimmanew.helpers.InstantConverter;
 import com.vgorcinschi.rimmanew.rest.services.CredentialResourceService;
-import com.vgorcinschi.rimmanew.util.Java8Toolkit;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URL;
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
@@ -52,6 +51,8 @@ public class CredentialResourceServiceTest {
     public static WebArchive createDeployment() {
         return ShrinkWrap.create(WebArchive.class, "credentialRestService.war")
                 .addClasses(CredentialRepository.class,
+                        GroupsRepository.class,
+                        JpaGroupsRepository.class,
                         JpaCredentialRepository.class,
                         CredentialResourceService.class,
                         FakeCredentialApp.class)
@@ -80,20 +81,17 @@ public class CredentialResourceServiceTest {
     }
     
     @Test
-    @Ignore
     public void repositoryNotNull() {
         assertNotNull(credentialRepository);
     }
     
     @Test
-    @Ignore
     public void getUserWithoutRestCall() {
         Credential byUsername = credentialRepository.getByUsername("admin");
         assertNotNull(byUsername);
     }
     
     @Test
-    @Ignore
     public void getByUsername(
             @ArquillianResteasyResource CredentialResourceService crs) {
         final Response response = crs.getCredential("admin");
@@ -102,7 +100,6 @@ public class CredentialResourceServiceTest {
     }
     
     @Test
-    @Ignore
     public void getAllUsers(@ArquillianResteasyResource CredentialResourceService crs){
         final Response response = crs.allCredentials(null, null, null, null, null, "true", 0, 10);
         assertTrue(response.getStatus() == 200);
@@ -110,7 +107,6 @@ public class CredentialResourceServiceTest {
     }
     
     @Test(expected = ArquillianProxyException.class)
-    @Ignore
     public void isActiveInvalidValue(@ArquillianResteasyResource CredentialResourceService crs){
         final Response response = crs.allCredentials(null, null, null, null, null, "somethingElse", 0, 10);
         assertTrue(response.getStatus() == 200);
@@ -120,7 +116,7 @@ public class CredentialResourceServiceTest {
     public void updateCredentialTest(@ArquillianResteasyResource CredentialResourceService crs){
          JsonObject value = factory.createObjectBuilder()
                 .add("username", "admin")
-                .add("password","abc123")
+                .add("password","hai1024!")
                 .add("group", "admin")
                 .add("blocked", false)
                 .add("suspended", false)
@@ -130,14 +126,14 @@ public class CredentialResourceServiceTest {
                 .add("updatedBy", "su-user").build();
           InputStream is = new ByteArrayInputStream(value.toString().getBytes());
           final Response response = crs.updateCredential("admin", is);
-          assertNull(response);
+          assertTrue(response.getStatus() == 200);
     }
     
     @Test(expected = ArquillianProxyException.class)
     public void inproperCredentialCandidateSentTest(@ArquillianResteasyResource CredentialResourceService crs){
         JsonObject value = factory.createObjectBuilder()
                 .add("username", "admin")
-                .add("password","abc123")
+                .add("password","hai1024!")
                 .add("group", "admin")
                 .add("blocked", "stringThatShouldn'tBeHere")//error is here!
                 .add("suspended", false)
@@ -147,6 +143,6 @@ public class CredentialResourceServiceTest {
                 .add("updatedBy", "su-user").build();
           InputStream is = new ByteArrayInputStream(value.toString().getBytes());
           final Response response = crs.updateCredential("admin", is);
-          assertNull(response);
+          assertTrue(response.getStatus() == 200);
     }
 }

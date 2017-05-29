@@ -2,6 +2,8 @@ package com.vgorcinschi.rimmanew.rest.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.vgorcinschi.rimmanew.entities.Appointment;
 import com.vgorcinschi.rimmanew.entities.Groups;
 import com.vgorcinschi.rimmanew.entities.SpecialDay;
@@ -91,4 +93,11 @@ public abstract class RimmaRestService <A>{
     protected abstract JsonObject entityToJson(A entity);
     
     protected abstract Observable<A> rxEntityList(List<A> l);
+    
+    public String getJsonRepr(String key, String value) {
+        JsonNodeFactory factory = JsonNodeFactory.instance;
+        ObjectNode object = factory.objectNode();
+        object.put(key, value);
+        return object.toString();
+    }
 }

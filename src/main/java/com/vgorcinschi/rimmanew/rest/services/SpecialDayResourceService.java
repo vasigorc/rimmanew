@@ -521,13 +521,6 @@ public class SpecialDayResourceService extends RimmaRestService <SpecialDay>{
         return sd;
     }
 
-    private String getJsonRepr(String key, String value) {
-        JsonNodeFactory factory = JsonNodeFactory.instance;
-        ObjectNode object = factory.objectNode();
-        object.put(key, value);
-        return object.toString();
-    }
-
     @Override
     protected JsonObject entityToJson(SpecialDay entity) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.

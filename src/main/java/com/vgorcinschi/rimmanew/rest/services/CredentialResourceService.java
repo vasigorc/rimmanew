@@ -1,9 +1,10 @@
 package com.vgorcinschi.rimmanew.rest.services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vgorcinschi.rimmanew.annotations.Production;
 import com.vgorcinschi.rimmanew.ejbs.CredentialRepository;
+import com.vgorcinschi.rimmanew.ejbs.GroupsRepository;
 import com.vgorcinschi.rimmanew.entities.Credential;
+import com.vgorcinschi.rimmanew.entities.Groups;
 import com.vgorcinschi.rimmanew.rest.services.helpers.CredentialCandidate;
 import com.vgorcinschi.rimmanew.rest.services.helpers.GenericBaseJaxbListWrapper;
 import com.vgorcinschi.rimmanew.rest.services.helpers.JaxbCredentialListWrapperBuilder;
@@ -45,59 +46,73 @@ import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
 import static com.vgorcinschi.rimmanew.util.InputValidators.*;
+import static com.vgorcinschi.rimmanew.util.Java8Toolkit.appsUriBuilder;
+import static com.vgorcinschi.rimmanew.util.Java8Toolkit.uriGenerator;
+import com.vgorcinschi.rimmanew.util.RxJavaUtil;
+import static com.vgorcinschi.rimmanew.util.SecurityPrompt.pbkdf2;
 import java.io.InputStream;
+import java.time.Instant;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+import javax.ws.rs.PUT;
+
 /**
  *
  * @author vgorcinschi
  */
 @Path("/credential")
-public class CredentialResourceService extends RimmaRestService<Credential>{
-    
+public class CredentialResourceService extends RimmaRestService<Credential> {
+
     @Inject
     @Production
     private CredentialRepository repository;
-    
+
+    @Inject
+    @Production
+    private GroupsRepository groupsRepo;
+
     private final Logger logger = LogManager.getLogger(this.getClass());
-    
+
     @GET
     @Path("{username}")
-    public Response getCredential(@PathParam("username") String username){
-        if(InputValidators.stringNotNullNorEmpty.apply(username)){
+    public Response getCredential(@PathParam("username") String username) {
+        if (InputValidators.stringNotNullNorEmpty.apply(username)) {
             //proceed with making call to the repo
             Optional<Credential> optCredential = ofNullable(repository.getByUsername(username));
-            if(optCredential.isPresent()){
+            if (optCredential.isPresent()) {
                 try {
                     String output = entityToJson(optCredential.get()).toString();
                     return Response.ok(output).build();
                 } catch (Exception e) {
-                    logger.error("Serialization error: "+e.getMessage()+
-                            "\n"+e.getClass().getCanonicalName());
+                    logger.error("Serialization error: " + e.getMessage()
+                            + "\n" + e.getClass().getCanonicalName());
                     throw new InternalServerErrorException("Server error "
-                            + " serializing the requested user \""+username+"\"");
+                            + " serializing the requested user \"" + username + "\"");
                 }
             } else {
-                throw new NotFoundException("Username "+username+" could not be found.");
+                throw new NotFoundException("Username " + username + " could not be found.");
             }
         } else {//empty space after the slash
             throw new BadRequestException("You haven't provided the username.",
-            Response.status(Response.Status.BAD_REQUEST).build());
+                    Response.status(Response.Status.BAD_REQUEST).build());
         }
     }
 
     @GET
     public Response allCredentials(@QueryParam("username") String username,
-            @QueryParam("group") String group, 
-            @QueryParam("firstName") String firstName, @QueryParam("lastName")
-            String lastName, @QueryParam("email") String email,
+            @QueryParam("group") String group,
+            @QueryParam("firstName") String firstName, @QueryParam("lastName") String lastName, @QueryParam("email") String email,
             @DefaultValue("true") @QueryParam("isActive") String isActive,
             @DefaultValue("0") @QueryParam("offset") int offset,
-            @DefaultValue("10") @QueryParam("size") int size){
+            @DefaultValue("10") @QueryParam("size") int size) {
         //if the isActive was provided - it should be correctly
         //converted to a boolean type
-        String [] array = {isActive};
-        if(!allStringsAreGood.apply(array) 
-                || !validStringsAreTrueOrFalse.apply(array)){
-            logger.error(isActive+" is not a valid Boolean value (\"true\" "
+        String[] array = {isActive};
+        if (!allStringsAreGood.apply(array)
+                || !validStringsAreTrueOrFalse.apply(array)) {
+            logger.error(isActive + " is not a valid Boolean value (\"true\" "
                     + "or \"false\") for the \"isActive\" parameter.");
             throw new BadRequestException("You provided an erroneous value "
                     + "for the 'isActive' parameter. You may "
@@ -107,19 +122,19 @@ public class CredentialResourceService extends RimmaRestService<Credential>{
         //safe to parse
         boolean booleanIsActive = Boolean.parseBoolean(isActive);
         //find the narrowest possible query
-        CredentialQueryCandidatesTriage triage = 
-                new CredentialQueryCandidatesTriage(username, group, booleanIsActive,
-                firstName, lastName, email);
+        CredentialQueryCandidatesTriage triage
+                = new CredentialQueryCandidatesTriage(username, group, booleanIsActive,
+                        firstName, lastName, email);
         //calculate the winner
-        CompletableFuture<Optional<CredentialQueryCandidate>> futureWinner = 
-                CompletableFuture.supplyAsync(()->{
-            Optional<CredentialQueryCandidate> winner = triage.triage();
-            return winner;
-        }, ExecutorFactoryProvider.getSingletonExecutorOf30());
+        CompletableFuture<Optional<CredentialQueryCandidate>> futureWinner
+                = CompletableFuture.supplyAsync(() -> {
+                    Optional<CredentialQueryCandidate> winner = triage.triage();
+                    return winner;
+                }, ExecutorFactoryProvider.getSingletonExecutorOf30());
         //but eventually we need a list of appointments and not a type of query
         //so let us extend our asynchronous call
         CompletableFuture<List<Credential>> futureList = futureWinner.thenApply((Optional<CredentialQueryCandidate> winner) -> {
-            if(winner.isPresent()){
+            if (winner.isPresent()) {
                 return new CredentialQueryCommandControl().executeQuery(winner.get(), repository);
             } else {
                 return repository.getAll();
@@ -127,7 +142,7 @@ public class CredentialResourceService extends RimmaRestService<Credential>{
         });
         //checkedParameters will contain non-empty values of correct type
         Map<String, Object> checkedParameters = new HashMap<>();
-        triage.allProps().forEach((k,v) ->{
+        triage.allProps().forEach((k, v) -> {
             if (!v.toString().equals("")) {
                 checkedParameters.put(k, v);
             }
@@ -138,15 +153,15 @@ public class CredentialResourceService extends RimmaRestService<Credential>{
         //at this point we only need the first future
         Optional<CredentialQueryCandidate> winner = Optional.empty();
         Try<Optional<CredentialQueryCandidate>> tryCandidate = JavaSlangUtil.fromComplFuture(futureWinner);
-        if(tryCandidate.isSuccess()){
+        if (tryCandidate.isSuccess()) {
             winner = tryCandidate.get();
-        }else{
+        } else {
             logger.error("Failed to obtain CredentialQueryCandidate from "
-                    + "a Future: "+tryCandidate.getCause());
+                    + "a Future: " + tryCandidate.getCause());
             throw new InternalServerErrorException("It took the application "
                     + "too long to grab the results. Please contact the support team.");
         }
-        if(winner.isPresent()){
+        if (winner.isPresent()) {
             //util.Set is mutable so this is fine
             unusedKeys.removeAll(winner.get().getParams().keySet());
         }
@@ -154,35 +169,35 @@ public class CredentialResourceService extends RimmaRestService<Credential>{
         if the list.size() ==0 return a corresponding Response,
         else do the forEach on checkedParameters to filter futureList.stream()
         with the remaining keys of checkedParameters
-        */
+         */
         Try<List<Credential>> tryInitSelection = JavaSlangUtil.fromComplFuture(futureList);
-        if(tryInitSelection.isSuccess()){
+        if (tryInitSelection.isSuccess()) {
             initialSelection = tryInitSelection.get();
         } else {
             logger.error("Failed to obtain a List of Credentials from "
-                    + "a Future: "+tryInitSelection.getCause());
+                    + "a Future: " + tryInitSelection.getCause());
             throw new InternalServerErrorException("It took the application "
                     + "too long to grab the results. Please contact the support team.");
         }
         String output;
-        if(initialSelection.isEmpty()){
-            GenericBaseJaxbListWrapper response =
-                    new JaxbCredentialListWrapperBuilder(0,0,offset,initialSelection).compose();
+        if (initialSelection.isEmpty()) {
+            GenericBaseJaxbListWrapper response
+                    = new JaxbCredentialListWrapperBuilder(0, 0, offset, initialSelection).compose();
             try {
                 output = listWrapperToJson(response);
             } catch (Exception ex) {
-                logger.error(ex.getMessage()+", location: "+ex.getMessage());
+                logger.error(ex.getMessage() + ", location: " + ex.getMessage());
                 throw new InternalServerErrorException("Code error serializing the appointments that you have requested.");
             }
             return Response.ok(output).build();
-        }else{
+        } else {
             //do a foreach on the unused keys
-            for(String k : unusedKeys){
+            for (String k : unusedKeys) {
                 if (initialSelection.isEmpty()) {
                     break;
                 }
-                switch(k){
-                    case "username": 
+                switch (k) {
+                    case "username":
                         initialSelection = initialSelection.stream().filter(c -> c.getUsername().equals(k)).collect(toList());
                         break;
                     case "group":
@@ -190,7 +205,7 @@ public class CredentialResourceService extends RimmaRestService<Credential>{
                         break;
                     case "isActive":
                         initialSelection = initialSelection.stream().filter(c -> (c.isBlocked() == booleanIsActive
-                            && c.isSuspended() == booleanIsActive)).collect(toList());
+                                && c.isSuspended() == booleanIsActive)).collect(toList());
                         break;
                     case "firstName":
                         initialSelection = initialSelection.stream().filter(c -> k.equalsIgnoreCase(c.getFirstname())).collect(toList());
@@ -201,7 +216,7 @@ public class CredentialResourceService extends RimmaRestService<Credential>{
                     case "email":
                         initialSelection = initialSelection.stream().filter(c -> k.equals(c.getEmailAddress())).collect(toList());
                         break;
-                }       
+                }
             }
             int totalMatches = initialSelection.size();
             //figuring out how many can we actually return
@@ -218,7 +233,70 @@ public class CredentialResourceService extends RimmaRestService<Credential>{
             }
         }
     }
-    
+
+    @PUT
+    @Path("{username}")
+    public Response updateCredential(@PathParam("username") final String username, InputStream stream) {
+        CompletableFuture<Credential> futuCred = CompletableFuture.supplyAsync(() -> {
+            return repository.getByUsername(username);
+        });
+        CredentialCandidate candidate = new CredentialCandidate();
+        candidate = serializeCandidate(candidate, stream);
+        Try<Credential> tryCred = JavaSlangUtil.fromComplFuture(futuCred);
+        tryCred.onFailure(ex -> {
+            String msg = "Couldn't update credential \"" + username + "\""
+                    + ". A credential with such username doesn't exist: " + ex.getMessage();
+            logger.error(msg);
+            throw new BadRequestException(msg, Response.status(Response.Status.BAD_REQUEST).build());
+        });
+        try {
+            Credential c = build(tryCred.get(), candidate);
+            repository.updateCredential(c);
+        } catch (Exception e) {
+            String msg = "Failed to update credential +\"" + username + "\": " + e.getMessage();
+            throw new BadRequestException(msg, Response.status(Response.Status.BAD_REQUEST).build());
+        }
+        Map<String, String> map = new HashMap<>();
+        map.put("path", "credential/" + username);
+        return Response.ok(getJsonRepr("link", uriGenerator.apply(appsUriBuilder, map).toASCIIString())).build();
+    }
+
+    private CredentialCandidate serializeCandidate(CredentialCandidate candidate, InputStream stream) {
+        Try<CredentialCandidate> tryCand = Try.of(() -> getMapper().readValue(stream, CredentialCandidate.class));
+        tryCand.onFailure(ex -> {
+            logger.error("Could not 'objectify' an incoming Appointment Candidate: "
+                    + "" + stream.toString() + ": " + ex.getMessage());
+            throw new BadRequestException("Unable to correctly transform the passed candidate "
+                    + "on the server: " + ex.getMessage(), Response.status(Response.Status.BAD_REQUEST).build());
+        });
+        return tryCand.get();
+    }
+
+    private Credential build(Credential credential, CredentialCandidate candidate) {
+        if (!isOkPsswd.test(candidate.getPassword())) {
+            throw new BadRequestException("Password too weak!", Response.status(Response.Status.BAD_REQUEST).build());
+        }
+        try {
+            credential.setPasswd(pbkdf2(candidate.getPassword(), credential.getSalt(), 120000, 512));
+            credential.setBlocked(candidate.isBlocked());
+            credential.setEmailAddress(candidate.getEmailAddress());
+            credential.setFirstname(candidate.getFirstName());
+            Groups group = groupsRepo.getByGroupName(candidate.getGroup());
+            credential.setGroup(group);
+            credential.setLastname(candidate.getLastName());
+            credential.setModifiedDate(Instant.now());
+            credential.setSuspended(candidate.isSuspended());
+            credential.setModifiedBy(candidate.getUpdatedBy());
+            return credential;
+        } catch (Exception e) {
+            String msg = "Couldn't convert the passed-in candidate to a valid"
+                    + " Credential: " + e.getMessage();
+            logger.error(msg);
+            throw new BadRequestException(msg,
+                    Response.status(Response.Status.BAD_REQUEST).build());
+        }
+    }
+
     @Override
     protected JsonObject entityToJson(Credential entity) {
         JsonObject value = factory.createObjectBuilder()
@@ -228,37 +306,23 @@ public class CredentialResourceService extends RimmaRestService<Credential>{
                 .add("suspended", entity.isSuspended())
                 .add("firstname", entity.getFirstname() != null ? entity.getFirstname() : "")
                 .add("lastname", entity.getLastname() != null ? entity.getLastname() : "")
-                .add("email", entity.getEmailAddress() !=null ? entity.getEmailAddress() : "")
+                .add("email", entity.getEmailAddress() != null ? entity.getEmailAddress() : "")
                 .add("metaInfo", factory.createObjectBuilder()
-                .add("createdBy", entity.getCreatedBy())
-                .add("createdOn", formatter.format(entity.getCreatedDate()))
-                .add("modifiedBy", entity.getModifiedBy())
-                .add("modifiedOn", formatter.format(entity.getModifiedDate()))
+                        .add("createdBy", entity.getCreatedBy())
+                        .add("createdOn", formatter.format(entity.getCreatedDate()))
+                        .add("modifiedBy", entity.getModifiedBy())
+                        .add("modifiedOn", formatter.format(entity.getModifiedDate()))
                         .build()).build();
         return value;
     }
- 
-    public Response updateCredential(final String username, InputStream stream){
-        ObjectMapper mapper = getMapper();
-        CredentialCandidate candidate = new CredentialCandidate();
-        Try<CredentialCandidate> tryCand = Try.of(()->mapper.readValue(stream, CredentialCandidate.class));
-        tryCand.onFailure(ex->{
-                logger.error("Could not 'objectify' an incoming Appointment Candidate: "
-                    + "" + stream.toString() + ": " + ex.getMessage());
-                throw new BadRequestException("Unable to correctly transform the passed candidate "
-                        + "on the server: "  + ex.getMessage(), Response.status(Response.Status.BAD_REQUEST).build());
-        });
-        candidate = tryCand.get();
-        return null;
-    }
-    
+
     @Override
-    protected Observable<Credential> rxEntityList(List<Credential> l){
-        return Observable.defer(()->
-                Observable.from(l)).subscribeOn(Schedulers.io());
+    protected Observable<Credential> rxEntityList(List<Credential> l) {
+        return Observable.defer(()
+                -> Observable.from(l)).subscribeOn(Schedulers.io());
     }
-    
-    private String listWrapperToJson(GenericBaseJaxbListWrapper response){
+
+    private String listWrapperToJson(GenericBaseJaxbListWrapper response) {
         JsonObjectBuilder listWrapper = Json.createObjectBuilder();
         JsonArrayBuilder current = Json.createArrayBuilder();
         //parallel json transformation with RxJava
@@ -271,7 +335,7 @@ public class CredentialResourceService extends RimmaRestService<Credential>{
             @Override
             public void onError(Throwable thrwbl) {
                 logger.error("Error serializaing one of the credentials for the "
-                        + "final list wrapper: "+thrwbl.getMessage());
+                        + "final list wrapper: " + thrwbl.getMessage());
             }
 
             @Override
@@ -280,19 +344,19 @@ public class CredentialResourceService extends RimmaRestService<Credential>{
             }
         };
         rxEntityList((List<Credential>) response.getCurrent()).subscribe(subscriber);
-        if(response.getFirst() != null){
+        if (response.getFirst() != null) {
             listWrapper.add("first", response.getFirst().toASCIIString());
         }
-        if(response.getNext() != null){
+        if (response.getNext() != null) {
             listWrapper.add("next", response.getNext().toASCIIString());
         }
-        if(response.getLast() != null){
+        if (response.getLast() != null) {
             listWrapper.add("last", response.getLast().toASCIIString());
         }
-        if(response.getPrevious() != null){
+        if (response.getPrevious() != null) {
             listWrapper.add("previous", response.getPrevious().toASCIIString());
         }
-        if(response.getAll() != null){
+        if (response.getAll() != null) {
             listWrapper.add("all", response.getAll().toASCIIString());
         }
         listWrapper.add("returnedSize", response.getReturnedSize());
@@ -301,4 +365,5 @@ public class CredentialResourceService extends RimmaRestService<Credential>{
         //add root and return
         return factory.createObjectBuilder().add("credential", listWrapper).build().toString();
     }
+
 }

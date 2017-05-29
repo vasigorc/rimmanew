@@ -22,6 +22,19 @@ public class InputValidators {
     public static final String EMAIL_PATTERN = 
 		"^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
 		+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+  
+    /*
+        ^                 # start-of-string
+        (?=.*[0-9])       # a digit must occur at least once
+        (?=.*[a-z])       # a lower case letter must occur at least once
+        (?=\S+$)          # no whitespace allowed in the entire string
+        .{8,}             # anything, at least eight places though
+        $                 # end-of-string
+    +++++++consider also adding this when needed+++++++++
+        (?=.*[A-Z])       # an upper case letter must occur at least once
+    */
+    public static final String PASSWORD_RULES = 
+            "^(?=.*[0-9])(?=.*[a-z])(?=.*[!@#$%^&+=])(?=\\S+$).{8,}$";
     
     public static Function<String[], Boolean> allStringsAreGood = (java.lang.String[] array) -> {
         if (Arrays.asList(array).isEmpty()) {
@@ -60,5 +73,9 @@ public class InputValidators {
     public static Predicate<String> isValidEmail = (String candidate)-> {
         return stringNotNullNorEmpty.apply(candidate) && 
                 candidate.matches(EMAIL_PATTERN);
+    };
+    
+    public static Predicate<String> isOkPsswd = (String candidate) -> {
+        return candidate.matches(PASSWORD_RULES);
     };
 }

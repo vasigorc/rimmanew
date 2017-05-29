@@ -1,8 +1,6 @@
 package com.vgorcinschi.rimmanew.util;
 
-import com.vgorcinschi.rimmanew.rest.services.helpers.querycandidates.credential.CredentialQueryCandidate;
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
