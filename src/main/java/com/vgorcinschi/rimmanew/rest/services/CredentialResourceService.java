@@ -240,8 +240,7 @@ public class CredentialResourceService extends RimmaRestService<Credential> {
         CompletableFuture<Credential> futuCred = CompletableFuture.supplyAsync(() -> {
             return repository.getByUsername(username);
         });
-        CredentialCandidate candidate = new CredentialCandidate();
-        candidate = serializeCandidate(candidate, stream);
+        CredentialCandidate candidate = serializeCandidate(stream);
         Try<Credential> tryCred = JavaSlangUtil.fromComplFuture(futuCred);
         tryCred.onFailure(ex -> {
             String msg = "Couldn't update credential \"" + username + "\""
@@ -261,10 +260,10 @@ public class CredentialResourceService extends RimmaRestService<Credential> {
         return Response.ok(getJsonRepr("link", uriGenerator.apply(appsUriBuilder, map).toASCIIString())).build();
     }
 
-    private CredentialCandidate serializeCandidate(CredentialCandidate candidate, InputStream stream) {
+    private CredentialCandidate serializeCandidate(InputStream stream) {
         Try<CredentialCandidate> tryCand = Try.of(() -> getMapper().readValue(stream, CredentialCandidate.class));
         tryCand.onFailure(ex -> {
-            logger.error("Could not 'objectify' an incoming Appointment Candidate: "
+            logger.error("Could not 'objectify' an incoming Credential Candidate: "
                     + "" + stream.toString() + ": " + ex.getMessage());
             throw new BadRequestException("Unable to correctly transform the passed candidate "
                     + "on the server: " + ex.getMessage(), Response.status(Response.Status.BAD_REQUEST).build());
