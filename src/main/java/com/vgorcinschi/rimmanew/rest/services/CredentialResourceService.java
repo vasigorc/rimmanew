@@ -48,15 +48,16 @@ import rx.schedulers.Schedulers;
 import static com.vgorcinschi.rimmanew.util.InputValidators.*;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.appsUriBuilder;
 import static com.vgorcinschi.rimmanew.util.Java8Toolkit.uriGenerator;
-import com.vgorcinschi.rimmanew.util.RxJavaUtil;
 import static com.vgorcinschi.rimmanew.util.SecurityPrompt.pbkdf2;
 import java.io.InputStream;
 import java.time.Instant;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.logging.Level;
+import java.util.Arrays;
+import java.util.StringJoiner;
+import javaslang.Tuple;
+import javaslang.Tuple2;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
+import jersey.repackaged.com.google.common.collect.Lists;
 
 /**
  *
@@ -260,6 +261,27 @@ public class CredentialResourceService extends RimmaRestService<Credential> {
         return Response.ok(getJsonRepr("link", uriGenerator.apply(appsUriBuilder, map).toASCIIString())).build();
     }
 
+    @POST
+    public Response createCredential(InputStream stream) {
+        CredentialCandidate newCand = serializeCandidate(stream);
+        Tuple2<Boolean, List<String>> isValid = validator(newCand);
+        if (Boolean.TRUE == isValid._1) {
+            //TODO
+        } else {
+            StringBuilder msgBuilder = new StringBuilder("Failed to create new"
+                    + " user (credential) because the following field");
+            if (isValid._2.size() > 1) {
+                msgBuilder.append("s were");
+            } else {
+                msgBuilder.append(" was");
+            }
+            msgBuilder.append(" missing: "+String.join(", ", isValid._2)+".");
+            throw new BadRequestException(msgBuilder.toString(), 
+                    Response.status(Response.Status.BAD_REQUEST).build());
+        }
+        return null;
+    }
+
     private CredentialCandidate serializeCandidate(InputStream stream) {
         Try<CredentialCandidate> tryCand = Try.of(() -> getMapper().readValue(stream, CredentialCandidate.class));
         tryCand.onFailure(ex -> {
@@ -363,6 +385,21 @@ public class CredentialResourceService extends RimmaRestService<Credential> {
         }
         //add root and return
         return factory.createObjectBuilder().add("credential", listWrapper).build().toString();
+    }
+
+    private Tuple2<Boolean, List<String>> validator(CredentialCandidate newCand) {
+        List<String> failed = Lists.newLinkedList();
+        /*
+            iterate through all fields that are mandatory
+            and add those which are null or empty to the 
+            failed list
+         */
+        Observable.from(Arrays.asList(new String[]{
+            newCand.emailAddress, newCand.firstName, newCand.group,
+            newCand.lastName, newCand.password, newCand.username
+        })).filter(s -> s == null || "".equals(s))
+                .subscribe(failed::add);
+        return Tuple.of(failed.isEmpty(), failed);
     }
 
 }
