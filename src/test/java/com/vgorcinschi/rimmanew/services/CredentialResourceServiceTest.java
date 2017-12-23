@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonBuilderFactory;
 import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 import javax.json.stream.JsonGenerator;
 import javax.ws.rs.core.Response;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -40,11 +41,11 @@ import org.junit.runner.RunWith;
  */
 @RunWith(Arquillian.class)
 public class CredentialResourceServiceTest {
-    
+
     @ArquillianResource
     private URL deploymentURL;
     private final JsonBuilderFactory factory;
-    
+
     @Deployment
     @RunAsClient
     public static WebArchive createDeployment() {
@@ -60,36 +61,36 @@ public class CredentialResourceServiceTest {
                 .addAsResource("META-INF/test-persistence.xml", "META-INF/persistence.xml")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
     }
-    
+
     @Inject
     @Production
     private CredentialRepository credentialRepository;
-    
+
     public CredentialResourceServiceTest() {
         Map<String, Object> configs = new HashMap<>(1);
         configs.put(JsonGenerator.PRETTY_PRINTING, true);
         this.factory = Json.createBuilderFactory(configs);
     }
-    
+
     @Before
     public void setUp() {
     }
-    
+
     @After
     public void tearDown() {
     }
-    
+
     @Test
     public void repositoryNotNull() {
         assertNotNull(credentialRepository);
     }
-    
+
     @Test
     public void getUserWithoutRestCall() {
         Credential byUsername = credentialRepository.getByUsername("admin");
         assertNotNull(byUsername);
     }
-    
+
     @Test
     public void getByUsername(
             @ArquillianResteasyResource CredentialResourceService crs) {
@@ -97,42 +98,42 @@ public class CredentialResourceServiceTest {
         System.out.println(response.getEntity());
         assertTrue(response.getEntity().toString().contains("elenatodorasco@gmail.com"));
     }
-    
+
     @Test
-    public void getAllUsers(@ArquillianResteasyResource CredentialResourceService crs){
+    public void getAllUsers(@ArquillianResteasyResource CredentialResourceService crs) {
         final Response response = crs.allCredentials(null, null, null, null, null, "true", 0, 10);
         assertTrue(response.getStatus() == 200);
         System.out.println(response.getEntity().toString());
     }
-    
+
     @Test(expected = ArquillianProxyException.class)
-    public void isActiveInvalidValue(@ArquillianResteasyResource CredentialResourceService crs){
+    public void isActiveInvalidValue(@ArquillianResteasyResource CredentialResourceService crs) {
         final Response response = crs.allCredentials(null, null, null, null, null, "somethingElse", 0, 10);
         assertTrue(response.getStatus() == 200);
     }
-    
+
     @Test
-    public void updateCredentialTest(@ArquillianResteasyResource CredentialResourceService crs){
-         JsonObject value = factory.createObjectBuilder()
+    public void updateCredentialTest(@ArquillianResteasyResource CredentialResourceService crs) {
+        JsonObjectBuilder objectBuilder = factory.createObjectBuilder()
                 .add("username", "admin")
-                .add("password","hai1024!")
+                .add("password", "hai1024!")
                 .add("group", "admin")
                 .add("blocked", false)
                 .add("suspended", false)
                 .add("firstName", "Elena")
                 .add("lastName", "Gorcinschi")
                 .add("emailAddress", "elenatodorasco@gmail.com")
-                .add("updatedBy", "su-user").build();
-          InputStream is = new ByteArrayInputStream(value.toString().getBytes());
-          final Response response = crs.updateCredential("admin", is);
-          assertTrue(response.getStatus() == 200);
+                .add("updatedBy", "su-user");
+        JsonObject value = objectBuilder.build();
+        Response response = crs.updateCredential("admin", streamFromJson(value));
+        assertTrue(response.getStatus() == 200);
     }
-    
+
     @Test(expected = ArquillianProxyException.class)
-    public void inproperCredentialCandidateSentTest(@ArquillianResteasyResource CredentialResourceService crs){
+    public void inproperCredentialCandidateSentTest(@ArquillianResteasyResource CredentialResourceService crs) {
         JsonObject value = factory.createObjectBuilder()
                 .add("username", "admin")
-                .add("password","hai1024!")
+                .add("password", "hai1024!")
                 .add("group", "admin")
                 .add("blocked", "stringThatShouldn'tBeHere")//error is here!
                 .add("suspended", false)
@@ -140,8 +141,10 @@ public class CredentialResourceServiceTest {
                 .add("lastName", "Gorcinschi")
                 .add("emailAddress", "elenatodorasco@gmail.com")
                 .add("updatedBy", "su-user").build();
-          InputStream is = new ByteArrayInputStream(value.toString().getBytes());
-          final Response response = crs.updateCredential("admin", is);
-          assertTrue(response.getStatus() == 200);
+        final Response response = crs.updateCredential("admin", streamFromJson(value));
+        assertTrue(response.getStatus() == 200);
+    }
+    private InputStream streamFromJson(JsonObject value){
+        return new ByteArrayInputStream(value.toString().getBytes());
     }
 }

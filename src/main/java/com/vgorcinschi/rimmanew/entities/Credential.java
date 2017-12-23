@@ -58,8 +58,8 @@ public class Credential extends MetaInfo implements Serializable {
     private byte[] passwd;
     private byte[] salt;
     private Groups group;
-    private boolean blocked;
-    private boolean suspended;
+    private boolean blocked = Boolean.FALSE;
+    private boolean suspended = Boolean.FALSE;
     
     @Size(min=1)
     private String firstname, lastname;

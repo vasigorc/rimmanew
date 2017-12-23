@@ -52,7 +52,6 @@ import static com.vgorcinschi.rimmanew.util.SecurityPrompt.pbkdf2;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.StringJoiner;
 import javaslang.Tuple;
 import javaslang.Tuple2;
 import javax.ws.rs.POST;
@@ -262,6 +261,7 @@ public class CredentialResourceService extends RimmaRestService<Credential> {
     }
 
     @POST
+    @SuppressWarnings({"BoxedValueEquality", "NumberEquality"})
     public Response createCredential(InputStream stream) {
         CredentialCandidate newCand = serializeCandidate(stream);
         Tuple2<Boolean, List<String>> isValid = validator(newCand);
@@ -270,13 +270,9 @@ public class CredentialResourceService extends RimmaRestService<Credential> {
         } else {
             StringBuilder msgBuilder = new StringBuilder("Failed to create new"
                     + " user (credential) because the following field");
-            if (isValid._2.size() > 1) {
-                msgBuilder.append("s were");
-            } else {
-                msgBuilder.append(" was");
-            }
-            msgBuilder.append(" missing: "+String.join(", ", isValid._2)+".");
-            throw new BadRequestException(msgBuilder.toString(), 
+            msgBuilder.append((isValid._2.size() > 1) ? "s were" : " was");
+            msgBuilder.append(" missing: ").append(String.join(", ", isValid._2)).append(".");
+            throw new BadRequestException(msgBuilder.toString(),
                     Response.status(Response.Status.BAD_REQUEST).build());
         }
         return null;
@@ -285,7 +281,7 @@ public class CredentialResourceService extends RimmaRestService<Credential> {
     private CredentialCandidate serializeCandidate(InputStream stream) {
         Try<CredentialCandidate> tryCand = Try.of(() -> getMapper().readValue(stream, CredentialCandidate.class));
         tryCand.onFailure(ex -> {
-            logger.error("Could not 'objectify' an incoming Credential Candidate: "
+            logger.error("Could not \"objectify\" the incoming Credential Candidate: "
                     + "" + stream.toString() + ": " + ex.getMessage());
             throw new BadRequestException("Unable to correctly transform the passed candidate "
                     + "on the server: " + ex.getMessage(), Response.status(Response.Status.BAD_REQUEST).build());
@@ -305,6 +301,9 @@ public class CredentialResourceService extends RimmaRestService<Credential> {
             Groups group = groupsRepo.getByGroupName(candidate.getGroup());
             credential.setGroup(group);
             credential.setLastname(candidate.getLastName());
+            if(credential.getCreatedDate() == null){
+                credential.setCreatedDate(Instant.now());
+            }
             credential.setModifiedDate(Instant.now());
             credential.setSuspended(candidate.isSuspended());
             credential.setModifiedBy(candidate.getUpdatedBy());
@@ -388,17 +387,16 @@ public class CredentialResourceService extends RimmaRestService<Credential> {
     }
 
     private Tuple2<Boolean, List<String>> validator(CredentialCandidate newCand) {
-        List<String> failed = Lists.newLinkedList();
         /*
             iterate through all fields that are mandatory
             and add those which are null or empty to the 
             failed list
          */
+        List<String> failed = Lists.newLinkedList();
         Observable.from(Arrays.asList(new String[]{
             newCand.emailAddress, newCand.firstName, newCand.group,
             newCand.lastName, newCand.password, newCand.username
-        })).filter(s -> s == null || "".equals(s))
-                .subscribe(failed::add);
+        })).filter(stringNotNullNorEmpty::apply).subscribe(failed::add);
         return Tuple.of(failed.isEmpty(), failed);
     }
 

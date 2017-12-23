@@ -95,8 +95,8 @@ public abstract class RimmaRestService <A>{
     protected abstract Observable<A> rxEntityList(List<A> l);
     
     public String getJsonRepr(String key, String value) {
-        JsonNodeFactory factory = JsonNodeFactory.instance;
-        ObjectNode object = factory.objectNode();
+        JsonNodeFactory jsonNodeFactory = JsonNodeFactory.instance;
+        ObjectNode object = jsonNodeFactory.objectNode();
         object.put(key, value);
         return object.toString();
     }

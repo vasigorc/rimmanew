@@ -5,11 +5,19 @@
  */
 package com.vgorcinschi.rimmanew.util;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import static javaslang.API.Case;
+import static javaslang.API.Match;
+import javaslang.Function3;
+import static javaslang.Predicates.is;
+import javax.validation.constraints.Size;
+import rx.Observable;
 
 /**
  * this will be a collection of static methods and lambdas to validate user
@@ -19,10 +27,10 @@ import java.util.function.Predicate;
  */
 public class InputValidators {
 
-    public static final String EMAIL_PATTERN = 
-		"^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
-		+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
-  
+    public static final String EMAIL_PATTERN
+            = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+            + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+
     /*
         ^                 # start-of-string
         (?=.*[0-9])       # a digit must occur at least once
@@ -32,10 +40,10 @@ public class InputValidators {
         $                 # end-of-string
     +++++++consider also adding this when needed+++++++++
         (?=.*[A-Z])       # an upper case letter must occur at least once
-    */
-    public static final String PASSWORD_RULES = 
-            "^(?=.*[0-9])(?=.*[a-z])(?=.*[!@#$%^&+=])(?=\\S+$).{8,}$";
-    
+     */
+    public static final String PASSWORD_RULES
+            = "^(?=.*[0-9])(?=.*[a-z])(?=.*[!@#$%^&+=])(?=\\S+$).{8,}$";
+
     public static Function<String[], Boolean> allStringsAreGood = (java.lang.String[] array) -> {
         if (Arrays.asList(array).isEmpty()) {
             return false;
@@ -69,13 +77,31 @@ public class InputValidators {
             return false;
         }
     };
-    
-    public static Predicate<String> isValidEmail = (String candidate)-> {
-        return stringNotNullNorEmpty.apply(candidate) && 
-                candidate.matches(EMAIL_PATTERN);
+
+    public static Predicate<String> isValidEmail = (String candidate) -> {
+        return stringNotNullNorEmpty.apply(candidate)
+                && candidate.matches(EMAIL_PATTERN);
     };
-    
+
     public static Predicate<String> isOkPsswd = (String candidate) -> {
         return candidate.matches(PASSWORD_RULES);
     };
+
+    public static Function3<Class<?>, String, String, Boolean> validateAnnotatedField
+            = (clazz, fieldString, literal) -> {
+                try {
+                    Field field = clazz.getField(fieldString);
+                    Observable<Annotation> fieldAnnotations = Observable.from(field.getAnnotations());
+                    fieldAnnotations.subscribe(annotation -> {//onNext
+                        Match(annotation.annotationType()).of(
+                                Case(is(Size.class), () -> {
+                                    Size sizeAnnotation = field.getAnnotation(Size.class);
+                                    return true;
+                                })
+                        );
+                    });
+                } catch (NoSuchFieldException e) {
+                }
+                return Boolean.TRUE;
+            };
 }
