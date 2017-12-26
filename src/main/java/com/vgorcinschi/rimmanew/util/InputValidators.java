@@ -10,13 +10,17 @@ import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import static javaslang.API.$;
 import static javaslang.API.Case;
 import static javaslang.API.Match;
 import javaslang.Function3;
+import static javaslang.Predicates.instanceOf;
 import static javaslang.Predicates.is;
 import javax.validation.constraints.Size;
+import jersey.repackaged.com.google.common.collect.Lists;
 import rx.Observable;
 
 /**
@@ -87,21 +91,26 @@ public class InputValidators {
         return candidate.matches(PASSWORD_RULES);
     };
 
-    public static Function3<Class<?>, String, String, Boolean> validateAnnotatedField
-            = (clazz, fieldString, literal) -> {
-                try {
-                    Field field = clazz.getField(fieldString);
-                    Observable<Annotation> fieldAnnotations = Observable.from(field.getAnnotations());
-                    fieldAnnotations.subscribe(annotation -> {//onNext
-                        Match(annotation.annotationType()).of(
-                                Case(is(Size.class), () -> {
-                                    Size sizeAnnotation = field.getAnnotation(Size.class);
-                                    return true;
-                                })
-                        );
-                    });
-                } catch (NoSuchFieldException e) {
-                }
-                return Boolean.TRUE;
-            };
+    public static <T> List<String> validateAnnotatedField(Class<?> clazz, String fieldString, final T value) {
+        try {
+            final Field field = clazz.getField(fieldString);
+            Observable<Annotation> fieldAnnotations = Observable.from(field.getAnnotations());
+            fieldAnnotations.map(annotation -> {//onNext
+                return Match(value).of(
+                        Case($(instanceOf(Integer.class)), validateIntAnnotation.apply(field, (Integer) value, annotation))
+                );
+            });
+        } catch (NoSuchFieldException e) {
+        }
+        return null;
+    }
+
+    private static final Function3<Field, Integer, Annotation, List<String>> validateIntAnnotation = (field, integer, annotation) -> {
+        return Match(annotation.annotationType()).of(
+                Case(is(Size.class), () -> {
+                    Size sizeAnnotation = field.getAnnotation(Size.class);
+                    return Lists.newArrayList();
+                }));
+
+    };
 }
