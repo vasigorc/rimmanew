@@ -95,9 +95,10 @@ public class InputValidators {
         try {
             final Field field = clazz.getField(fieldString);
             Observable<Annotation> fieldAnnotations = Observable.from(field.getAnnotations());
-            fieldAnnotations.flatMapIterable(annotation -> {
+            fieldAnnotations.concatMapIterable(annotation -> {
                 return Match(value).of(
-                        Case($(instanceOf(String.class)), validateStringAnnotation.apply(field, (String) value, annotation))
+                        Case($(instanceOf(String.class)), validateStringAnnotation.apply(field, (String) value, annotation)),
+                        Case($(), () -> new ArrayList())
                 );
             });
         } catch (NoSuchFieldException e) {
