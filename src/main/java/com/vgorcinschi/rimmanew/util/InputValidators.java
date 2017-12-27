@@ -11,7 +11,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import static javaslang.API.$;
@@ -22,7 +21,6 @@ import static javaslang.Predicates.instanceOf;
 import static javaslang.Predicates.is;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import jersey.repackaged.com.google.common.collect.Lists;
 import rx.Observable;
 
 /**
@@ -128,8 +126,8 @@ public class InputValidators {
                     Pattern pattern = field.getAnnotation(Pattern.class);
                     List<String> patternErrors = new ArrayList();
                     if (pattern.regexp() != null && !input.matches(pattern.regexp())) {
-                        patternErrors.add(String.format("Field %s is doesn't match "
-                                + "the required pattern %s characters", input, pattern.regexp()));
+                        patternErrors.add(String.format("Field %s doesn't match "
+                                + "the required pattern: %s", input, pattern.regexp()));
                     }
                     return patternErrors;
                 }),
