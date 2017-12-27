@@ -8,6 +8,7 @@ package com.vgorcinschi.rimmanew.util;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -91,13 +92,13 @@ public class InputValidators {
         return candidate.matches(PASSWORD_RULES);
     };
 
-    public static <T> List<String> validateAnnotatedField(Class<?> clazz, String fieldString, final T value) {
+    public static <T> Observable<String> validateAnnotatedField(Class<?> clazz, String fieldString, final T value) {
         try {
             final Field field = clazz.getField(fieldString);
             Observable<Annotation> fieldAnnotations = Observable.from(field.getAnnotations());
             fieldAnnotations.map(annotation -> {//onNext
                 return Match(value).of(
-                        Case($(instanceOf(Integer.class)), validateIntAnnotation.apply(field, (Integer) value, annotation))
+                        Case($(instanceOf(String.class)), validateIntAnnotation.apply(field, (String) value, annotation))
                 );
             });
         } catch (NoSuchFieldException e) {
@@ -105,11 +106,20 @@ public class InputValidators {
         return null;
     }
 
-    private static final Function3<Field, Integer, Annotation, List<String>> validateIntAnnotation = (field, integer, annotation) -> {
+    private static final Function3<Field, String, Annotation, Observable<String>> validateIntAnnotation = (Field field, String input, Annotation annotation) -> {
         return Match(annotation.annotationType()).of(
                 Case(is(Size.class), () -> {
-                    Size sizeAnnotation = field.getAnnotation(Size.class);
-                    return Lists.newArrayList();
+                    Size size = field.getAnnotation(Size.class);
+                    List<String> errors = new ArrayList();
+                    if (size.min() != 0 & size.min() < input.length()) {
+                        errors.add(String.format("Field %s is too short, minimum "
+                                + "required length is %d characters", input, size.min()));
+                    }
+                    if (size.max() != 0 & size.max() > input.length()){
+                        errors.add(String.format("Field %s is too long, maximum "
+                                + "length is %d characters", input, size.max()));
+                    }
+                    return errors.isEmpty() ? Observable.empty() : Observable.from(errors);
                 }));
 
     };
