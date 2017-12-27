@@ -97,7 +97,7 @@ public class InputValidators {
             Observable<Annotation> fieldAnnotations = Observable.from(field.getAnnotations());
             fieldAnnotations.flatMapIterable(annotation -> {
                 return Match(value).of(
-                        Case($(instanceOf(String.class)), validateIntAnnotation.apply(field, (String) value, annotation))
+                        Case($(instanceOf(String.class)), validateStringAnnotation.apply(field, (String) value, annotation))
                 );
             });
         } catch (NoSuchFieldException e) {
@@ -105,7 +105,7 @@ public class InputValidators {
         return Observable.empty();
     }
 
-    private static final Function3<Field, String, Annotation, List<String>> validateIntAnnotation = (Field field, String input, Annotation annotation) -> {
+    private static final Function3<Field, String, Annotation, List<String>> validateStringAnnotation = (Field field, String input, Annotation annotation) -> {
         return Match(annotation.annotationType()).of(
                 //@Size annotation
                 Case(is(Size.class), () -> {
