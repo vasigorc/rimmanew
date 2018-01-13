@@ -92,47 +92,48 @@ public class InputValidators {
     };
 
     public static <T> Observable<String> validateAnnotatedField(Class<?> clazz, String fieldString, final T value) {
+        final Field field;
         try {
-            final Field field = clazz.getField(fieldString);
+            field = clazz.getDeclaredField(fieldString);
+        } catch (NoSuchFieldException e) {
+            return Observable.empty();
+        }
             Observable<Annotation> fieldAnnotations = Observable.from(field.getAnnotations());
-            fieldAnnotations.concatMapIterable(annotation -> {
+            return fieldAnnotations.concatMapIterable(annotation -> {
                 return Match(value).of(
                         Case($(instanceOf(String.class)), validateStringAnnotation.apply(field, (String) value, annotation)),
                         Case($(), () -> new ArrayList())
                 );
             });
-        } catch (NoSuchFieldException e) {
-        }
-        return Observable.empty();
     }
 
-    private static final Function3<Field, String, Annotation, List<String>> validateStringAnnotation = (Field field, String input, Annotation annotation) -> {
-        return Match(annotation.annotationType()).of(
+    private static final Function3<Field, String, Annotation, List<String>> validateStringAnnotation 
+            = (Field field, String input, Annotation annotation) -> {
+        List<String> errors = new ArrayList();
+        return Match(annotation).of(
                 //@Size annotation
-                Case(is(Size.class), () -> {
+                Case($(instanceOf(Size.class)), () -> {
                     Size size = field.getAnnotation(Size.class);
-                    List<String> sizeErrors = new ArrayList();
-                    if (size.min() != 0 && size.min() < input.length()) {
-                        sizeErrors.add(String.format("Field %s is too short, minimum "
-                                + "required length is %d characters", input, size.min()));
+                    if (size.min() != 0 && size.min() > input.length()) {
+                        errors.add(String.format("Field %s is too short, minimum "
+                                + "required length is %d character(s)", input, size.min()));
                     }
-                    if (size.max() != 0 && size.max() > input.length()) {
-                        sizeErrors.add(String.format("Field %s is too long, maximum "
+                    if (size.max() != 0 && size.max() < input.length()) {
+                        errors.add(String.format("Field %s is too long, maximum "
                                 + "length is %d characters", input, size.max()));
                     }
-                    return sizeErrors;
+                    return errors;
                 }),
                 //@Pattern annotation
-                Case(is(Pattern.class), () -> {
+                Case($(instanceOf(Pattern.class)), () -> {
                     Pattern pattern = field.getAnnotation(Pattern.class);
-                    List<String> patternErrors = new ArrayList();
                     if (pattern.regexp() != null && !input.matches(pattern.regexp())) {
-                        patternErrors.add(String.format("Field %s doesn't match "
+                        errors.add(String.format("Field %s doesn't match "
                                 + "the required pattern: %s", input, pattern.regexp()));
                     }
-                    return patternErrors;
+                    return errors;
                 }),
                 //default case
-                Case($(), () -> new ArrayList<>()));
+                Case($(), () -> errors));
     };
 }
