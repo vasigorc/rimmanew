@@ -268,10 +268,9 @@ public class CredentialResourceService extends RimmaRestService<Credential> {
         if (Boolean.TRUE == isValid._1) {
             //TODO
         } else {
-            StringBuilder msgBuilder = new StringBuilder("Failed to create new"
-                    + " user (credential) because the following field");
-            msgBuilder.append((isValid._2.size() > 1) ? "s were" : " was");
-            msgBuilder.append(" missing: ").append(String.join(", ", isValid._2)).append(".");
+            final StringBuilder msgBuilder = new StringBuilder("Failed to create new"
+                    + " user (credential) because of the following reasons: \n");
+            isValid._2.stream().forEach(error -> msgBuilder.append(error).append("\n"));
             throw new BadRequestException(msgBuilder.toString(),
                     Response.status(Response.Status.BAD_REQUEST).build());
         }
