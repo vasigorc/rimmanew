@@ -26,6 +26,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
@@ -55,8 +56,12 @@ public class Credential extends MetaInfo implements Serializable {
 
     @Size(min=4, max=20)
     private String username;
+    
+    @Pattern(regexp = InputValidators.PASSWORD_RULES)
     private byte[] passwd;
     private byte[] salt;
+    
+    @NotNull
     private Groups group;
     private boolean blocked = Boolean.FALSE;
     private boolean suspended = Boolean.FALSE;

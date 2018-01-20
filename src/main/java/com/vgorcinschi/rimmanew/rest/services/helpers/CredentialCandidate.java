@@ -15,7 +15,7 @@ import java.util.Objects;
 public class CredentialCandidate {
     public String username, password, group,firstName, lastName, emailAddress,
             updatedBy;
-    public boolean blocked, suspended;
+    public boolean blocked, suspended = Boolean.FALSE;
 
     public CredentialCandidate() {
     }

@@ -386,18 +386,19 @@ public class CredentialResourceService extends RimmaRestService<Credential> {
         return factory.createObjectBuilder().add("credential", listWrapper).build().toString();
     }
 
-    private Tuple2<Boolean, List<String>> validator(CredentialCandidate newCand) {
-        /*
-            iterate through all fields that are mandatory
-            and add those which are null or empty to the 
-            failed list
-         */
+    public Tuple2<Boolean, List<String>> validator(CredentialCandidate newCand) {
+        //perform validations and collect errors
         List<String> failed = Lists.newLinkedList();
-        Observable.from(Arrays.asList(new String[]{
-            newCand.emailAddress, newCand.firstName, newCand.group,
-            newCand.lastName, newCand.password, newCand.username
-        })).filter(stringNotNullNorEmpty::apply).subscribe(failed::add);
+        List<Tuple2<String, String>> tuples = Lists.newArrayList(
+                Tuple.of(newCand.emailAddress, "emailAddress"),
+                Tuple.of(newCand.firstName, "firstname"),
+                Tuple.of(newCand.lastName, "lastname"),
+                Tuple.of(newCand.username, "username"),
+                Tuple.of(newCand.password, "passwd"),
+                Tuple.of(newCand.group, "group"));
+        Observable<String> annotationFailed = Observable.from(tuples)
+                .flatMap(tup -> validateAnnotatedField(Credential.class, tup._2, tup._1));
+        annotationFailed.subscribe(failed::add);
         return Tuple.of(failed.isEmpty(), failed);
     }
-
 }
