@@ -248,7 +248,7 @@
       <property name="characterSetResults" value="UTF-8"></property>
       <property name="characterEncoding" value="UTF-8"></property>
     </jdbc-connection-pool>
-    <jdbc-resource pool-name="RimmaConnPool" description="MySQL part of the Beaty Shop" jndi-name="jdbc/RimmaMySQLDataSourc"></jdbc-resource>
+    <jdbc-resource pool-name="RimmaConnPool" description="MySQL part of the Beaty Shop" jndi-name="jdbc/RimmaMySQLDataSource"></jdbc-resource>
   </resources>
   <servers>
     <server config-ref="server-config" name="server">
@@ -266,7 +266,7 @@
       <resource-ref ref="concurrent/__defaultManagedExecutorService"></resource-ref>
       <resource-ref ref="concurrent/__defaultManagedScheduledExecutorService"></resource-ref>
       <resource-ref ref="concurrent/__defaultManagedThreadFactory"></resource-ref>
-      <resource-ref ref="jdbc/RimmaMySQLDataSourc"></resource-ref>
+      <resource-ref ref="jdbc/RimmaMySQLDataSource"></resource-ref>
     </server>
   </servers>
   <nodes>
