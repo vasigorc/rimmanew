@@ -12,6 +12,8 @@ import com.vgorcinschi.rimmanew.helpers.UserWithEmailAlreadyExists;
 import com.vgorcinschi.rimmanew.util.InputValidators;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
 import javax.ejb.Singleton;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
@@ -128,5 +130,14 @@ public class JpaCredentialRepository implements CredentialRepository {
             throw new NotAValidEmailException(Arrays.toString(args) + " is not a"
                     + " valid email address.");
         }
+    }
+
+    @Override
+    public boolean delete(final String username) {
+        return Optional.ofNullable(getByUsername(username)).map((cr) -> {
+            em.remove(cr);
+            return Boolean.TRUE;
+        }
+        ).orElseThrow(() -> new IllegalArgumentException(String.format("User %s doesn't exist", username)));
     }
 }

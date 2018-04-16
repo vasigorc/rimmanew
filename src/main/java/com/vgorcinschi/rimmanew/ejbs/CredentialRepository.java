@@ -25,6 +25,8 @@ public interface CredentialRepository {
     
     public boolean updateCredential(Credential credential);
     
+    public boolean delete(String username);
+    
     @AccessTimeout(unit = TimeUnit.SECONDS, value = 15)
     public Credential getByUsername(String username);
     

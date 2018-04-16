@@ -159,4 +159,21 @@ public class OCCredentialRepository implements CredentialRepository {
                     + " valid email address.");
         }
     }
+
+    @Override
+    public boolean delete(String username) {
+        EntityManager em = entityManagerFactory.createEntityManager();
+        EntityTransaction trans = em.getTransaction();
+        try {
+            trans.begin();
+            em.remove(getByUsername(username));
+            trans.commit();
+            return true;
+        } catch (Exception e) {
+            trans.rollback();
+            return false;
+        } finally {
+            em.close();
+        }
+    }
 }

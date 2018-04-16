@@ -20,6 +20,8 @@ import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.stream.JsonGenerator;
 import javax.ws.rs.core.Response;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.extension.rest.client.ArquillianResteasyResource;
@@ -44,7 +46,9 @@ public class CredentialResourceServiceTest {
 
     @ArquillianResource
     private URL deploymentURL;
-    private final JsonBuilderFactory factory;
+    private final JsonBuilderFactory FACTORY;
+    private final Logger LOGGER = LogManager.getLogger(this.getClass());
+    private final String TEST_ADMIN = "testAdmin";
 
     @Deployment
     @RunAsClient
@@ -69,15 +73,18 @@ public class CredentialResourceServiceTest {
     public CredentialResourceServiceTest() {
         Map<String, Object> configs = new HashMap<>(1);
         configs.put(JsonGenerator.PRETTY_PRINTING, true);
-        this.factory = Json.createBuilderFactory(configs);
+        this.FACTORY = Json.createBuilderFactory(configs);
     }
 
     @Before
     public void setUp() {
+        boolean testAdminCreated = credentialRepository.createCredential(new Credential(TEST_ADMIN, TEST_ADMIN));
+        LOGGER.info(String.format("Created user %s: %b", TEST_ADMIN, testAdminCreated));
     }
 
     @After
     public void tearDown() {
+        credentialRepository.delete(TEST_ADMIN);
     }
 
     @Test
@@ -87,16 +94,16 @@ public class CredentialResourceServiceTest {
 
     @Test
     public void getUserWithoutRestCall() {
-        Credential byUsername = credentialRepository.getByUsername("admin");
+        Credential byUsername = credentialRepository.getByUsername(TEST_ADMIN);
         assertNotNull(byUsername);
     }
 
     @Test
     public void getByUsername(
             @ArquillianResteasyResource CredentialResourceService crs) {
-        final Response response = crs.getCredential("admin");
+        final Response response = crs.getCredential(TEST_ADMIN);
         System.out.println(response.getEntity());
-        assertTrue(response.getEntity().toString().contains("elenatodorasco@gmail.com"));
+        assertTrue(response.getEntity().toString().contains(TEST_ADMIN));
     }
 
     @Test
@@ -114,8 +121,8 @@ public class CredentialResourceServiceTest {
 
     @Test
     public void updateCredentialTest(@ArquillianResteasyResource CredentialResourceService crs) {
-        JsonObjectBuilder objectBuilder = factory.createObjectBuilder()
-                .add("username", "admin")
+        JsonObjectBuilder objectBuilder = FACTORY.createObjectBuilder()
+                .add("username", TEST_ADMIN)
                 .add("password", "hai1024!")
                 .add("group", "admin")
                 .add("blocked", false)
@@ -131,8 +138,8 @@ public class CredentialResourceServiceTest {
 
     @Test(expected = ArquillianProxyException.class)
     public void inproperCredentialCandidateSentTest(@ArquillianResteasyResource CredentialResourceService crs) {
-        JsonObject value = factory.createObjectBuilder()
-                .add("username", "admin")
+        JsonObject value = FACTORY.createObjectBuilder()
+                .add("username", TEST_ADMIN)
                 .add("password", "hai1024!")
                 .add("group", "admin")
                 .add("blocked", "stringThatShouldn'tBeHere")//error is here!

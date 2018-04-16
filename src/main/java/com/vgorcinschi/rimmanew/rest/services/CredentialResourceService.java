@@ -51,7 +51,6 @@ import static com.vgorcinschi.rimmanew.util.Java8Toolkit.uriGenerator;
 import static com.vgorcinschi.rimmanew.util.SecurityPrompt.pbkdf2;
 import java.io.InputStream;
 import java.time.Instant;
-import java.util.Arrays;
 import javaslang.Tuple;
 import javaslang.Tuple2;
 import javax.ws.rs.POST;
@@ -265,16 +264,23 @@ public class CredentialResourceService extends RimmaRestService<Credential> {
     public Response createCredential(InputStream stream) {
         CredentialCandidate newCand = serializeCandidate(stream);
         Tuple2<Boolean, List<String>> isValid = validator(newCand);
+        final StringBuilder msgBuilder = new StringBuilder("Failed to create new"
+                + " user (credential) because of the following reasons: \n");
         if (Boolean.TRUE == isValid._1) {
-            //TODO
+            //TODO: get user from the context and create Credential with it
+            Try<Credential> created = Try.of(() -> build(new Credential(), newCand))
+                    .andThen((credential) -> repository.createCredential(credential));
+            if (created.isSuccess()) {
+                Map<String, String> map = new HashMap<>();
+                map.put("path", "credential/" + created.get().getUsername());
+                return Response.ok(getJsonRepr("link", uriGenerator.apply(appsUriBuilder, map).toASCIIString())).build();
+            }
+            msgBuilder.append("Failed to persist the candidate to the DB.");
         } else {
-            final StringBuilder msgBuilder = new StringBuilder("Failed to create new"
-                    + " user (credential) because of the following reasons: \n");
             isValid._2.stream().forEach(error -> msgBuilder.append(error).append("\n"));
-            throw new BadRequestException(msgBuilder.toString(),
-                    Response.status(Response.Status.BAD_REQUEST).build());
         }
-        return null;
+        throw new BadRequestException(msgBuilder.toString(),
+                Response.status(Response.Status.BAD_REQUEST).build());
     }
 
     private CredentialCandidate serializeCandidate(InputStream stream) {
