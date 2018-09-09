@@ -13,7 +13,6 @@ import com.vgorcinschi.rimmanew.util.InputValidators;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 import javax.ejb.Singleton;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
@@ -40,7 +39,7 @@ public class JpaCredentialRepository implements CredentialRepository {
 
     @Override
     public boolean createCredential(Credential credential) {
-        if(emailIsAssigned(credential.getEmailAddress())){
+        if(!emailIsAssigned(credential.getEmailAddress())){
             //only then we bother
             try {
                 em.persist(credential);
@@ -118,9 +117,9 @@ public class JpaCredentialRepository implements CredentialRepository {
             TypedQuery<Long> query = em.createQuery("SELECT COUNT(c) "
                         + "FROM Credential c WHERE c.emailAddress "
                         + "= :email AND c.username != :username", 
-                    Long.TYPE).setParameter("email", args)
+                    Long.TYPE).setParameter("email", args[0])
                     .setParameter("username", null);
-            if(InputValidators.stringNotNullNorEmpty.apply(args[1])){
+            if(args.length > 1 && InputValidators.stringNotNullNorEmpty.apply(args[1])){
                 //only if the username has been provided
                 query.setParameter("username", args[1]);
             }

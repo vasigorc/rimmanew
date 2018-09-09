@@ -8,6 +8,7 @@ import com.vgorcinschi.rimmanew.ejbs.JpaGroupsRepository;
 import com.vgorcinschi.rimmanew.entities.Credential;
 import com.vgorcinschi.rimmanew.helpers.InstantConverter;
 import com.vgorcinschi.rimmanew.rest.services.CredentialResourceService;
+import com.vgorcinschi.rimmanew.util.SecurityPrompt;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URL;
@@ -32,9 +33,10 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
@@ -69,6 +71,10 @@ public class CredentialResourceServiceTest {
     @Inject
     @Production
     private CredentialRepository credentialRepository;
+    
+    @Inject
+    @Production
+    private GroupsRepository groupsRepository;
 
     public CredentialResourceServiceTest() {
         Map<String, Object> configs = new HashMap<>(1);
@@ -76,13 +82,18 @@ public class CredentialResourceServiceTest {
         this.FACTORY = Json.createBuilderFactory(configs);
     }
 
-    @Before
     public void setUp() {
-        boolean testAdminCreated = credentialRepository.createCredential(new Credential(TEST_ADMIN, TEST_ADMIN));
+        Credential testAdmin = new Credential(TEST_ADMIN, TEST_ADMIN);
+        testAdmin.setEmailAddress("testAdmin@gmail.com");
+        testAdmin.setBlocked(false);
+        testAdmin.setSuspended(false); 
+        testAdmin.setPasswd(SecurityPrompt.toBytePassword(TEST_ADMIN, testAdmin.getSalt()));
+        testAdmin.setGroup(groupsRepository.getByGroupName("admin"));
+
+        boolean testAdminCreated = credentialRepository.createCredential(testAdmin);
         LOGGER.info(String.format("Created user %s: %b", TEST_ADMIN, testAdminCreated));
     }
 
-    @After
     public void tearDown() {
         credentialRepository.delete(TEST_ADMIN);
     }
@@ -94,16 +105,20 @@ public class CredentialResourceServiceTest {
 
     @Test
     public void getUserWithoutRestCall() {
+        setUp();
         Credential byUsername = credentialRepository.getByUsername(TEST_ADMIN);
         assertNotNull(byUsername);
+        tearDown();
     }
 
     @Test
     public void getByUsername(
             @ArquillianResteasyResource CredentialResourceService crs) {
+        setUp();
         final Response response = crs.getCredential(TEST_ADMIN);
         System.out.println(response.getEntity());
         assertTrue(response.getEntity().toString().contains(TEST_ADMIN));
+        tearDown();
     }
 
     @Test
@@ -121,6 +136,7 @@ public class CredentialResourceServiceTest {
 
     @Test
     public void updateCredentialTest(@ArquillianResteasyResource CredentialResourceService crs) {
+        setUp();
         JsonObjectBuilder objectBuilder = FACTORY.createObjectBuilder()
                 .add("username", TEST_ADMIN)
                 .add("password", "hai1024!")
@@ -132,8 +148,9 @@ public class CredentialResourceServiceTest {
                 .add("emailAddress", "elenatodorasco@gmail.com")
                 .add("updatedBy", "su-user");
         JsonObject value = objectBuilder.build();
-        Response response = crs.updateCredential("admin", streamFromJson(value));
+        Response response = crs.updateCredential(TEST_ADMIN, streamFromJson(value));
         assertTrue(response.getStatus() == 200);
+        tearDown();
     }
 
     @Test(expected = ArquillianProxyException.class)
@@ -148,9 +165,26 @@ public class CredentialResourceServiceTest {
                 .add("lastName", "Gorcinschi")
                 .add("emailAddress", "elenatodorasco@gmail.com")
                 .add("updatedBy", "su-user").build();
-        final Response response = crs.updateCredential("admin", streamFromJson(value));
+        final Response response = crs.updateCredential(TEST_ADMIN, streamFromJson(value));
         assertTrue(response.getStatus() == 200);
     }
+    
+    @Test
+    public void createCredentialTest(@ArquillianResteasyResource CredentialResourceService crs){
+        JsonObject value = FACTORY.createObjectBuilder()
+                .add("username", "tugudu")
+                .add("password", "tugudu2018")
+                .add("group", "admin")
+                .add("blocked", false)
+                .add("firstName", "Elena")
+                .add("lastName", "Gorcinschi")
+                .add("emailAddress", "tugudu@gmail.com")
+                .add("updatedBy", "su-user").build();
+        final Response response = crs.createCredential(streamFromJson(value));
+        assertTrue(response.getStatus() == 200);
+        credentialRepository.delete("tugudu");
+    }
+    
     private InputStream streamFromJson(JsonObject value){
         return new ByteArrayInputStream(value.toString().getBytes());
     }

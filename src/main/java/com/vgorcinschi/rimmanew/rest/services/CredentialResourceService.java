@@ -299,6 +299,7 @@ public class CredentialResourceService extends RimmaRestService<Credential> {
             throw new BadRequestException("Password too weak!", Response.status(Response.Status.BAD_REQUEST).build());
         }
         try {
+            credential.setUsername(candidate.getUsername());
             credential.setPasswd(pbkdf2(candidate.getPassword(), credential.getSalt(), 120000, 512));
             credential.setBlocked(candidate.isBlocked());
             credential.setEmailAddress(candidate.getEmailAddress());
