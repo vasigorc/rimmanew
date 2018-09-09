@@ -10,8 +10,8 @@
       <property name="javax.persistence.schema-generation.database.action" value="create"/>
       <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
       <property name="javax.persistence.jdbc.url" value="jdbc:mysql://127.0.0.1:3306/beauty_shop?zeroDateTimeBehavior=convertToNull"/>
-      <property name="javax.persistence.jdbc.user" value="root"/>
-      <property name="javax.persistence.jdbc.password" value="ASKallice69"/>
+      <property name="javax.persistence.jdbc.user" value="rimmanew"/>
+      <property name="javax.persistence.jdbc.password" value="d0InzJYLSIL0gbZ2018!"/>
     </properties>
   </persistence-unit>
 </persistence>
