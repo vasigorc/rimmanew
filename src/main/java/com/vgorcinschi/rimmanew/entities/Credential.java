@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.vgorcinschi.rimmanew.annotations.RNPattern;
 import com.vgorcinschi.rimmanew.rest.services.helpers.CustomGroupsSerializer;
 import com.vgorcinschi.rimmanew.util.InputValidators;
 import static com.vgorcinschi.rimmanew.util.SecurityPrompt.randomSalt;
@@ -57,7 +58,7 @@ public class Credential extends MetaInfo implements Serializable {
     @Size(min=4, max=20)
     private String username;
     
-    @Pattern(regexp = InputValidators.PASSWORD_RULES)
+    @RNPattern(regexp = InputValidators.PASSWORD_RULES)
     private byte[] passwd;
     private byte[] salt;
     
@@ -109,7 +110,7 @@ public class Credential extends MetaInfo implements Serializable {
         updateModified();
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonSerialize(using = CustomGroupsSerializer.class)
     public Groups getGroup() {
         return group;

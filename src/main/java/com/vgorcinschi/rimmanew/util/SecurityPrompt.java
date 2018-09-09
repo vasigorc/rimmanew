@@ -48,4 +48,8 @@ public class SecurityPrompt {
             throw new RuntimeException(e);
         }
     }
+    
+    public static byte[] toBytePassword(final String password, final byte[] salt){
+        return pbkdf2(password, salt, ITERATIONS_COUNT, KEY_LENGTH);
+    }
 }
