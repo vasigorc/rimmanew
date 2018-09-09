@@ -34,7 +34,6 @@ public class EmailPatternTests {
         params.add("123asdas@123sd.asd");
         params.add("elena@mail.md");
         params.add("mail@gov.qc.ca");
-        params.add("ridiculousemail@dm");
         return params;
     }
     
