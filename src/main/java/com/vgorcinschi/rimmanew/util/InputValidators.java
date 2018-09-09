@@ -5,6 +5,7 @@
  */
 package com.vgorcinschi.rimmanew.util;
 
+import com.vgorcinschi.rimmanew.annotations.RNPattern;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
@@ -48,7 +49,7 @@ public class InputValidators {
         (?=.*[A-Z])       # an upper case letter must occur at least once
      */
     public static final String PASSWORD_RULES
-            = "^(?=.*[0-9])(?=.*[a-z])(?=.*[!@#$%^&+=])(?=\\S+$).{8,}$";
+            = "^(?=.*[0-9])(?=.*[a-z])(?=\\S+$).{8,}$";
 
     public static Function<String[], Boolean> allStringsAreGood = (java.lang.String[] array) -> {
         if (Arrays.asList(array).isEmpty()) {
@@ -131,7 +132,7 @@ public class InputValidators {
     private static final Function2<Field, String, List<String>> regexMsgs
             = (Field field, String input) -> {
                 List<String> errors = new ArrayList();
-                Pattern pattern = field.getAnnotation(Pattern.class);
+                RNPattern pattern = field.getAnnotation(RNPattern.class);
                 if (pattern.regexp() != null && !input.matches(pattern.regexp())) {
                     errors.add(String.format("Input %s doesn't match "
                             + "the required pattern \"%s\" for field %s",
@@ -153,7 +154,7 @@ public class InputValidators {
             = (Field field, String input, Annotation annotation) -> {
                 return Match(annotation).of(
                         Case($(instanceOf(Size.class)), () -> sizeMsgs.apply(field, input)),
-                        Case($(instanceOf(Pattern.class)), () -> regexMsgs.apply(field, input)),
+                        Case($(instanceOf(RNPattern.class)), () -> regexMsgs.apply(field, input)),
                         Case($(instanceOf(NotNull.class)), () -> notNullMsgs.apply(field, input)),
                         //default case
                         Case($(), () -> new ArrayList()));
